@@ -1,0 +1,25 @@
+{
+  // Cloudflare Pages + Workers configuration
+  // Reference: https://developers.cloudflare.com/workers/wrangler/configuration/
+  "name": "golf-scorer",
+  "compatibility_date": "2024-09-23",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+
+  // ──────────────────────────────────────────────────────────────────
+  // IMPORTANT: Set your OpenAI API key as a secret via Cloudflare Dashboard
+  // or run: wrangler pages secret put OPENAI_API_KEY
+  //
+  // For local dev: create a .dev.vars file in the project root:
+  //   OPENAI_API_KEY=sk-...
+  // ──────────────────────────────────────────────────────────────────
+
+  // Worker entry point (Cloudflare Pages Functions via _worker.js)
+  // The compiled _worker.js handles all /api/* routes
+  // Static files in /public are served by Pages automatically
+
+  "vars": {
+    // Non-secret variables (safe to commit)
+    "ENVIRONMENT": "production"
+  }
+}
