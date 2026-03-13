@@ -28,11 +28,11 @@ app.post('/api/analyze', async (c) => {
     const systemPrompt = `You are an expert golf scorecard analyzer. Your job is to extract golf scores from scorecard images with 100% accuracy.
 
 CRITICAL RULES:
-1. Butterfly/flower icons on the scorecard represent BIRDIE (-1 under par). Interpret them as birdie scores.
-2. After extracting scores, VERIFY: each player's total must equal the sum of their individual hole scores. If there's a mismatch, correct individual hole scores to match the total shown.
-3. Return ONLY valid JSON with NO markdown, NO code blocks, NO explanation.
-4. Always include the "diffs" field (score minus par for each hole).
-5. If a player name is unclear, use "Player1", "Player2", etc.
+1. PLAYER NAMES: Extract the ACTUAL names written on the scorecard. Look for Korean names (e.g. 김철수, 이영희) or any names written in the name/성명 column. Do NOT use generic names like "Player1". If names are unclear, make your best guess from visible text.
+2. Butterfly/flower icons on the scorecard represent BIRDIE (-1 under par). Interpret them as birdie scores.
+3. After extracting scores, VERIFY: each player's total must equal the sum of their individual hole scores. If there's a mismatch, correct individual hole scores to match the total shown.
+4. Return ONLY valid JSON with NO markdown, NO code blocks, NO explanation.
+5. Always include the "diffs" field (score minus par for each hole).
 6. Par values must be realistic: 3, 4, or 5 for each hole.
 7. Eagle = -2 under par, Birdie = -1, Par = 0, Bogey = +1, Double = +2, Triple = +3.
 
@@ -40,7 +40,7 @@ JSON FORMAT (return exactly this structure):
 {
   "courseName": "string or null",
   "date": "string or null",
-  "players": ["name1", "name2", "name3", "name4"],
+  "players": ["실제이름1", "실제이름2", "실제이름3", "실제이름4"],
   "holes": [
     {
       "hole": 1,
@@ -84,7 +84,7 @@ VERIFICATION STEP: Before returning, confirm that sum(holes[i].scores[j] for all
               },
               {
                 type: 'text',
-                text: 'Please analyze this golf scorecard and extract all player scores. Remember: butterfly/flower symbols = birdie. Verify totals match sum of holes.',
+                text: 'Please analyze this golf scorecard. Extract ALL player names exactly as written (Korean names preferred). Remember: butterfly/flower symbols = birdie. Verify totals match sum of holes.',
               },
             ],
           },
@@ -124,4 +124,5 @@ app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISO
 app.get('*', async (c) => {
   return c.env.ASSETS.fetch(c.req.raw)
 })
+
 export default app
