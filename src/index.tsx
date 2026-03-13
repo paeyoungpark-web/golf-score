@@ -1,6 +1,5 @@
 import { Hono } from 'hono'
 import { cors } from 'hono/cors'
-import { logger } from 'hono/logger'
 
 type Bindings = {
   OPENAI_API_KEY: string
@@ -8,10 +7,7 @@ type Bindings = {
 
 const app = new Hono<{ Bindings: Bindings }>()
 
-app.use('*', logger())
 app.use('*', cors())
-
-// Serve static files in production (handled by Cloudflare Pages)
 
 app.post('/api/analyze', async (c) => {
   const OPENAI_API_KEY = c.env?.OPENAI_API_KEY || ''
@@ -108,19 +104,16 @@ VERIFICATION STEP: Before returning, confirm that sum(holes[i].scores[j] for all
       return c.json({ error: 'No response from AI' }, 500)
     }
 
-    // Parse JSON from response (handle potential markdown wrapping)
     let parsed
     try {
       const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
       parsed = JSON.parse(cleaned)
     } catch (e) {
-      console.error('JSON parse error:', content)
       return c.json({ error: 'Failed to parse AI response as JSON', raw: content }, 500)
     }
 
     return c.json({ success: true, data: parsed })
   } catch (err: any) {
-    console.error('Server error:', err)
     return c.json({ error: err.message || 'Internal server error' }, 500)
   }
 })
