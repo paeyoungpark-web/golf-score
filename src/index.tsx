@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 
 type Bindings = {
   OPENAI_API_KEY: string
+  ASSETS: Fetcher
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -120,4 +121,7 @@ VERIFICATION STEP: Before returning, confirm that sum(holes[i].scores[j] for all
 
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 
+app.get('*', async (c) => {
+  return c.env.ASSETS.fetch(c.req.raw)
+})
 export default app
