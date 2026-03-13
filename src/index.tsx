@@ -28,33 +28,36 @@ app.post('/api/analyze', async (c) => {
     const systemPrompt = `You are an expert golf scorecard analyzer. Your job is to extract golf scores from scorecard images with 100% accuracy.
 
 CRITICAL RULES:
-1. PLAYER NAMES: Extract the ACTUAL names written on the scorecard. Look for Korean names (e.g. 김철수, 이영희) or any names written in the name/성명 column. Do NOT use generic names like "Player1". If names are unclear, make your best guess from visible text.
+1. PLAYER NAMES: Extract the ACTUAL names written on the scorecard. Look for Korean names (e.g. 김철수, 이영희) or any names written in the name/성명 column. Do NOT use generic names like "Player1".
 
 2. SCORE FORMAT DETECTION — THIS IS THE MOST IMPORTANT STEP:
    Some scorecards show ACTUAL STROKES (e.g. 4, 5, 6, 7...)
    Other scorecards show DIFF FROM PAR (e.g. 0=par, 1=bogey, -1=birdie, 2=double, -2=eagle)
    
    HOW TO DETECT:
-   - If most values are small numbers like -2, -1, 0, 1, 2, 3 → it's DIFF FORMAT
-   - If most values are large numbers like 3, 4, 5, 6, 7, 8 → it's STROKE FORMAT
+   - If most values are small numbers like -2, -1, 0, 1, 2, 3 → it is DIFF FORMAT
+   - If most values are large numbers like 3, 4, 5, 6, 7, 8 → it is STROKE FORMAT
    - Butterfly/flower icon always means BIRDIE = diff of -1
    - If the scorecard shows a column total like "85" or "79" and individual values are small → DIFF FORMAT
    
    IF DIFF FORMAT: Convert to actual strokes → actual_score = par + diff
    Example: par=4, diff=0 → score=4 / par=4, diff=1 → score=5 / par=4, diff=-1 → score=3
+   Example: par=3, diff=-1 (butterfly) → score=2
 
-3. After extracting scores, VERIFY: each player's total must equal the sum of their individual hole scores. If there's a mismatch, re-check whether scores are in diff format and convert accordingly.
-4. Return ONLY valid JSON with NO markdown, NO code blocks, NO explanation.
-5. Always include the "diffs" field (score minus par for each hole).
-6. Par values must be realistic: 3, 4, or 5 for each hole.
-7. Eagle = -2 under par, Birdie = -1, Par = 0, Bogey = +1, Double = +2, Triple = +3.
+3. TOTALS: Extract the OUT (전반), IN (후반), and TOTAL values EXACTLY as shown on the card. These are used to verify accuracy.
+
+4. VERIFICATION: After converting, check: sum of hole scores == card total for each player. If not matching, re-examine format detection.
+
+5. Return ONLY valid JSON with NO markdown, NO code blocks, NO explanation.
+6. Always include the "diffs" field (actual_score minus par for each hole).
+7. Par values must be realistic: 3, 4, or 5 for each hole.
 8. Final scores in "scores" field must ALWAYS be actual strokes (never diffs). Minimum score per hole is 1.
 
-JSON FORMAT (return exactly this structure):
+JSON FORMAT:
 {
   "courseName": "string or null",
   "date": "string or null",
-  "players": ["실제이름1", "실제이름2", "실제이름3", "실제이름4"],
+  "players": ["이름1", "이름2", "이름3", "이름4"],
   "holes": [
     {
       "hole": 1,
@@ -64,13 +67,11 @@ JSON FORMAT (return exactly this structure):
     }
   ],
   "totals": {
-    "out": [actual stroke totals for holes 1-9],
-    "in": [actual stroke totals for holes 10-18],
-    "total": [total actual strokes]
+    "out": [41, 41, 55, 50],
+    "in": [44, 42, 57, 52],
+    "total": [85, 83, 112, 102]
   }
-}
-
-VERIFICATION STEP: Before returning, confirm sum(holes[i].scores[j] for all i) == totals.total[j] for each player j. If not matching, the scorecard is likely in diff format — convert all scores to actual strokes and recalculate.`
+}`
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -98,7 +99,7 @@ VERIFICATION STEP: Before returning, confirm sum(holes[i].scores[j] for all i) =
               },
               {
                 type: 'text',
-                text: 'Please analyze this golf scorecard. FIRST detect if scores are in diff-from-par format or actual stroke format. Extract ALL player names exactly as written (Korean names preferred). Butterfly/flower symbols = birdie = diff of -1. Convert all diffs to actual strokes. Verify totals match sum of hole strokes.',
+                text: 'Analyze this golf scorecard. FIRST detect if scores are diff-from-par or actual strokes by checking if individual values are small (-2~3) or large (3~8). Extract player names exactly as written in Korean. Convert diffs to actual strokes. Extract OUT/IN/TOTAL exactly from the card.',
               },
             ],
           },
@@ -119,7 +120,7 @@ VERIFICATION STEP: Before returning, confirm sum(holes[i].scores[j] for all i) =
       return c.json({ error: 'No response from AI' }, 500)
     }
 
-    let parsed
+    let parsed: any
     try {
       const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
       parsed = JSON.parse(cleaned)
@@ -127,7 +128,35 @@ VERIFICATION STEP: Before returning, confirm sum(holes[i].scores[j] for all i) =
       return c.json({ error: 'Failed to parse AI response as JSON', raw: content }, 500)
     }
 
-    return c.json({ success: true, data: parsed })
+    // ── 서버사이드 검증 ──────────────────────────────────────
+    const warnings: string[] = []
+    const players: string[] = parsed.players || []
+    const holes: any[] = parsed.holes || []
+    const totals = parsed.totals || {}
+    const outCount = 9
+
+    players.forEach((player: string, pi: number) => {
+      const allSum = holes.reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+      const outSum = holes.filter((h: any) => h.hole <= outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+      const inSum  = holes.filter((h: any) => h.hole > outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+
+      const cardTotal = totals.total?.[pi]
+      const cardOut   = totals.out?.[pi]
+      const cardIn    = totals.in?.[pi]
+
+      if (cardTotal !== undefined && allSum !== cardTotal) {
+        warnings.push(`${player}: 전체 합계 불일치 — 홀 합산 ${allSum} ≠ 카드 합계 ${cardTotal}`)
+      }
+      if (cardOut !== undefined && outSum !== cardOut) {
+        warnings.push(`${player}: 전반(OUT) 불일치 — 홀 합산 ${outSum} ≠ 카드 OUT ${cardOut}`)
+      }
+      if (cardIn !== undefined && inSum !== cardIn) {
+        warnings.push(`${player}: 후반(IN) 불일치 — 홀 합산 ${inSum} ≠ 카드 IN ${cardIn}`)
+      }
+    })
+
+    return c.json({ success: true, data: parsed, warnings })
+
   } catch (err: any) {
     return c.json({ error: err.message || 'Internal server error' }, 500)
   }
