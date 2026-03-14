@@ -6,158 +6,199 @@ type Bindings = {
   ASSETS: Fetcher
 }
 
-const app = new Hono<{ Bindings: Bindings }>()
+type HoleRaw = {
+  hole: number
+  par: number
+  rawScores: (number | string)[]  // 이미지에서 읽은 그대로
+  cardTotals?: { out?: number[]; in?: number[]; total?: number[] }
+}
 
+const app = new Hono<{ Bindings: Bindings }>()
 app.use('*', cors())
 
-app.post('/api/analyze', async (c) => {
-  const OPENAI_API_KEY = c.env?.OPENAI_API_KEY || ''
-
-  if (!OPENAI_API_KEY) {
-    return c.json({ error: 'OPENAI_API_KEY is not configured' }, 500)
+// ── OpenAI 호출 헬퍼 ──────────────────────────────────────────
+async function callOpenAI(apiKey: string, body: object): Promise<any> {
+  const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify(body),
+  })
+  if (!res.ok) {
+    const err = await res.text()
+    throw new Error(`OpenAI ${res.status}: ${err}`)
   }
+  const data = await res.json() as any
+  return data.choices?.[0]?.message?.content || ''
+}
 
-  try {
-    const body = await c.req.json()
-    const { imageBase64, mimeType = 'image/jpeg' } = body
+function parseJSON(raw: string): any {
+  const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  return JSON.parse(cleaned)
+}
 
-    if (!imageBase64) {
-      return c.json({ error: 'No image data provided' }, 400)
-    }
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 1 — 이미지에서 숫자를 "있는 그대로" 읽기
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function step1_extract(apiKey: string, imageBase64: string, mimeType: string): Promise<any> {
+  const prompt = `You are a scorecard OCR machine. Your ONLY job is to READ numbers exactly as printed.
 
-    const systemPrompt = `You are an expert golf scorecard analyzer. Your job is to extract golf scores from scorecard images with 100% accuracy.
-
-CRITICAL RULES:
-1. PLAYER NAMES: Extract the ACTUAL names written on the scorecard. Look for Korean names (e.g. 김철수, 이영희) or any names written in the name/성명 column. Do NOT use generic names like "Player1".
-
-2. SCORE FORMAT DETECTION — THIS IS THE MOST IMPORTANT STEP:
-   Some scorecards show ACTUAL STROKES (e.g. 4, 5, 6, 7...)
-   Other scorecards show DIFF FROM PAR (e.g. 0=par, 1=bogey, -1=birdie, 2=double, -2=eagle)
-   
-   HOW TO DETECT:
-   - If most values are small numbers like -2, -1, 0, 1, 2, 3 → it is DIFF FORMAT
-   - If most values are large numbers like 3, 4, 5, 6, 7, 8 → it is STROKE FORMAT
-   - Butterfly/flower icon always means BIRDIE = diff of -1
-   - If the scorecard shows a column total like "85" or "79" and individual values are small → DIFF FORMAT
-   
-   IF DIFF FORMAT: Convert to actual strokes → actual_score = par + diff
-   Example: par=4, diff=0 → score=4 / par=4, diff=1 → score=5 / par=4, diff=-1 → score=3
-   Example: par=3, diff=-1 (butterfly) → score=2
-
-3. TOTALS: Extract the OUT (전반), IN (후반), and TOTAL values EXACTLY as shown on the card. These are used to verify accuracy.
-
-4. VERIFICATION: After converting, check: sum of hole scores == card total for each player. If not matching, re-examine format detection.
-
-5. Return ONLY valid JSON with NO markdown, NO code blocks, NO explanation.
-6. Always include the "diffs" field (actual_score minus par for each hole).
-7. Par values must be realistic: 3, 4, or 5 for each hole.
-8. Final scores in "scores" field must ALWAYS be actual strokes (never diffs). Minimum score per hole is 1.
+RULES:
+- Read every cell value EXACTLY as written. Do NOT interpret, convert, or calculate anything.
+- Butterfly/flower icon = write as -1
+- Empty cell = write as 0
+- Read player names exactly as written (Korean OK)
+- Read OUT / IN / TOTAL row values exactly as printed
+- Return ONLY valid JSON, no markdown
 
 JSON FORMAT:
 {
   "courseName": "string or null",
-  "date": "string or null",
+  "date": "string or null", 
   "players": ["이름1", "이름2", "이름3", "이름4"],
-  "holes": [
-    {
-      "hole": 1,
-      "par": 4,
-      "scores": [5, 4, 6, 4],
-      "diffs": [1, 0, 2, 0]
-    }
+  "pars": [4, 4, 3, 5, 4, 4, 5, 3, 4, 4, 4, 3, 5, 4, 4, 5, 3, 4],
+  "rawScores": [
+    [0, -1, 3, 0, 0, 2, 0, 0, 1],
+    [0, 0, 0, 2, 0, 0, 0, 2, 1]
   ],
-  "totals": {
-    "out": [41, 41, 55, 50],
-    "in": [44, 42, 57, 52],
-    "total": [85, 83, 112, 102]
-  }
+  "cardOut":   [41, 41, 55, 50],
+  "cardIn":    [44, 42, 57, 52],
+  "cardTotal": [85, 83, 112, 102]
+}
+
+rawScores[playerIndex] = array of raw values for each hole in order.`
+
+  const content = await callOpenAI(apiKey, {
+    model: 'gpt-4o',
+    temperature: 0,
+    max_tokens: 2048,
+    messages: [
+      { role: 'system', content: prompt },
+      {
+        role: 'user',
+        content: [
+          { type: 'image_url', image_url: { url: `data:${mimeType};base64,${imageBase64}`, detail: 'high' } },
+          { type: 'text', text: 'Read all numbers from this scorecard exactly as printed. Include player names, pars, all hole values, and OUT/IN/TOTAL rows.' }
+        ]
+      }
+    ]
+  })
+  return parseJSON(content)
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// STEP 2 — 텍스트만으로 diff → 실제 타수 변환 + 검증
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+async function step2_convert(apiKey: string, raw: any): Promise<any> {
+  const prompt = `You are a golf score calculator. You receive raw scorecard data and must convert it to actual strokes.
+
+CONVERSION TABLE (use EXACTLY):
+PAR 3 → valid scores 1–6:  diff -2→1, -1→2, 0→3, 1→4, 2→5, 3→6
+PAR 4 → valid scores 1–8:  diff -3→1, -2→2, -1→3, 0→4, 1→5, 2→6, 3→7, 4→8
+PAR 5 → valid scores 2–10: diff -3→2, -2→3, -1→4, 0→5, 1→6, 2→7, 3→8, 4→9, 5→10
+PAR 6 → valid scores 3–12: diff -3→3, -2→4, -1→5, 0→6, 1→7, 2→8, 3→9, 4→10, 5→11, 6→12
+
+DETECTION: 
+- If cardTotal values are large (70~130) but rawScores are small (-3~5) → rawScores are DIFFS → convert
+- If rawScores already look like strokes (3~9) AND match cardTotal → keep as-is
+
+STEPS:
+1. Detect format (diff or stroke)
+2. Convert each raw value using the table above: actual = par + diff
+3. Sum converted scores per player for OUT (holes 1-9) and IN (holes 10-18)
+4. Compare your sums with cardOut / cardIn / cardTotal
+5. If mismatch remains, double-check format detection
+6. Return final result as JSON only, no markdown
+
+OUTPUT FORMAT:
+{
+  "scoreFormat": "diff" or "stroke",
+  "players": ["이름1", ...],
+  "holes": [
+    { "hole": 1, "par": 4, "scores": [5,4,6,4], "diffs": [1,0,2,0] }
+  ],
+  "totals": { "out": [41,41,55,50], "in": [44,42,57,52], "total": [85,83,112,102] },
+  "cardTotals": { "out": [...], "in": [...], "total": [...] }
 }`
 
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        max_tokens: 4096,
-        messages: [
-          {
-            role: 'system',
-            content: systemPrompt,
-          },
-          {
-            role: 'user',
-            content: [
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mimeType};base64,${imageBase64}`,
-                  detail: 'high',
-                },
-              },
-              {
-                type: 'text',
-                text: 'Analyze this golf scorecard. FIRST detect if scores are diff-from-par or actual strokes by checking if individual values are small (-2~3) or large (3~8). Extract player names exactly as written in Korean. Convert diffs to actual strokes. Extract OUT/IN/TOTAL exactly from the card.',
-              },
-            ],
-          },
-        ],
-      }),
+  const inputText = `Raw scorecard data:
+${JSON.stringify(raw, null, 2)}
+
+Convert this data. Use the conversion table exactly.`
+
+  const content = await callOpenAI(apiKey, {
+    model: 'gpt-4o',
+    temperature: 0,
+    max_tokens: 3000,
+    messages: [
+      { role: 'system', content: prompt },
+      { role: 'user', content: inputText }
+    ]
+  })
+  return parseJSON(content)
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// 서버사이드 검증
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+function validate(parsed: any): string[] {
+  const warnings: string[] = []
+  const players: string[] = parsed.players || []
+  const holes: any[] = parsed.holes || []
+  const totals = parsed.totals || {}
+  const cardTotals = parsed.cardTotals || totals
+  const outCount = 9
+
+  players.forEach((player: string, pi: number) => {
+    const allSum = holes.reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+    const outSum = holes.filter((h: any) => h.hole <= outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+    const inSum  = holes.filter((h: any) => h.hole > outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+
+    const cardTotal = cardTotals.total?.[pi]
+    const cardOut   = cardTotals.out?.[pi]
+    const cardIn    = cardTotals.in?.[pi]
+
+    if (cardTotal !== undefined && allSum !== cardTotal)
+      warnings.push(`${player}: 전체 합계 불일치 — 홀 합산 ${allSum} ≠ 카드 합계 ${cardTotal}`)
+    if (cardOut !== undefined && outSum !== cardOut)
+      warnings.push(`${player}: 전반(OUT) 불일치 — 홀 합산 ${outSum} ≠ 카드 OUT ${cardOut}`)
+    if (cardIn !== undefined && inSum !== cardIn)
+      warnings.push(`${player}: 후반(IN) 불일치 — 홀 합산 ${inSum} ≠ 카드 IN ${cardIn}`)
+  })
+  return warnings
+}
+
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// API 라우트
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+app.post('/api/analyze', async (c) => {
+  const OPENAI_API_KEY = c.env?.OPENAI_API_KEY || ''
+  if (!OPENAI_API_KEY) return c.json({ error: 'OPENAI_API_KEY is not configured' }, 500)
+
+  try {
+    const body = await c.req.json()
+    const { imageBase64, mimeType = 'image/jpeg' } = body
+    if (!imageBase64) return c.json({ error: 'No image data provided' }, 400)
+
+    // STEP 1: 이미지 → raw 숫자
+    console.log('Step 1: Extracting raw values from image...')
+    const raw = await step1_extract(OPENAI_API_KEY, imageBase64, mimeType)
+
+    // STEP 2: raw 숫자 → 실제 타수 변환
+    console.log('Step 2: Converting to actual strokes...')
+    const converted = await step2_convert(OPENAI_API_KEY, raw)
+
+    // STEP 3: 서버사이드 검증
+    const warnings = validate(converted)
+
+    return c.json({
+      success: true,
+      data: converted,
+      warnings,
+      debug: { scoreFormat: converted.scoreFormat }
     })
-
-    if (!response.ok) {
-      const errorData = await response.text()
-      console.error('OpenAI API error:', errorData)
-      return c.json({ error: `OpenAI API error: ${response.status}` }, 500)
-    }
-
-    const data = await response.json() as any
-    const content = data.choices?.[0]?.message?.content
-
-    if (!content) {
-      return c.json({ error: 'No response from AI' }, 500)
-    }
-
-    let parsed: any
-    try {
-      const cleaned = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-      parsed = JSON.parse(cleaned)
-    } catch (e) {
-      return c.json({ error: 'Failed to parse AI response as JSON', raw: content }, 500)
-    }
-
-    // ── 서버사이드 검증 ──────────────────────────────────────
-    const warnings: string[] = []
-    const players: string[] = parsed.players || []
-    const holes: any[] = parsed.holes || []
-    const totals = parsed.totals || {}
-    const outCount = 9
-
-    players.forEach((player: string, pi: number) => {
-      const allSum = holes.reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
-      const outSum = holes.filter((h: any) => h.hole <= outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
-      const inSum  = holes.filter((h: any) => h.hole > outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
-
-      const cardTotal = totals.total?.[pi]
-      const cardOut   = totals.out?.[pi]
-      const cardIn    = totals.in?.[pi]
-
-      if (cardTotal !== undefined && allSum !== cardTotal) {
-        warnings.push(`${player}: 전체 합계 불일치 — 홀 합산 ${allSum} ≠ 카드 합계 ${cardTotal}`)
-      }
-      if (cardOut !== undefined && outSum !== cardOut) {
-        warnings.push(`${player}: 전반(OUT) 불일치 — 홀 합산 ${outSum} ≠ 카드 OUT ${cardOut}`)
-      }
-      if (cardIn !== undefined && inSum !== cardIn) {
-        warnings.push(`${player}: 후반(IN) 불일치 — 홀 합산 ${inSum} ≠ 카드 IN ${cardIn}`)
-      }
-    })
-
-    return c.json({ success: true, data: parsed, warnings })
 
   } catch (err: any) {
+    console.error('Analysis error:', err)
     return c.json({ error: err.message || 'Internal server error' }, 500)
   }
 })
