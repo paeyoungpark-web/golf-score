@@ -1,199 +1,784 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MEGA | 메가주식회사 맞춤형 보장분석</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #004694;
-            --sub-blue: #f4f7fa;
-            --text-dark: #333;
-            --text-gray: #666;
-            --accent-orange: #ff6b00;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>⛳ Golf Score — AI 정산 시스템</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base:#0a0f0d; --bg-surface:#111a15; --bg-card:rgba(20,35,25,0.85);
+      --bg-glass:rgba(30,55,38,0.45); --green-700:#1a4a28; --green-500:#2d7a45;
+      --green-400:#3d9e5c; --green-300:#5cc47a; --gold:#c9a227; --gold-light:#f0c940;
+      --red-acc:#e05555; --blue-acc:#4a90d9; --text-primary:#e8f5ec;
+      --text-secondary:#7aab88; --text-muted:#3d6648;
+      --border:rgba(45,122,69,0.3); --border-strong:rgba(45,122,69,0.6);
+      --shadow-green:0 0 40px rgba(45,122,69,0.15); --shadow-gold:0 0 30px rgba(201,162,39,0.25);
+      --radius:12px; --radius-lg:20px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(45,122,69,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(201,162,39,.06) 0%,transparent 50%),repeating-linear-gradient(0deg,transparent,transparent 60px,rgba(45,122,69,.03) 60px,rgba(45,122,69,.03) 61px);pointer-events:none;z-index:0}
+    .app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 20px 80px}
+    header{display:flex;align-items:center;gap:20px;padding:32px 0 28px;border-bottom:1px solid var(--border)}
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.08em;background:linear-gradient(135deg,var(--green-300) 0%,var(--gold-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
+    .logo-sub{font-size:.7em;opacity:.7;display:block;letter-spacing:.2em}
+    .ver-badge{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+    .header-badge{background:var(--bg-glass);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.75rem;color:var(--text-secondary);backdrop-filter:blur(8px)}
+    .ver-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:3px 10px;letter-spacing:.08em}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.12em;color:var(--green-300);margin-bottom:16px;display:flex;align-items:center;gap:10px}
+    .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border-strong),transparent)}
+    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:var(--shadow-green),inset 0 1px 0 rgba(255,255,255,.04);padding:28px;margin-bottom:24px}
 
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Noto Sans KR', sans-serif;
-            background-color: var(--sub-blue);
-            color: var(--text-dark);
-            line-height: 1.6;
-        }
+    /* Upload */
+    .upload-multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+    .upload-slot{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s}
+    .upload-slot:hover,.upload-slot.dragover{border-color:var(--green-400);background:rgba(45,122,69,.08)}
+    .upload-slot.has-file{border-color:var(--green-500);border-style:solid;background:rgba(45,122,69,.06)}
+    .slot-icon{font-size:2.2rem;display:block;margin-bottom:10px}
+    .slot-title{font-size:.85rem;color:var(--text-secondary);margin-bottom:6px}
+    .slot-filename{font-size:.75rem;color:var(--green-300);font-family:'JetBrains Mono',monospace}
+    #fileInput,#fileInput2{display:none}
+    .preview-container{display:none;gap:12px;margin-bottom:20px}
+    .preview-container.visible{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+    .preview-box{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:#000;position:relative}
+    .preview-box canvas,.preview-box img{width:100%;height:180px;object-fit:contain;display:block}
+    .preview-label{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);border-radius:6px;padding:4px 10px;font-size:.7rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em}
 
-        /* 헤더 */
-        header {
-            background-color: #fff;
-            padding: 15px;
-            text-align: center;
-            border-bottom: 1px solid #ddd;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+    /* Config */
+    .config-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:20px}
+    .config-item label{display:block;font-size:.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .config-item input,.config-item select{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text-primary);font-family:'JetBrains Mono',monospace;font-size:.9rem;outline:none;transition:border-color .2s}
+    .config-item input:focus,.config-item select:focus{border-color:var(--green-400)}
+    .config-item select option{background:var(--bg-surface)}
 
-        header h1 {
-            margin: 0;
-            font-size: 1.2rem;
-            color: var(--primary-blue);
-            font-weight: 700;
-        }
+    /* Baepan */
+    .baepan-section{margin-bottom:20px}
+    .baepan-title{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .baepan-grid{display:flex;flex-wrap:wrap;gap:10px}
+    .baepan-item{display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-glass);border:1px solid var(--border);border-radius:8px;padding:8px 14px;transition:all .2s;user-select:none}
+    .baepan-item:hover{border-color:var(--green-400)}
+    .baepan-check{width:18px;height:18px;border:2px solid var(--border-strong);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:white;font-weight:700;flex-shrink:0}
+    .baepan-item.checked .baepan-check{background:var(--green-500);border-color:var(--green-400)}
+    .baepan-item.checked{border-color:var(--green-500);background:rgba(45,122,69,.15)}
+    .baepan-label{font-size:.82rem;color:var(--text-secondary)}
+    .baepan-item.checked .baepan-label{color:var(--green-300)}
 
-        /* 메인이미지/배너 섹션 */
-        .hero {
-            background-color: var(--primary-blue);
-            color: #fff;
-            padding: 40px 20px;
-            text-align: center;
-        }
+    /* Loader */
+    .loader{display:none;flex-direction:column;align-items:center;gap:16px;padding:40px}
+    .loader.visible{display:flex}
+    .spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--green-400);border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader-text{color:var(--text-secondary);font-size:.9rem}
+    .loader-step{font-size:.78rem;color:var(--text-muted);margin-top:4px}
 
-        .hero h2 {
-            font-size: 1.5rem;
-            word-break: keep-all;
-            margin-bottom: 15px;
-            line-height: 1.4;
-        }
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.95rem;transition:all .25s;letter-spacing:.03em}
+    .btn-primary{background:linear-gradient(135deg,var(--green-500),var(--green-700));color:var(--text-primary);box-shadow:0 4px 20px rgba(45,122,69,.4)}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(45,122,69,.5)}
+    .btn-secondary{background:var(--bg-glass);color:var(--text-secondary);border:1px solid var(--border);backdrop-filter:blur(8px)}
+    .btn-secondary:hover{border-color:var(--green-400);color:var(--text-primary)}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),#a07a10);color:#1a1200;font-weight:700;box-shadow:0 4px 20px rgba(201,162,39,.35)}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,162,39,.5)}
+    .btn-danger{background:rgba(224,85,85,.15);color:var(--red-acc);border:1px solid rgba(224,85,85,.3)}
+    .btn-danger:hover{background:rgba(224,85,85,.25)}
+    .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
 
-        .hero p {
-            font-size: 0.95rem;
-            opacity: 0.9;
-            font-weight: 300;
-        }
+    /* ── STEP 2: Verify section ── */
+    .verify-section{display:none;margin-top:8px}
+    .verify-layout{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
+    .verify-image-panel{position:sticky;top:20px}
+    .panel-title{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
+    .ref-image-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:#000;cursor:zoom-in;margin-bottom:8px}
+    .ref-image-wrap img{width:100%;display:block;object-fit:contain;max-height:460px}
+    .ref-image-wrap.zoom{cursor:zoom-out}
+    .ref-image-wrap.zoom img{max-height:none}
+    .ref-img-label{font-size:.72rem;color:var(--text-muted);text-align:center;padding:4px}
 
-        /* 보장분석 솔루션 그리드 */
-        .container {
-            padding: 20px;
-        }
+    /* Score summary bar */
+    .score-summary-bar{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding:16px;background:rgba(0,0,0,.25);border-radius:var(--radius);border:1px solid var(--border)}
+    .score-summary-player{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:120px;flex:1}
+    .ssp-name{font-size:.8rem;color:var(--text-secondary);font-weight:700}
+    .ssp-total{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--gold-light)}
+    .ssp-detail{font-size:.72rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+    .ssp-warn{color:var(--red-acc)!important}
 
-        .section-title {
-            font-size: 1.1rem;
-            border-left: 4px solid var(--primary-blue);
-            padding-left: 10px;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
+    /* Mismatch alert */
+    .mismatch-alert{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.4);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px}
+    .mismatch-alert .alert-title{color:var(--red-acc);font-weight:700;margin-bottom:8px;font-size:.9rem}
+    .mismatch-alert .alert-item{font-size:.82rem;color:#ffaaaa;margin-bottom:3px}
+    .match-alert{background:rgba(45,122,69,.12);border:1px solid rgba(45,122,69,.4);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;color:var(--green-300);font-size:.88rem}
 
-        .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
+    /* Score table */
+    .table-wrapper{overflow-x:auto;margin-bottom:20px}
+    .score-table{width:100%;border-collapse:collapse;font-size:.85rem;white-space:nowrap}
+    .score-table th{background:rgba(45,122,69,.2);color:var(--green-300);font-family:'JetBrains Mono',monospace;font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:10px 12px;text-align:center;border-bottom:1px solid var(--border-strong)}
+    .score-table td{padding:6px 8px;text-align:center;border-bottom:1px solid rgba(45,122,69,.1)}
+    .score-table tr:hover td{background:rgba(45,122,69,.06)}
+    .score-table input[type=number]{width:52px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;text-align:center;padding:4px 2px;outline:none;transition:border-color .2s;-moz-appearance:textfield}
+    .score-table input[type=number]::-webkit-inner-spin-button{display:none}
+    .score-table input[type=number]:focus{border-color:var(--green-400)}
+    .score-table .par-cell{color:var(--text-secondary);font-family:'JetBrains Mono',monospace}
+    .score-table .hole-cell{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+    .score-table .subtotal-row td{background:rgba(45,122,69,.12);font-weight:700;font-family:'JetBrains Mono',monospace}
+    .score-table .total-row td{background:rgba(201,162,39,.1);color:var(--gold-light);font-weight:700;font-family:'JetBrains Mono',monospace}
+    .player-name-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--green-300);font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.85rem;text-align:center;outline:none;width:80px;padding:2px 4px}
+    .player-name-input:focus{border-bottom-color:var(--gold-light)}
 
-        .card {
-            background: #fff;
-            padding: 20px 15px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    /* Score colors */
+    .score-eagle{color:#4af0a0!important;text-shadow:0 0 8px rgba(74,240,160,.5)}
+    .score-birdie{color:var(--green-300)!important}
+    .score-par{color:var(--text-primary)!important}
+    .score-bogey{color:#e0a030!important}
+    .score-double{color:var(--red-acc)!important}
+    .score-triple{color:#ff3333!important;text-shadow:0 0 8px rgba(255,51,51,.4)}
 
-        .card h3 {
-            margin: 0 0 8px 0;
-            font-size: 1.05rem;
-            color: var(--primary-blue);
-        }
+    /* Par3 nearest inline */
+    .par3-row{background:rgba(74,144,217,.05)!important}
+    .par3-nearest-cell{display:flex;align-items:center;justify-content:center;gap:4px}
+    .nearest-check{width:16px;height:16px;border:2px solid rgba(74,144,217,.5);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .2s;flex-shrink:0}
+    .nearest-check.selected{background:var(--blue-acc);border-color:var(--blue-acc);color:white}
+    .nearest-label{font-size:.7rem;color:var(--blue-acc)}
 
-        .card p {
-            margin: 0;
-            font-size: 0.85rem;
-            color: var(--text-gray);
-            word-break: keep-all;
-        }
+    /* Nearest summary */
+    .nearest-section{margin-bottom:20px}
+    .nearest-grid{display:flex;flex-wrap:wrap;gap:10px}
+    .nearest-item{background:var(--bg-glass);border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:10px;font-size:.85rem}
+    .nearest-item label{color:var(--text-secondary);white-space:nowrap}
+    .nearest-item select{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);padding:4px 8px;font-size:.85rem;outline:none}
 
-        .card .tag {
-            display: inline-block;
-            margin-bottom: 5px;
-            font-size: 0.75rem;
-            color: var(--accent-orange);
-            font-weight: bold;
-        }
-
-        /* 하단 고정 버튼 */
-        .footer-cta {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background-color: var(--primary-blue);
-            padding: 15px 0;
-            text-align: center;
-            box-shadow: 0 -5px 10px rgba(0,0,0,0.1);
-        }
-
-        .footer-cta a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: block;
-        }
-
-        /* 여백 확보 */
-        .spacer { height: 80px; }
-    </style>
+    /* Results */
+    .results-section{display:none}
+    .results-section.visible{display:block}
+    .hole-result{background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:12px;transition:all .2s}
+    .hole-result:hover{border-color:var(--border-strong)}
+    .hole-result-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .hole-badge{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;background:rgba(45,122,69,.3);border:1px solid var(--border);border-radius:6px;padding:2px 10px;color:var(--green-300);min-width:56px;text-align:center}
+    .hole-par-badge{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text-muted);background:rgba(0,0,0,.3);border-radius:4px;padding:2px 8px}
+    .double-badge{background:rgba(201,162,39,.2);border:1px solid rgba(201,162,39,.4);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--gold-light);font-weight:700}
+    .nearest-badge{background:rgba(74,144,217,.2);border:1px solid rgba(74,144,217,.4);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--blue-acc);font-weight:700}
+    .hole-scores-row{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+    .player-score-chip{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-family:'JetBrains Mono',monospace;font-size:.85rem}
+    .player-score-chip .chip-name{color:var(--text-secondary);font-size:.7rem;display:block;margin-bottom:2px}
+    .hole-transactions{display:flex;flex-wrap:wrap;gap:8px}
+    .txn{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border-radius:6px;padding:4px 10px;font-size:.8rem}
+    .txn .from{color:var(--red-acc);font-weight:700}
+    .txn .to{color:var(--green-300);font-weight:700}
+    .txn .amt{color:var(--gold-light);font-family:'JetBrains Mono',monospace;font-weight:700}
+    .summary-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.9rem}
+    .summary-table th{background:rgba(45,122,69,.2);color:var(--green-300);padding:10px 16px;text-align:left;font-size:.8rem;border-bottom:1px solid var(--border-strong)}
+    .summary-table td{padding:10px 16px;border-bottom:1px solid rgba(45,122,69,.1)}
+    .summary-table .positive{color:var(--green-300);font-weight:700}
+    .summary-table .negative{color:var(--red-acc);font-weight:700}
+    .summary-table .zero{color:var(--text-muted)}
+    .rank-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:8px}
+    .rank-card{background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius);padding:20px;text-align:center;transition:all .25s;position:relative;overflow:hidden}
+    .rank-card.rank-1{border-color:var(--gold);box-shadow:var(--shadow-gold);background:rgba(201,162,39,.08)}
+    .rank-card.rank-1::before{content:'🏆';position:absolute;top:-10px;right:-10px;font-size:3rem;opacity:.15}
+    .rank-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--text-muted);line-height:1}
+    .rank-card.rank-1 .rank-num{color:var(--gold)}
+    .rank-name{font-weight:700;font-size:1.1rem;margin:6px 0 2px}
+    .rank-amount{font-family:'JetBrains Mono',monospace;font-size:1.3rem;font-weight:700}
+    .rank-amount.positive{color:var(--green-300)}
+    .rank-amount.negative{color:var(--red-acc)}
+    .rank-unit{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+    .flow-container{width:100%;display:flex;justify-content:center}
+    .flow-svg{width:100%;max-width:680px}
+    .flow-legend{display:flex;gap:20px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+    .flow-legend-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-secondary)}
+    .flow-legend-dot{width:10px;height:10px;border-radius:50%}
+    .toast{position:fixed;bottom:32px;right:32px;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius);padding:14px 20px;backdrop-filter:blur(16px);font-size:.875rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:320px}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.error{border-color:rgba(224,85,85,.5)}
+    .action-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .action-row .spacer{flex:1}
+    .divider{height:1px;background:linear-gradient(to right,transparent,var(--border-strong),transparent);margin:32px 0}
+    @media(max-width:900px){.verify-layout{grid-template-columns:1fr}}
+    @media(max-width:640px){.upload-multi-grid{grid-template-columns:1fr};.config-grid{grid-template-columns:1fr 1fr};.rank-cards{grid-template-columns:1fr 1fr}}
+  </style>
 </head>
 <body>
+<div class="app">
 
-<header>
-    <h1>MEGA | 메가주식회사</h1>
-</header>
-
-<section class="hero">
-    <h2>열심히 일궈온 자산,<br>세금으로 내시겠습니까?<br>가족에게 물려주시겠습니까?</h2>
-    <p>4060 세대를 위한 절세 기반 맞춤형 자산 관리 솔루션</p>
-</section>
-
-<div class="container">
-    <h2 class="section-title">맞춤형 보장분석 솔루션</h2>
-    
-    <div class="grid-container">
-        <div class="card">
-            <span class="tag">#상속세 #재테크</span>
-            <h3>종신/정기</h3>
-            <p>세금 대신 가족을 위한 현금 자산으로 전수</p>
-        </div>
-
-        <div class="card">
-            <span class="tag">#자산수성</span>
-            <h3>암/중대질병</h3>
-            <p>고액 치료비로 인한 노후자금 손실 방어</p>
-        </div>
-
-        <div class="card">
-            <span class="tag">#가족안심</span>
-            <h3>치매/간병</h3>
-            <p>자녀 부담은 덜고 노후 품격은 지키는 플랜</p>
-        </div>
-
-        <div class="card">
-            <span class="tag">#리스크관리</span>
-            <h3>운전자/상해</h3>
-            <p>사고 합의금 등 돌발 지출로부터 현금 보호</p>
-        </div>
-
-        <div class="card">
-            <span class="tag">#부동산보호</span>
-            <h3>화재/책임</h3>
-            <p>우리 집 누수부터 가전까지 재산 가치 유지</p>
-        </div>
-
-        <div class="card">
-            <span class="tag">#임플란트</span>
-            <h3>치아/안과</h3>
-            <p>잇몸 질환자도 OK, 고액 치과비용 해결</p>
-        </div>
+  <header>
+    <div>
+      <div class="logo">⛳ GOLF<span class="logo-sub">AI 자동 정산 시스템</span></div>
     </div>
+    <div class="ver-badge">
+      <div class="header-badge">GPT-4o Vision · Cloudflare Workers</div>
+      <div class="ver-tag">v3.0.0 · <span style="color:var(--green-300)">2026-03-14</span></div>
+    </div>
+  </header>
+
+  <!-- ══ STEP 1: 업로드 ══ -->
+  <div style="margin-top:36px">
+    <div class="section-title">① 스코어카드 업로드</div>
+    <div class="card">
+      <div class="upload-multi-grid">
+        <div class="upload-slot" id="slot1">
+          <input type="file" id="fileInput" accept="image/*" />
+          <span class="slot-icon">🃏</span>
+          <div class="slot-title">스코어카드 1장 (전반 or 전체)</div>
+          <div class="slot-filename" id="slot1Name">클릭하거나 드래그</div>
+        </div>
+        <div class="upload-slot" id="slot2">
+          <input type="file" id="fileInput2" accept="image/*" />
+          <span class="slot-icon">🃏</span>
+          <div class="slot-title">스코어카드 2장 (후반, 선택)</div>
+          <div class="slot-filename" id="slot2Name">클릭하거나 드래그</div>
+        </div>
+      </div>
+
+      <div class="preview-container" id="previewContainer">
+        <div class="preview-box"><span class="preview-label">원본 1</span><img id="previewOrig" alt="원본" /></div>
+        <div class="preview-box"><span class="preview-label">전처리 1</span><canvas id="previewCanvas"></canvas></div>
+        <div class="preview-box" id="preview2Box" style="display:none"><span class="preview-label">원본 2</span><img id="previewOrig2" alt="원본2" /></div>
+        <div class="preview-box" id="preview2CanvasBox" style="display:none"><span class="preview-label">전처리 2</span><canvas id="previewCanvas2"></canvas></div>
+      </div>
+
+      <div class="config-grid">
+        <div class="config-item"><label>단위금액 (1타)</label><input type="number" id="unitAmount" value="1000" min="100" step="100" /></div>
+        <div class="config-item"><label>플레이어 수</label><select id="playerCount"><option value="4" selected>4명</option><option value="3">3명</option></select></div>
+        <div class="config-item"><label>전반 홀</label><select id="outHoles"><option value="9" selected>1–9홀</option><option value="0">전반 없음</option></select></div>
+        <div class="config-item"><label>총 홀 수</label><select id="totalHoles"><option value="18" selected>18홀</option><option value="9">9홀</option></select></div>
+      </div>
+
+      <div class="baepan-section">
+        <div class="baepan-title">⚡ 배판 조건</div>
+        <div class="baepan-grid">
+          <div class="baepan-item checked" data-key="birdie" onclick="toggleBaepan(this)"><div class="baepan-check">✓</div><span class="baepan-label">🐦 버디/이글 배판</span></div>
+          <div class="baepan-item checked" data-key="highscore" onclick="toggleBaepan(this)"><div class="baepan-check">✓</div><span class="baepan-label">💥 트리플+(Par4/5) · 더블+(Par3)</span></div>
+          <div class="baepan-item checked" data-key="tripletie" onclick="toggleBaepan(this)"><div class="baepan-check">✓</div><span class="baepan-label">🤝 3인 동타 배판</span></div>
+        </div>
+      </div>
+
+      <div class="loader" id="loader">
+        <div class="spinner"></div>
+        <div class="loader-text" id="loaderText">AI 분석 중...</div>
+        <div class="loader-step" id="loaderStep"></div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn btn-primary" id="analyzeBtn" disabled>🤖 AI 분석 시작</button>
+        <button class="btn btn-secondary" id="resetBtn">↩ 초기화</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 2: 인식결과 확인 + 수정 ══ -->
+  <div class="verify-section" id="verifySection">
+    <div class="section-title">② 인식 결과 확인 및 수정</div>
+    <div class="verify-layout">
+
+      <!-- 왼쪽: 스코어 요약 + 테이블 -->
+      <div>
+        <!-- 플레이어별 토탈 요약 -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">📊 인식된 스코어 요약 — 카드 합계와 비교하세요</div>
+          <div class="score-summary-bar" id="scoreSummaryBar"></div>
+          <div id="mismatchAlert"></div>
+        </div>
+
+        <!-- 스코어 수정 테이블 -->
+        <div class="card" style="margin-bottom:16px">
+          <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">
+            ✏️ 점수를 직접 수정할 수 있습니다. <span style="color:var(--blue-acc)">Par3 홀의 🎯 버튼으로 니어리스트를 지정하세요.</span>
+          </div>
+          <div class="table-wrapper">
+            <table class="score-table" id="scoreTable">
+              <thead id="tableHead"></thead>
+              <tbody id="tableBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-gold" id="calcBtn">💰 정산 계산하기</button>
+          <button class="btn btn-danger" id="reAnalyzeBtn">🔄 다시 인식</button>
+          <div class="spacer"></div>
+          <button class="btn btn-secondary" id="reAnalyzeFreshBtn">🔁 재촬영 후 재인식</button>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 원본 이미지 -->
+      <div class="verify-image-panel" id="verifyImagePanel">
+        <div class="panel-title">📸 원본 스코어카드</div>
+        <div id="refSlot1" style="display:none">
+          <div class="ref-image-wrap" id="refWrap1" onclick="this.classList.toggle('zoom')">
+            <img id="refImg1" alt="카드 1" />
+          </div>
+          <div class="ref-img-label">카드 1 — 클릭하면 확대</div>
+        </div>
+        <div id="refSlot2" style="display:none;margin-top:12px">
+          <div class="ref-image-wrap" id="refWrap2" onclick="this.classList.toggle('zoom')">
+            <img id="refImg2" alt="카드 2" />
+          </div>
+          <div class="ref-img-label">카드 2 — 클릭하면 확대</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STEP 3: 결과 ══ -->
+  <div class="results-section" id="resultsSection">
+    <div class="divider"></div>
+    <div class="section-title">③ 홀별 정산 내역</div>
+    <div id="holeResults"></div>
+    <div class="divider"></div>
+    <div class="section-title">📈 구간별 결산</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">🌅 전반 OUT 1–9홀</div><table class="summary-table" id="outTable"></table></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">🌆 후반 IN 10–18홀</div><table class="summary-table" id="inTable"></table></div>
+        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">⛳ 최종 합계</div><table class="summary-table" id="totalTable"></table></div>
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="section-title">🏆 최종 순위 & 정산</div>
+    <div class="card"><div class="rank-cards" id="rankCards"></div></div>
+    <div class="divider"></div>
+    <div class="section-title">💸 돈의 흐름</div>
+    <div class="card">
+      <div class="flow-container" id="flowContainer"></div>
+      <div class="flow-legend">
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--green-400)"></div>수령자</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--red-acc)"></div>지급자</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--gold)"></div>최고수령</div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<div class="spacer"></div>
+<div class="toast" id="toast"></div>
 
-<div class="footer-cta">
-    <a href="tel:010-0000-0000">내 자산 지키는 맞춤형 컨설팅 신청</a>
-</div>
+<script>
+/* ━━━ STATE ━━━ */
+let state = {
+  imageFile:null, imageFile2:null,
+  processedBase64:null, processedBase64_2:null,
+  mimeType:'image/jpeg', mimeType2:'image/jpeg',
+  aiData:null, players:[], holes:[], nearests:{},
+  unitAmount:1000, playerCount:4,
+  baepan:{birdie:true,highscore:true,tripletie:true},
+  warnings:[], cardTotals:null,
+}
 
+/* ━━━ DOM ━━━ */
+const $=id=>document.getElementById(id)
+const fileInput=$('fileInput'), fileInput2=$('fileInput2')
+const slot1=$('slot1'), slot2=$('slot2')
+const previewCont=$('previewContainer'), loader=$('loader')
+const loaderText=$('loaderText'), loaderStep=$('loaderStep')
+const analyzeBtn=$('analyzeBtn'), resetBtn=$('resetBtn')
+const verifySection=$('verifySection')
+const tableHead=$('tableHead'), tableBody=$('tableBody')
+const calcBtn=$('calcBtn'), reAnalyzeBtn=$('reAnalyzeBtn')
+const resultsSection=$('resultsSection'), holeResults=$('holeResults'), toast=$('toast')
+
+/* ━━━ TOAST ━━━ */
+let toastTimer
+function showToast(msg,type='success'){clearTimeout(toastTimer);toast.textContent=msg;toast.className=`toast ${type} show`;toastTimer=setTimeout(()=>toast.classList.remove('show'),4000)}
+
+/* ━━━ BAEPAN ━━━ */
+function toggleBaepan(el){el.classList.toggle('checked');state.baepan[el.dataset.key]=el.classList.contains('checked');el.querySelector('.baepan-check').textContent=state.baepan[el.dataset.key]?'✓':''}
+
+/* ━━━ FILE UPLOAD ━━━ */
+slot1.addEventListener('click',()=>fileInput.click())
+slot2.addEventListener('click',()=>fileInput2.click())
+function addDrag(slot,num){
+  slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover')})
+  slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'))
+  slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0],num)})
+}
+addDrag(slot1,1);addDrag(slot2,2)
+fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],1)})
+fileInput2.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],2)})
+
+function preprocessImage(file,origId,canvasId,cb){
+  const reader=new FileReader()
+  reader.onload=e=>{
+    const src=e.target.result
+    $(origId).src=src
+    const img=new Image()
+    img.onload=()=>{
+      const c=$(canvasId),ctx=c.getContext('2d')
+      c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0)
+      const d=ctx.getImageData(0,0,img.width,img.height),px=d.data
+      const cf=1.6,ic=128*(1-cf)
+      for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}
+      ctx.putImageData(d,0,0)
+      cb(c.toDataURL('image/jpeg',.92).split(',')[1])
+    }
+    img.src=src
+  }
+  reader.readAsDataURL(file)
+}
+
+function handleFile(file,slot){
+  if(!file.type.startsWith('image/')){showToast('이미지 파일만 가능합니다.','error');return}
+  previewCont.classList.add('visible')
+  if(slot===1){
+    state.imageFile=file;state.mimeType=file.type||'image/jpeg'
+    $('slot1Name').textContent=file.name;slot1.classList.add('has-file')
+    $('refImg1').src=URL.createObjectURL(file);$('refSlot1').style.display='block'
+    preprocessImage(file,'previewOrig','previewCanvas',b64=>{state.processedBase64=b64;checkReady();showToast('카드 1 준비 완료.')})
+  } else {
+    state.imageFile2=file;state.mimeType2=file.type||'image/jpeg'
+    $('slot2Name').textContent=file.name;slot2.classList.add('has-file')
+    $('preview2Box').style.display='block';$('preview2CanvasBox').style.display='block'
+    $('refImg2').src=URL.createObjectURL(file);$('refSlot2').style.display='block'
+    preprocessImage(file,'previewOrig2','previewCanvas2',b64=>{state.processedBase64_2=b64;checkReady();showToast('카드 2 준비 완료.')})
+  }
+}
+function checkReady(){analyzeBtn.disabled=!state.processedBase64}
+
+/* ━━━ AI ANALYSIS ━━━ */
+analyzeBtn.addEventListener('click',runAnalysis)
+reAnalyzeBtn.addEventListener('click',runAnalysis)
+$('reAnalyzeFreshBtn').addEventListener('click',()=>{verifySection.style.display='none';resultsSection.classList.remove('visible')})
+
+async function callAnalyze(b64,mime,step){
+  loaderStep.textContent=step
+  const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({imageBase64:b64,mimeType:mime})})
+  const j=await r.json()
+  if(!j.success)throw new Error(j.error||'분석 실패')
+  return j
+}
+
+async function runAnalysis(){
+  if(!state.processedBase64){showToast('이미지를 먼저 업로드하세요.','error');return}
+  state.unitAmount=parseInt($('unitAmount').value)||1000
+  state.playerCount=parseInt($('playerCount').value)||4
+  loader.classList.add('visible');analyzeBtn.disabled=true
+  verifySection.style.display='none';resultsSection.classList.remove('visible')
+
+  try {
+    let merged, warnings=[]
+    if(state.processedBase64_2){
+      loaderText.textContent='카드 1 분석 중... (1단계: OCR)'
+      const j1=await callAnalyze(state.processedBase64,'image/jpeg','1단계: 숫자 읽기')
+      loaderText.textContent='카드 1 변환 중... (2단계: 계산)'
+      loaderText.textContent='카드 2 분석 중... (1단계: OCR)'
+      const j2=await callAnalyze(state.processedBase64_2,'image/jpeg','카드 2 분석')
+      merged=mergeCards(j1.data,j2.data)
+      warnings=[...(j1.warnings||[]),...(j2.warnings||[])]
+    } else {
+      loaderText.textContent='1단계: 이미지에서 숫자 읽는 중...'
+      loaderStep.textContent='OCR → 변환 → 검증 순으로 진행됩니다'
+      const j=await callAnalyze(state.processedBase64,'image/jpeg','')
+      merged=j.data;warnings=j.warnings||[]
+    }
+    state.aiData=merged;state.warnings=warnings
+    state.cardTotals=merged.cardTotals||merged.totals
+    populateVerifyTable(merged)
+    showToast('AI 분석 완료! 점수를 확인하세요.','success')
+  } catch(err){
+    showToast(`오류: ${err.message}`,'error')
+    showFallbackTable()
+  } finally {
+    loader.classList.remove('visible');analyzeBtn.disabled=false;loaderStep.textContent=''
+  }
+}
+
+function mergeCards(c1,c2){
+  const h1=c1.holes||[],h2=c2.holes||[]
+  const maxH1=h1.reduce((m,h)=>Math.max(m,h.hole),0)
+  const minH2=h2.reduce((m,h)=>Math.min(m,h.hole),99)
+  const adj2=minH2<=maxH1?h2.map(h=>({...h,hole:h.hole+maxH1})):h2
+  return{courseName:c1.courseName||c2.courseName,date:c1.date||c2.date,players:c1.players||c2.players,holes:[...h1,...adj2].sort((a,b)=>a.hole-b.hole),totals:{},cardTotals:c1.cardTotals||{}}
+}
+
+function showFallbackTable(){
+  const pCount=parseInt($('playerCount').value)||4
+  const totalH=parseInt($('totalHoles').value)||18
+  const players=Array.from({length:pCount},(_,i)=>`플레이어${i+1}`)
+  const holes=Array.from({length:totalH},(_,i)=>({hole:i+1,par:4,scores:new Array(pCount).fill(4),diffs:new Array(pCount).fill(0)}))
+  state.warnings=['AI 인식 실패 — 수동으로 점수를 입력해주세요.']
+  populateVerifyTable({players,holes,totals:{},cardTotals:null})
+}
+
+/* ━━━ POPULATE VERIFY TABLE ━━━ */
+function populateVerifyTable(data){
+  const pCount=parseInt($('playerCount').value)||4
+  state.players=(data.players||['P1','P2','P3','P4']).slice(0,pCount)
+  state.holes=data.holes||[];state.nearests={}
+
+  // Build header with editable names
+  tableHead.innerHTML=`<tr><th>홀</th><th>Par</th>${state.players.map((p,pi)=>`<th><input class="player-name-input" data-pi="${pi}" value="${p}" placeholder="이름" /></th>`).join('')}</tr>`
+  tableHead.querySelectorAll('.player-name-input').forEach(inp=>{
+    inp.addEventListener('change',()=>{state.players[parseInt(inp.dataset.pi)]=inp.value.trim()||state.players[parseInt(inp.dataset.pi)];renderSummaryBar();renderNearestSelects()})
+  })
+
+  const outCount=parseInt($('outHoles').value)||9
+  tableBody.innerHTML=''
+
+  state.holes.forEach((h,idx)=>{
+    // OUT 소계
+    if(h.hole===outCount+1&&outCount>0){
+      const sums=state.players.map((_,pi)=>state.holes.slice(0,outCount).reduce((a,hh)=>a+(hh.scores[pi]||0),0))
+      const tr=document.createElement('tr');tr.className='subtotal-row'
+      tr.innerHTML=`<td>OUT</td><td>—</td>${sums.map(s=>`<td>${s}</td>`).join('')}`;tableBody.appendChild(tr)
+    }
+    const isPar3=h.par===3
+    const tr=document.createElement('tr')
+    if(isPar3)tr.classList.add('par3-row')
+
+    // Par3 니어리스트 컬럼 헤더용 클래스
+    const nearestColHtml=isPar3
+      ? `<td style="padding:4px"><div style="font-size:.68rem;color:var(--blue-acc);text-align:center">🎯 니어<br>${state.players.map((_,pi)=>`<span class="nearest-check" id="nc_${idx}_${pi}" onclick="setNearest(${idx},${pi})">${pi===0?'':''}</span>`).join('')}</div></td>`
+      : `<td></td>`
+
+    tr.innerHTML=`
+      <td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--blue-acc);font-size:.65rem;margin-left:2px">P3</span>':''}</td>
+      <td class="par-cell">${h.par}</td>
+      ${h.scores.slice(0,pCount).map((s,pi)=>`<td><input type="number" class="score-input ${diffClass(s-h.par)}" data-hole="${idx}" data-player="${pi}" value="${s}" min="1" max="15" /></td>`).join('')}
+    `
+    tableBody.appendChild(tr)
+
+    // Par3면 니어리스트 행 추가
+    if(isPar3){
+      const ntr=document.createElement('tr')
+      ntr.style.cssText='background:rgba(74,144,217,.04)'
+      ntr.innerHTML=`<td colspan="2" style="font-size:.7rem;color:var(--blue-acc);padding:4px 8px;text-align:right">🎯 니어리스트</td>${state.players.map((_,pi)=>`<td style="padding:3px 8px;text-align:center"><span class="nearest-check" id="nc_${idx}_${pi}" onclick="setNearest(${idx},${pi})"></span></td>`).join('')}`
+      tableBody.appendChild(ntr)
+    }
+  })
+
+  // IN 소계 + TOTAL
+  if(outCount>0&&state.holes.length>outCount){
+    const sums=state.players.map((_,pi)=>state.holes.slice(outCount).reduce((a,h)=>a+(h.scores[pi]||0),0))
+    const tr=document.createElement('tr');tr.className='subtotal-row'
+    tr.innerHTML=`<td>IN</td><td>—</td>${sums.map(s=>`<td>${s}</td>`).join('')}`;tableBody.appendChild(tr)
+  }
+  const tots=state.players.map((_,pi)=>state.holes.reduce((a,h)=>a+(h.scores[pi]||0),0))
+  const trT=document.createElement('tr');trT.className='total-row'
+  trT.innerHTML=`<td>TOTAL</td><td>—</td>${tots.map(s=>`<td>${s}</td>`).join('')}`;tableBody.appendChild(trT)
+
+  // Score input handlers
+  tableBody.querySelectorAll('.score-input').forEach(inp=>{
+    inp.addEventListener('change',()=>{
+      const hi=parseInt(inp.dataset.hole),pi=parseInt(inp.dataset.player),val=parseInt(inp.value)||0
+      state.holes[hi].scores[pi]=val;state.holes[hi].diffs[pi]=val-state.holes[hi].par
+      refreshScoreColors();updateSubtotals();renderSummaryBar()
+    })
+  })
+
+  refreshScoreColors()
+  renderSummaryBar()
+  renderNearestSelects()
+  verifySection.style.display='block'
+  verifySection.scrollIntoView({behavior:'smooth',block:'start'})
+}
+
+/* ━━━ NEAREST ━━━ */
+function setNearest(holeIdx, playerIdx){
+  // Toggle: 이미 선택된 플레이어면 해제
+  if(state.nearests[holeIdx]===playerIdx){
+    state.nearests[holeIdx]=-1
+  } else {
+    state.nearests[holeIdx]=playerIdx
+  }
+  renderNearestSelects()
+}
+
+function renderNearestSelects(){
+  state.holes.forEach((h,idx)=>{
+    if(h.par!==3)return
+    state.players.forEach((_,pi)=>{
+      const el=$(`nc_${idx}_${pi}`)
+      if(!el)return
+      const selected=(state.nearests[idx]??-1)===pi
+      el.classList.toggle('selected',selected)
+      el.textContent=selected?'✓':''
+      el.title=`${state.players[pi]} 니어리스트`
+    })
+  })
+}
+
+/* ━━━ SCORE SUMMARY BAR ━━━ */
+function renderSummaryBar(){
+  const outCount=parseInt($('outHoles').value)||9
+  const ct=state.cardTotals
+  const bar=$('scoreSummaryBar')
+  const alert=$('mismatchAlert')
+
+  const playerData=state.players.map((name,pi)=>{
+    const outSum=state.holes.filter(h=>h.hole<=outCount).reduce((a,h)=>a+(h.scores[pi]||0),0)
+    const inSum=state.holes.filter(h=>h.hole>outCount).reduce((a,h)=>a+(h.scores[pi]||0),0)
+    const total=outSum+inSum
+    const cardTotal=ct?.total?.[pi]
+    const cardOut=ct?.out?.[pi]
+    const cardIn=ct?.in?.[pi]
+    const totalMatch=cardTotal===undefined||total===cardTotal
+    const outMatch=cardOut===undefined||outSum===cardOut
+    const inMatch=cardIn===undefined||inSum===cardIn
+    return{name,outSum,inSum,total,cardTotal,cardOut,cardIn,totalMatch,outMatch,inMatch}
+  })
+
+  bar.innerHTML=playerData.map(p=>`
+    <div class="score-summary-player">
+      <div class="ssp-name">${p.name}</div>
+      <div class="ssp-total ${(!p.totalMatch)?'ssp-warn':''}">${p.total}</div>
+      <div class="ssp-detail">전반 ${p.outSum} / 후반 ${p.inSum}</div>
+      ${p.cardTotal!==undefined?`<div class="ssp-detail" style="color:${p.totalMatch?'var(--text-muted)':'var(--red-acc)'}">카드: ${p.cardTotal}</div>`:''}
+    </div>
+  `).join('')
+
+  // Mismatch alerts
+  const mismatches=[]
+  playerData.forEach(p=>{
+    if(!p.totalMatch)mismatches.push(`${p.name}: 합산 ${p.total} ≠ 카드 ${p.cardTotal}`)
+    if(!p.outMatch)mismatches.push(`${p.name}: 전반 합산 ${p.outSum} ≠ 카드 OUT ${p.cardOut}`)
+    if(!p.inMatch)mismatches.push(`${p.name}: 후반 합산 ${p.inSum} ≠ 카드 IN ${p.cardIn}`)
+  })
+
+  if(mismatches.length>0){
+    alert.innerHTML=`<div class="mismatch-alert"><div class="alert-title">⚠️ 합계 불일치 — 점수를 수정하거나 재인식하세요</div>${mismatches.map(m=>`<div class="alert-item">• ${m}</div>`).join('')}</div>`
+  } else if(state.cardTotals?.total){
+    alert.innerHTML=`<div class="match-alert">✅ 전반 / 후반 / 합계 모두 카드와 일치합니다</div>`
+  } else {
+    alert.innerHTML=''
+  }
+}
+
+/* ━━━ TABLE UTILS ━━━ */
+function diffClass(d){if(d<=-2)return'score-eagle';if(d===-1)return'score-birdie';if(d===0)return'score-par';if(d===1)return'score-bogey';if(d===2)return'score-double';return'score-triple'}
+function refreshScoreColors(){tableBody.querySelectorAll('.score-input').forEach(inp=>{const h=state.holes[parseInt(inp.dataset.hole)];if(!h)return;inp.className=`score-input ${diffClass((parseInt(inp.value)||0)-h.par)}`})}
+function updateSubtotals(){
+  const outCount=parseInt($('outHoles').value)||9
+  tableBody.querySelectorAll('.subtotal-row,.total-row').forEach(row=>{
+    const l=row.cells[0].textContent
+    if(l==='OUT'){const s=state.players.map((_,pi)=>state.holes.slice(0,outCount).reduce((a,h)=>a+(h.scores[pi]||0),0));s.forEach((v,i)=>{row.cells[i+2].textContent=v})}
+    else if(l==='IN'){const s=state.players.map((_,pi)=>state.holes.slice(outCount).reduce((a,h)=>a+(h.scores[pi]||0),0));s.forEach((v,i)=>{row.cells[i+2].textContent=v})}
+    else{const s=state.players.map((_,pi)=>state.holes.reduce((a,h)=>a+(h.scores[pi]||0),0));s.forEach((v,i)=>{row.cells[i+2].textContent=v})}
+  })
+}
+
+/* ━━━ CALCULATE ━━━ */
+calcBtn.addEventListener('click',calculate)
+function calculate(){
+  state.unitAmount=parseInt($('unitAmount').value)||1000
+  const outCount=parseInt($('outHoles').value)||9,pCount=state.players.length,unit=state.unitAmount
+  const makeMatrix=()=>Array.from({length:pCount},()=>new Array(pCount).fill(0))
+  const breakdowns=[],playerTotals=new Array(pCount).fill(0)
+
+  state.holes.forEach((h,idx)=>{
+    const scores=h.scores.slice(0,pCount),diffs=scores.map(s=>s-h.par),nearest=state.nearests[idx]??-1
+    const hasBirdie=state.baepan.birdie&&diffs.some(d=>d===-1)
+    const hasEagle=state.baepan.birdie&&diffs.some(d=>d<=-2)
+    const hasHighScore=state.baepan.highscore&&(h.par>=4?diffs.some(d=>d>=3):diffs.some(d=>d>=2))
+    const sc={};scores.forEach(s=>{sc[s]=(sc[s]||0)+1})
+    const hasTripleTie=state.baepan.tripletie&&Object.values(sc).some(c=>c>=3)
+    const isDouble=hasBirdie||hasEagle||hasHighScore||hasTripleTie
+    const matrix=makeMatrix(),transactions=[]
+
+    for(let a=0;a<pCount;a++){for(let b=a+1;b<pCount;b++){
+      let gap=diffs[a]-diffs[b];if(gap===0)continue
+      if(diffs[a]<=-2&&diffs[b]>-2)gap-=2;if(diffs[b]<=-2&&diffs[a]>-2)gap+=2
+      if(diffs[a]===-1&&diffs[b]>=0)gap-=1;if(diffs[b]===-1&&diffs[a]>=0)gap+=1
+      const mult=isDouble?2:1,amt=gap*mult*unit
+      if(amt>0){matrix[a][b]+=amt;transactions.push({from:a,to:b,units:gap,multiplier:mult,amount:amt})}
+      else if(amt<0){matrix[b][a]-=amt;transactions.push({from:b,to:a,units:-gap,multiplier:mult,amount:-amt})}
+    }}
+
+    // 니어리스트 (Par3, 1타 보상)
+    const nearestTxns=[]
+    if(h.par===3&&nearest>=0&&nearest<pCount){
+      for(let p=0;p<pCount;p++){if(p===nearest)continue;matrix[p][nearest]+=unit;nearestTxns.push({from:p,to:nearest,amount:unit})}
+    }
+    for(let a=0;a<pCount;a++)for(let b=0;b<pCount;b++){if(a===b)continue;playerTotals[a]-=matrix[a][b];playerTotals[a]+=matrix[b][a]}
+    breakdowns.push({hole:h.hole,par:h.par,scores,diffs,isDouble,nearest,transactions,nearestTxns,hasBirdie,hasEagle,hasHighScore,hasTripleTie})
+  })
+  renderResults(breakdowns,playerTotals,outCount)
+}
+
+/* ━━━ RENDER RESULTS ━━━ */
+function renderResults(bds,playerTotals,outCount){
+  resultsSection.classList.add('visible')
+  holeResults.innerHTML=''
+  bds.forEach(bd=>{
+    const div=document.createElement('div');div.className='hole-result'
+    const badges=[bd.isDouble?'<span class="double-badge">× 2배판</span>':'',bd.nearest>=0?`<span class="nearest-badge">🎯 니어: ${state.players[bd.nearest]}</span>`:''].join('')
+    const reasons=[bd.hasBirdie?'버디':'',bd.hasEagle?'이글':'',bd.hasHighScore?(bd.par>=4?'트리플+':'더블+'):'',bd.hasTripleTie?'3인동타':''].filter(Boolean).join(', ')
+    div.innerHTML=`
+      <div class="hole-result-header">
+        <span class="hole-badge">HOLE ${bd.hole}</span>
+        <span class="hole-par-badge">Par ${bd.par}</span>
+        ${badges}
+        ${bd.isDouble?`<span style="font-size:.72rem;color:var(--text-muted)">(${reasons})</span>`:''}
+      </div>
+      <div class="hole-scores-row">${state.players.map((p,pi)=>`<div class="player-score-chip"><span class="chip-name">${p}</span><span class="${diffClass(bd.diffs[pi])}">${bd.scores[pi]}</span><span style="font-size:.7rem;color:var(--text-muted);margin-left:4px">(${diffLabel(bd.diffs[pi])})</span></div>`).join('')}</div>
+      <div class="hole-transactions">${[...bd.transactions,...bd.nearestTxns.map(t=>({...t,isNearest:true}))].map(t=>`<div class="txn"><span class="from">${state.players[t.from]}</span><span style="color:var(--text-muted)">→</span><span class="to">${state.players[t.to]}</span><span class="amt">${fmtNum(t.amount)}원</span>${t.isNearest?'<span style="font-size:.7rem;color:var(--blue-acc)">(니어)</span>':''}</div>`).join('')||'<span style="color:var(--text-muted);font-size:.8rem">동타 — 정산 없음</span>'}</div>
+    `
+    holeResults.appendChild(div)
+  })
+
+  const deltas=bds.map(bd=>{const d=new Array(state.players.length).fill(0);[...bd.transactions,...bd.nearestTxns].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});return d})
+  const sumD=(arr,n)=>{const r=new Array(n).fill(0);arr.forEach(d=>d.forEach((v,i)=>{r[i]+=v}));return r}
+  const outT=sumD(deltas.slice(0,outCount),state.players.length)
+  const inT=sumD(deltas.slice(outCount),state.players.length)
+  const renderSum=(el,tots)=>{el.innerHTML=`<thead><tr><th>플레이어</th><th>손익</th></tr></thead><tbody>${state.players.map((p,i)=>`<tr><td>${p}</td><td class="${tots[i]>0?'positive':tots[i]<0?'negative':'zero'}">${tots[i]>0?'+':''}${fmtNum(tots[i])}원</td></tr>`).join('')}</tbody>`}
+  renderSum($('outTable'),outT);renderSum($('inTable'),inT);renderSum($('totalTable'),playerTotals)
+  const ranked=state.players.map((p,i)=>({name:p,total:playerTotals[i]})).sort((a,b)=>b.total-a.total)
+  $('rankCards').innerHTML=ranked.map((r,ri)=>`<div class="rank-card rank-${ri+1}"><div class="rank-num">${ri+1}</div><div class="rank-name">${r.name}</div><div class="rank-amount ${r.total>0?'positive':r.total<0?'negative':''}">${r.total>0?'+':''}${fmtNum(r.total)}</div><div class="rank-unit">원</div></div>`).join('')
+  renderMoneyFlow(playerTotals)
+  resultsSection.scrollIntoView({behavior:'smooth',block:'start'})
+  showToast('정산 완료!','success')
+}
+
+/* ━━━ MONEY FLOW ━━━ */
+function renderMoneyFlow(finalTotals){
+  const players=state.players,n=players.length,W=640,H=340,cx=W/2,cy=H/2,R=115,nodeR=38
+  const angles=players.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2)
+  const nodes=players.map((p,i)=>({x:cx+R*Math.cos(angles[i]),y:cy+R*Math.sin(angles[i]),name:p,total:finalTotals[i]}))
+  const maxTotal=Math.max(...finalTotals.map(Math.abs),1)
+  const losers=[...nodes].filter(nd=>nd.total<0).sort((a,b)=>a.total-b.total)
+  const winners=[...nodes].filter(nd=>nd.total>0).sort((a,b)=>b.total-a.total)
+  const lAmt=losers.map(l=>-l.total),wAmt=winners.map(w=>w.total),arrows=[]
+  let li=0,wi=0
+  while(li<losers.length&&wi<winners.length){const amt=Math.min(lAmt[li],wAmt[wi]);if(amt>1)arrows.push({from:losers[li],to:winners[wi],amount:amt});lAmt[li]-=amt;wAmt[wi]-=amt;if(lAmt[li]<1)li++;if(wAmt[wi]<1)wi++}
+  const topTotal=Math.max(...finalTotals)
+  let defs='',arrowPaths='',nodesSvg=''
+  arrows.forEach((a,ai)=>{
+    const dx=a.to.x-a.from.x,dy=a.to.y-a.from.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist
+    const x1=a.from.x+ux*nodeR,y1=a.from.y+uy*nodeR,x2=a.to.x-ux*(nodeR+8),y2=a.to.y-uy*(nodeR+8)
+    const mx=(x1+x2)/2-uy*35,my=(y1+y2)/2+ux*35
+    const thick=Math.max(1.5,Math.min(5,(a.amount/maxTotal)*5+1)),op=Math.max(.35,Math.min(.85,a.amount/maxTotal+.2))
+    defs+=`<marker id="ar${ai}" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="rgba(224,85,85,${op})" /></marker>`
+    arrowPaths+=`<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" stroke="rgba(224,85,85,${op})" stroke-width="${thick}" fill="none" marker-end="url(#ar${ai})" stroke-dasharray="5,3" />`
+    arrowPaths+=`<text x="${mx}" y="${my-10}" text-anchor="middle" fill="var(--gold-light)" font-size="10.5" font-family="JetBrains Mono,monospace" font-weight="700">${fmtNum(a.amount)}</text>`
+  })
+  nodes.forEach((nd)=>{
+    const isWinner=nd.total>0,isTop=nd.total===topTotal&&nd.total>0
+    const fill=isTop?'rgba(201,162,39,.22)':isWinner?'rgba(45,122,69,.28)':'rgba(224,85,85,.18)'
+    const stroke=isTop?'#c9a227':isWinner?'#5cc47a':'#e05555'
+    const amtColor=isWinner?'#5cc47a':nd.total<0?'#e05555':'#7aab88'
+    const sign=nd.total>0?'+':''
+    nodesSvg+=`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="2.5" />${isTop?`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR+5}" fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="4,4" opacity=".45" />`:''}<text x="${nd.x}" y="${nd.y-7}" text-anchor="middle" fill="#e8f5ec" font-size="13" font-weight="700" font-family="Noto Sans KR,sans-serif">${nd.name}</text><text x="${nd.x}" y="${nd.y+11}" text-anchor="middle" fill="${amtColor}" font-size="11" font-family="JetBrains Mono,monospace" font-weight="700">${sign}${fmtNum(nd.total)}</text><text x="${nd.x}" y="${nd.y+23}" text-anchor="middle" fill="#3d6648" font-size="9" font-family="JetBrains Mono,monospace">원</text>`
+  })
+  $('flowContainer').innerHTML=`<svg class="flow-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${arrowPaths}${nodesSvg}</svg>`
+}
+
+/* ━━━ UTILS ━━━ */
+function diffLabel(d){if(d<=-3)return'알바트로스';if(d===-2)return'이글';if(d===-1)return'버디';if(d===0)return'Par';if(d===1)return'보기';if(d===2)return'더블';if(d===3)return'트리플';return`+${d}`}
+function fmtNum(n){return Math.round(n).toLocaleString('ko-KR')}
+
+/* ━━━ RESET ━━━ */
+resetBtn.addEventListener('click',()=>{
+  state={imageFile:null,imageFile2:null,processedBase64:null,processedBase64_2:null,mimeType:'image/jpeg',mimeType2:'image/jpeg',aiData:null,players:[],holes:[],nearests:{},unitAmount:1000,playerCount:4,baepan:{birdie:true,highscore:true,tripletie:true},warnings:[],cardTotals:null}
+  fileInput.value='';fileInput2.value=''
+  previewCont.classList.remove('visible')
+  $('preview2Box').style.display='none';$('preview2CanvasBox').style.display='none'
+  slot1.classList.remove('has-file');slot2.classList.remove('has-file')
+  $('slot1Name').textContent='클릭하거나 드래그';$('slot2Name').textContent='클릭하거나 드래그'
+  $('refSlot1').style.display='none';$('refSlot2').style.display='none'
+  $('refImg1').src='';$('refImg2').src=''
+  verifySection.style.display='none';resultsSection.classList.remove('visible')
+  analyzeBtn.disabled=true
+  showToast('초기화 완료.')
+})
+</script>
 </body>
 </html>
