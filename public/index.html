@@ -533,7 +533,17 @@ function populateVerifyTable(data){
     tr.innerHTML=`
       <td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--blue-acc);font-size:.65rem;margin-left:2px">P3</span>':''}</td>
       <td class="par-cell">${h.par}</td>
-      ${h.scores.slice(0,pCount).map((s,pi)=>`<td><input type="number" class="score-input ${diffClass(s-h.par)}" data-hole="${idx}" data-player="${pi}" value="${s}" min="1" max="15" /></td>`).join('')}
+      ${h.scores.slice(0,pCount).map((s,pi)=>{
+        const diff=s-h.par
+        const diffStr=diff>0?`+${diff}`:String(diff)
+        const cls=diffClass(diff)
+        return `<td>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px">
+            <input type="number" class="score-input ${cls}" data-hole="${idx}" data-player="${pi}" value="${s}" min="1" max="15" style="width:48px" />
+            <span class="${cls}" style="font-size:.68rem;font-family:'JetBrains Mono',monospace;opacity:.8">(${diffStr})</span>
+          </div>
+        </td>`
+      }).join('')}
     `
     tableBody.appendChild(tr)
 
@@ -645,7 +655,21 @@ function renderSummaryBar(){
 
 /* ━━━ TABLE UTILS ━━━ */
 function diffClass(d){if(d<=-2)return'score-eagle';if(d===-1)return'score-birdie';if(d===0)return'score-par';if(d===1)return'score-bogey';if(d===2)return'score-double';return'score-triple'}
-function refreshScoreColors(){tableBody.querySelectorAll('.score-input').forEach(inp=>{const h=state.holes[parseInt(inp.dataset.hole)];if(!h)return;inp.className=`score-input ${diffClass((parseInt(inp.value)||0)-h.par)}`})}
+function refreshScoreColors(){
+  tableBody.querySelectorAll('.score-input').forEach(inp=>{
+    const h=state.holes[parseInt(inp.dataset.hole)];if(!h)return
+    const diff=(parseInt(inp.value)||0)-h.par
+    const cls=diffClass(diff)
+    inp.className=`score-input ${cls}`
+    // diff 텍스트 업데이트
+    const diffSpan=inp.parentElement?.querySelector('span')
+    if(diffSpan){
+      const diffStr=diff>0?`+${diff}`:String(diff)
+      diffSpan.textContent=`(${diffStr})`
+      diffSpan.className=cls
+    }
+  })
+}
 function updateSubtotals(){
   const outCount=parseInt($('outHoles').value)||9
   tableBody.querySelectorAll('.subtotal-row,.total-row').forEach(row=>{
