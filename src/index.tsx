@@ -9,7 +9,6 @@ type Bindings = {
 const app = new Hono<{ Bindings: Bindings }>()
 app.use('*', cors())
 
-// ── Anthropic API 호출 헬퍼 ──────────────────────────────────
 async function callClaude(apiKey: string, body: object): Promise<any> {
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -34,18 +33,18 @@ function parseJSON(raw: string): any {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 1 — 이미지에서 숫자를 있는 그대로 읽기 (OCR)
+// STEP 1 — 이미지 OCR (Haiku — 저렴)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function step1_extract(apiKey: string, imageBase64: string, mimeType: string): Promise<any> {
-  const prompt = `You are a golf scorecard OCR machine. Your ONLY job is to READ numbers exactly as printed. Do NOT interpret or convert anything.
+  const prompt = `You are a golf scorecard OCR machine. READ numbers exactly as printed. Do NOT interpret or convert.
 
 RULES:
 - Read every cell value EXACTLY as written
 - Butterfly/flower icon = write as -1
 - Empty cell = write as 0
-- Read player names exactly as written (Korean OK)
-- Read OUT / IN / TOTAL row values exactly as printed
-- Return ONLY valid JSON, no markdown, no explanation
+- Read player names exactly (Korean OK)
+- Read OUT / IN / TOTAL rows exactly as printed
+- Return ONLY valid JSON, no markdown
 
 JSON FORMAT:
 {
@@ -61,87 +60,74 @@ JSON FORMAT:
   "cardIn":    [44, 42, 57, 52],
   "cardTotal": [85, 83, 112, 102]
 }
-
-rawScores[playerIndex] = array of raw cell values for ALL holes in order (hole 1 to 18).`
+rawScores[playerIndex] = array of raw values for ALL holes in order.`
 
   const content = await callClaude(apiKey, {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',  // ← Haiku (저렴)
     max_tokens: 2048,
-    messages: [
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'image',
-            source: {
-              type: 'base64',
-              media_type: mimeType as any,
-              data: imageBase64,
-            },
-          },
-          {
-            type: 'text',
-            text: 'Read all numbers from this golf scorecard exactly as printed. Extract player names, par values for each hole, all raw score values, and OUT/IN/TOTAL summary rows. Return JSON only.',
-          },
-        ],
-      },
-    ],
+    messages: [{
+      role: 'user',
+      content: [
+        {
+          type: 'image',
+          source: { type: 'base64', media_type: mimeType as any, data: imageBase64 },
+        },
+        {
+          type: 'text',
+          text: 'Read all numbers from this golf scorecard exactly as printed. Extract player names, par values, all raw score values, and OUT/IN/TOTAL summary rows. Return JSON only.',
+        },
+      ],
+    }],
   })
   return parseJSON(content)
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 2 — diff → 실제 타수 변환 + 검증 (텍스트만)
+// STEP 2 — diff → 실제 타수 변환 (Haiku — 텍스트만이라 충분)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function step2_convert(apiKey: string, raw: any): Promise<any> {
   const prompt = `You are a golf score calculator. Convert raw scorecard data to actual strokes.
 
-CONVERSION TABLE (use EXACTLY — do not deviate):
+CONVERSION TABLE (use EXACTLY):
 PAR 3 (valid: 1–6):  diff -2→1, -1→2, 0→3, 1→4, 2→5, 3→6
 PAR 4 (valid: 1–8):  diff -3→1, -2→2, -1→3, 0→4, 1→5, 2→6, 3→7, 4→8
 PAR 5 (valid: 2–10): diff -3→2, -2→3, -1→4, 0→5, 1→6, 2→7, 3→8, 4→9, 5→10
 PAR 6 (valid: 3–12): diff -3→3, -2→4, -1→5, 0→6, 1→7, 2→8, 3→9, 4→10, 5→11, 6→12
 
 FORMAT DETECTION:
-- If cardTotal values are large (70~130) but rawScores are small (-3~5) → rawScores are DIFFS → convert
-- If rawScores already match cardTotal as strokes (3~9) → keep as-is
+- cardTotal large (70~130) + rawScores small (-3~5) → DIFF format → convert
+- rawScores already match cardTotal as strokes → keep as-is
 
 STEPS:
-1. Detect format (diff or stroke)
-2. Convert every hole for every player using the table: actual = par + diff
-3. Calculate OUT sum (holes 1-9) and IN sum (holes 10-18) per player
-4. Verify: your OUT+IN must equal cardTotal. If not, re-check your conversion.
+1. Detect format
+2. Convert: actual = par + diff
+3. Sum OUT (holes 1-9) and IN (holes 10-18)
+4. Verify sums match cardTotal
 5. Return JSON only, no markdown
 
-OUTPUT FORMAT:
+OUTPUT:
 {
   "scoreFormat": "diff",
-  "players": ["이름1", "이름2", "이름3", "이름4"],
-  "holes": [
-    { "hole": 1, "par": 4, "scores": [4, 4, 6, 6], "diffs": [0, 0, 2, 2] }
-  ],
+  "players": ["이름1", ...],
+  "holes": [{ "hole": 1, "par": 4, "scores": [4,4,6,6], "diffs": [0,0,2,2] }],
   "totals": { "out": [41,41,55,50], "in": [44,42,57,52], "total": [85,83,112,102] },
   "cardTotals": { "out": [41,41,55,50], "in": [44,42,57,52], "total": [85,83,112,102] }
 }`
 
-  const inputText = `Raw scorecard data to convert:
-${JSON.stringify(raw, null, 2)}
-
-Apply the conversion table exactly. Verify your sums match the card totals before returning.`
-
   const content = await callClaude(apiKey, {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-haiku-4-5-20251001',  // ← Haiku (저렴)
     max_tokens: 3000,
-    messages: [
-      { role: 'user', content: inputText },
-    ],
     system: prompt,
+    messages: [{
+      role: 'user',
+      content: `Raw scorecard data:\n${JSON.stringify(raw, null, 2)}\n\nApply conversion table exactly. Verify sums match card totals.`,
+    }],
   })
   return parseJSON(content)
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// 서버사이드 검증
+// 검증
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 function validate(parsed: any): string[] {
   const warnings: string[] = []
@@ -181,22 +167,19 @@ app.post('/api/analyze', async (c) => {
     const { imageBase64, mimeType = 'image/jpeg' } = body
     if (!imageBase64) return c.json({ error: 'No image data provided' }, 400)
 
-    // STEP 1: 이미지 → raw 숫자
-    console.log('Step 1: OCR - extracting raw values...')
+    console.log('Step 1: OCR (Haiku)...')
     const raw = await step1_extract(ANTHROPIC_API_KEY, imageBase64, mimeType)
 
-    // STEP 2: raw 숫자 → 실제 타수
-    console.log('Step 2: Converting to actual strokes...')
+    console.log('Step 2: Convert (Haiku)...')
     const converted = await step2_convert(ANTHROPIC_API_KEY, raw)
 
-    // STEP 3: 검증
     const warnings = validate(converted)
 
     return c.json({
       success: true,
       data: converted,
       warnings,
-      debug: { scoreFormat: converted.scoreFormat }
+      debug: { scoreFormat: converted.scoreFormat, model: 'claude-haiku-4-5' }
     })
 
   } catch (err: any) {
