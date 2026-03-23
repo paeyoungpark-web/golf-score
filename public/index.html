@@ -8,85 +8,61 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:#f4f6f8;--surface:#ffffff;--surface2:#f8f9fb;
+      --bg:#f4f6f8;--surface:#fff;--surface2:#f8f9fb;
       --primary:#1a56db;--primary-light:#e8f0fe;--primary-dark:#1346b8;
       --green:#16a34a;--green-light:#dcfce7;
       --red:#dc2626;--red-light:#fee2e2;
       --gold:#d97706;--gold-light:#fef3c7;
+      --purple:#7c3aed;--purple-light:#ede9fe;
       --gray-900:#111827;--gray-700:#374151;--gray-500:#6b7280;--gray-300:#d1d5db;--gray-100:#f3f4f6;
       --text:#111827;--text-sub:#6b7280;--text-muted:#9ca3af;
       --border:#e5e7eb;--border-focus:#1a56db;
-      --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
-      --shadow-md:0 4px 6px rgba(0,0,0,.07),0 2px 4px rgba(0,0,0,.06);
-      --shadow-lg:0 10px 15px rgba(0,0,0,.1),0 4px 6px rgba(0,0,0,.05);
+      --shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 6px rgba(0,0,0,.07);--shadow-lg:0 10px 15px rgba(0,0,0,.1);
       --radius:12px;--radius-lg:16px;--radius-xl:20px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
-
-    /* ── HEADER ── */
     .app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;height:60px;display:flex;align-items:center;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
-    .header-logo{font-size:1.25rem;font-weight:900;color:var(--primary);letter-spacing:-.02em;display:flex;align-items:center;gap:6px}
+    .header-logo{font-size:1.25rem;font-weight:900;color:var(--primary);display:flex;align-items:center;gap:6px}
     .header-logo span{font-weight:300;color:var(--text-sub);font-size:.9rem}
     .header-right{margin-left:auto;display:flex;align-items:center;gap:10px}
     .help-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:5px 12px;color:var(--text-sub);font-size:.78rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all .2s}
     .help-btn:hover{border-color:var(--primary);color:var(--primary)}
     .ver-tag{font-size:.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
-
-    /* ── LAYOUT ── */
     .app-body{max-width:960px;margin:0 auto;padding:24px 16px 60px}
-
-    /* ── SECTION ── */
     .sec-title{font-size:1rem;font-weight:700;color:var(--gray-900);margin-bottom:12px;display:flex;align-items:center;gap:8px}
     .sec-title::after{content:'';flex:1;height:1px;background:var(--border)}
-
-    /* ── CARD ── */
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:20px;margin-bottom:16px}
     .card-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:14px}
-
-    /* ── MULTI UPLOAD ── */
+    /* UPLOAD */
     .drop-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface2);margin-bottom:12px}
     .drop-zone:hover,.drop-zone.dragover{border-color:var(--primary);background:var(--primary-light)}
-    .drop-zone .dz-icon{font-size:2.5rem;display:block;margin-bottom:10px}
     .drop-zone .dz-title{font-size:1rem;font-weight:700;color:var(--gray-700);margin-bottom:4px}
     .drop-zone .dz-desc{font-size:.82rem;color:var(--text-sub);line-height:1.6}
     #multiFileInput{display:none}
-
-    /* uploaded file list */
     .file-list{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
     .file-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px}
     .file-thumb{width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)}
     .file-info{flex:1;min-width:0}
-    .file-name{font-size:.82rem;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .file-name{font-size:.82rem;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .file-size{font-size:.72rem;color:var(--text-muted);margin-top:2px}
-    .file-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;padding:4px;border-radius:4px;transition:color .2s}
+    .file-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;padding:4px;border-radius:4px}
     .file-remove:hover{color:var(--red)}
-
-    /* preview strip */
     .preview-strip{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:12px}
     .preview-strip:empty{display:none}
     .preview-thumb{flex-shrink:0;width:100px;height:80px;border-radius:8px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:zoom-in}
-    .preview-thumb img,.preview-thumb canvas{width:100%;height:100%;object-fit:cover}
+    .preview-thumb canvas{width:100%;height:100%;object-fit:cover}
     .preview-thumb .pt-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font-size:.6rem;text-align:center;padding:2px}
-    .preview-thumb.zoom-modal{cursor:default}
-
-    /* ── CONFIG ── */
-    .config-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
-    .cfg-item label{display:block;font-size:.75rem;font-weight:700;color:var(--text-sub);margin-bottom:6px}
-    .cfg-item input,.cfg-item select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:.88rem;outline:none;transition:border-color .2s;font-family:'Noto Sans KR',sans-serif}
-    .cfg-item input:focus,.cfg-item select:focus{border-color:var(--border-focus);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
-
-    /* ── PLAYER CHIPS ── */
-    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-    .chip{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;font-size:.82rem;font-weight:700;color:var(--text-sub);user-select:none}
-    .chip.on{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
-    .chip.off{border-color:var(--gray-300);background:var(--gray-100);color:var(--text-muted);text-decoration:line-through;opacity:.6}
-    .chip-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-
-    /* ── BAEPAN ── */
+    /* 타당금액 */
+    .unit-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;background:var(--primary-light);border:1px solid var(--primary);border-radius:var(--radius);padding:12px 16px;flex-wrap:wrap}
+    .unit-row label{font-size:.82rem;font-weight:700;color:var(--primary);white-space:nowrap}
+    .unit-row input{width:130px;background:var(--surface);border:1.5px solid var(--primary);border-radius:8px;padding:9px 12px;color:var(--text);font-size:1rem;font-weight:700;font-family:'JetBrains Mono',monospace;outline:none}
+    .unit-row input:focus{border-color:var(--primary-dark);box-shadow:0 0 0 3px rgba(26,86,219,.15)}
+    .unit-hint{font-size:.75rem;color:var(--primary);opacity:.7}
+    /* 배판 */
     .baepan-list{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:14px}
-    .bp{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;user-select:none}
+    .bp{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;user-select:none}
     .bp:hover{border-color:var(--primary)}
     .bp.on{border-color:var(--primary);background:var(--primary-light)}
     .bp-box{width:16px;height:16px;border:2px solid var(--gray-300);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.62rem;color:white;font-weight:700;flex-shrink:0;transition:all .2s}
@@ -94,40 +70,43 @@
     .bp-label{font-size:.78rem;color:var(--text-sub)}
     .bp.on .bp-label{color:var(--primary);font-weight:700}
     .bp.disabled{opacity:.35;pointer-events:none}
-
-    /* ── WALLET ── */
+    .bp-tatadble.on{border-color:var(--purple);background:var(--purple-light)}
+    .bp-tatadble.on .bp-box{background:var(--purple);border-color:var(--purple)}
+    .bp-tatadble.on .bp-label{color:var(--purple)}
+    /* 칩 */
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+    .chip{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;font-size:.82rem;font-weight:700;color:var(--text-sub);user-select:none}
+    .chip.on{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+    .chip.off{opacity:.5;text-decoration:line-through}
+    .chip-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+    /* 월렛 */
     .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:4px}
     .w-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
     .w-item label{display:block;font-size:.7rem;font-weight:700;color:var(--text-sub);margin-bottom:5px}
-    .w-item input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 9px;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;outline:none;-moz-appearance:textfield;transition:border-color .2s}
+    .w-item input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:7px 9px;color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;outline:none;-moz-appearance:textfield}
     .w-item input::-webkit-inner-spin-button{display:none}
     .w-item input:focus{border-color:var(--gold)}
-
-    /* ── LOADER ── */
+    /* 로더 */
     .loader{display:none;flex-direction:column;align-items:center;gap:14px;padding:32px}
     .loader.on{display:flex}
     .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
     .loader-text{font-size:.88rem;color:var(--text-sub);font-weight:700}
     .loader-step{font-size:.75rem;color:var(--text-muted)}
-
-    /* ── BUTTONS ── */
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.88rem;transition:all .2s;letter-spacing:-.01em;white-space:nowrap}
+    /* 버튼 */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:12px 20px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.88rem;transition:all .2s;white-space:nowrap}
     .btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(26,86,219,.3)}
-    .btn-primary:hover{background:var(--primary-dark);box-shadow:0 4px 12px rgba(26,86,219,.4)}
+    .btn-primary:hover{background:var(--primary-dark)}
     .btn-outline{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}
     .btn-outline:hover{background:var(--primary-light)}
     .btn-ghost{background:var(--gray-100);color:var(--text-sub);border:1px solid var(--border)}
-    .btn-ghost:hover{background:var(--gray-200,#e5e7eb)}
-    .btn-danger{background:var(--red-light);color:var(--red);border:1px solid #fca5a5}
-    .btn-gold{background:var(--gold);color:#fff;box-shadow:0 2px 8px rgba(217,119,6,.3)}
+    .btn-ghost:hover{background:#e5e7eb}
+    .btn-gold{background:var(--gold);color:#fff}
     .btn-gold:hover{background:#b45309}
-    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
     .btn-full{width:100%}
     .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .btn-row .sp{flex:1}
-
-    /* ── VERIFY ── */
+    /* verify */
     .verify-layout{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
     .ref-panel{position:sticky;top:76px}
     .ref-panel-title{font-size:.75rem;font-weight:700;color:var(--text-sub);margin-bottom:8px}
@@ -136,8 +115,6 @@
     .ref-img-wrap.zoomed{cursor:zoom-out}
     .ref-img-wrap.zoomed img{max-height:none}
     .ref-img-lbl{font-size:.68rem;color:var(--text-muted);text-align:center;padding:3px}
-
-    /* score summary */
     .score-bar{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);margin-bottom:12px}
     .ssp{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px;flex:1}
     .ssp-name{font-size:.72rem;font-weight:700;color:var(--text-sub);text-align:center}
@@ -148,21 +125,19 @@
     .alert-mismatch .at{color:var(--red);font-weight:700;margin-bottom:5px;font-size:.85rem}
     .alert-mismatch .ai{font-size:.78rem;color:var(--red);margin-bottom:2px}
     .alert-ok{background:var(--green-light);border:1px solid #86efac;border-radius:var(--radius);padding:11px 14px;margin-bottom:12px;color:var(--green);font-size:.85rem;font-weight:700}
-
-    /* score table */
     .table-wrap{overflow-x:auto;margin-bottom:16px}
     .sc-table{width:100%;border-collapse:collapse;font-size:.8rem;white-space:nowrap}
     .sc-table th{background:var(--primary-light);color:var(--primary);font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 9px;text-align:center;border-bottom:2px solid var(--primary)}
     .sc-table td{padding:5px 7px;text-align:center;border-bottom:1px solid var(--gray-100)}
     .sc-table tr:hover td{background:var(--primary-light)}
-    .sc-table input[type=number]{width:44px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;text-align:center;padding:3px 2px;outline:none;-moz-appearance:textfield;transition:border-color .2s}
+    .sc-table input[type=number]{width:44px;background:var(--surface2);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;text-align:center;padding:3px 2px;outline:none;-moz-appearance:textfield}
     .sc-table input[type=number]::-webkit-inner-spin-button{display:none}
-    .sc-table input[type=number]:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,86,219,.15)}
+    .sc-table input[type=number]:focus{border-color:var(--primary)}
     .sc-table .par-cell{color:var(--text-sub);font-family:'JetBrains Mono',monospace;font-size:.75rem}
     .sc-table .hole-cell{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.7rem}
     .sc-table .subtotal-row td{background:var(--gray-100);font-weight:700;font-family:'JetBrains Mono',monospace}
     .sc-table .total-row td{background:var(--gold-light);color:var(--gold);font-weight:700;font-family:'JetBrains Mono',monospace}
-    .pname-input{background:transparent;border:none;border-bottom:1.5px solid var(--border);color:var(--primary);font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.78rem;text-align:center;outline:none;width:68px;padding:2px 3px;transition:border-color .2s}
+    .pname-input{background:transparent;border:none;border-bottom:1.5px solid var(--border);color:var(--primary);font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.78rem;text-align:center;outline:none;width:68px;padding:2px 3px}
     .pname-input:focus{border-bottom-color:var(--primary)}
     .s-eagle{color:#059669!important;font-weight:700}
     .s-birdie{color:var(--green)!important;font-weight:700}
@@ -173,8 +148,7 @@
     .par3-row{background:rgba(26,86,219,.03)!important}
     .nc{width:15px;height:15px;border:2px solid var(--primary);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.58rem;transition:all .2s;flex-shrink:0;color:transparent}
     .nc.sel{background:var(--primary);color:white}
-
-    /* ── RESULTS ── */
+    /* results */
     .divider{height:1px;background:var(--border);margin:20px 0}
     .hole-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
     .hole-card:hover{box-shadow:var(--shadow-md)}
@@ -182,6 +156,7 @@
     .hole-num{background:var(--primary);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;border-radius:6px;padding:2px 9px;min-width:48px;text-align:center}
     .par-tag{background:var(--gray-100);color:var(--text-sub);font-family:'JetBrains Mono',monospace;font-size:.7rem;border-radius:4px;padding:2px 7px}
     .double-tag{background:var(--gold-light);color:var(--gold);font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 7px;border:1px solid #fcd34d}
+    .tatadble-tag{background:var(--purple-light);color:var(--purple);font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 7px;border:1px solid #c4b5fd}
     .near-tag{background:var(--primary-light);color:var(--primary);font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 7px}
     .score-row{display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap}
     .score-chip{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:5px 9px;font-family:'JetBrains Mono',monospace;font-size:.78rem}
@@ -213,8 +188,6 @@
     .flow-legend{display:flex;gap:14px;justify-content:center;margin-top:10px;flex-wrap:wrap}
     .fl-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-sub)}
     .fl-dot{width:8px;height:8px;border-radius:50%}
-
-    /* asset table */
     .ast-table{width:100%;border-collapse:collapse;font-size:.78rem;white-space:nowrap}
     .ast-table th{background:var(--gold-light);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:6px 8px;text-align:center;border-bottom:2px solid #fcd34d}
     .ast-table td{padding:5px 8px;text-align:center;border-bottom:1px solid var(--gray-100);font-family:'JetBrains Mono',monospace;font-size:.75rem}
@@ -223,74 +196,64 @@
     .a-up{color:var(--green)!important;font-weight:700}
     .a-dn{color:var(--red)!important;font-weight:700}
     .a-eq{color:var(--text-muted)}
-
-    /* ── MODAL ── */
     .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:500;align-items:center;justify-content:center}
     .modal-overlay.on{display:flex}
     .modal{background:var(--surface);border-radius:var(--radius-xl);padding:24px;max-width:560px;width:92%;box-shadow:var(--shadow-lg);max-height:88vh;overflow-y:auto}
     .modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
     .modal-title{font-size:1rem;font-weight:900;color:var(--text)}
-    .modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.3rem;padding:3px;border-radius:4px}
-    .modal-close:hover{color:var(--text)}
+    .modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.3rem;padding:3px}
     .help-block{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px}
     .help-block-title{font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:5px}
     .help-block-body{font-size:.78rem;color:var(--text-sub);line-height:1.75}
-
-    /* ── TOAST ── */
     .toast{position:fixed;bottom:20px;right:16px;background:var(--gray-900);color:#fff;border-radius:10px;padding:11px 16px;font-size:.82rem;z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s;max-width:280px;box-shadow:var(--shadow-lg)}
     .toast.on{transform:translateY(0);opacity:1}
     .toast.err{background:var(--red)}
     .toast.ok{background:var(--green)}
-
-    @media(max-width:760px){.verify-layout{grid-template-columns:1fr};.config-row{grid-template-columns:1fr}}
+    @media(max-width:760px){.verify-layout{grid-template-columns:1fr}}
     @media(max-width:520px){.rank-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
-
-<!-- HEADER -->
 <div class="app-header">
-  <div class="header-logo"><img src="https://em-content.zobj.net/source/apple/391/flag-in-hole_26f3.png" style="width:28px;height:28px;margin-right:2px" alt="⛳" onerror="this.style.display='none'"> 골프 AI 정산<span>/ Score Calculator</span></div>
+  <div class="header-logo">⛳ 골프 AI 정산<span>/ Score Calculator</span></div>
   <div class="header-right">
     <button class="help-btn" onclick="openModal('helpModal')">📖 사용법</button>
-    <span class="ver-tag">v5.1</span>
+    <span class="ver-tag">v5.2</span>
   </div>
 </div>
-
 <div class="app-body">
-
-  <!-- ① 업로드 -->
   <div class="sec-title">① 스코어카드 업로드</div>
   <div class="card">
     <div class="drop-zone" id="dropZone">
       <input type="file" id="multiFileInput" accept="image/*" multiple />
-      <div style="display:flex;justify-content:center;gap:12px;margin-bottom:14px">
-        <img src="https://em-content.zobj.net/source/apple/391/flag-in-hole_26f3.png" style="width:48px;height:48px" alt="⛳" onerror="this.outerHTML='<span style=font-size:3rem>⛳</span>'" />
-        <img src="https://em-content.zobj.net/source/apple/391/camera_1f4f7.png" style="width:48px;height:48px" alt="📷" onerror="this.outerHTML='<span style=font-size:3rem>📷</span>'" />
-      </div>
+      <div style="font-size:2.8rem;margin-bottom:10px">📷</div>
       <div class="dz-title">스코어카드 이미지 선택</div>
-      <div class="dz-desc">
-        여러 장을 한 번에 선택할 수 있습니다<br>
-        JPG · PNG · WEBP · 클릭하거나 드래그
-      </div>
+      <div class="dz-desc">여러 장을 한 번에 선택할 수 있습니다<br>JPG · PNG · WEBP · 클릭하거나 드래그</div>
     </div>
-
-    <!-- 업로드된 파일 목록 -->
     <div class="file-list" id="fileList"></div>
-
-    <!-- 미리보기 -->
     <div class="preview-strip" id="previewStrip"></div>
 
-    <!-- 설정 -->
-    <div class="config-row">
-      <div class="cfg-item"><label>단위금액 (1타)</label><input type="number" id="unitAmount" value="1000" min="100" step="100" /></div>
-      <div class="cfg-item"><label>배판 조건</label>
-        <div class="baepan-list" style="margin-bottom:0">
-          <div class="bp on" data-key="birdie" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">버디/이글</span></div>
-          <div class="bp on" data-key="highscore" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">트리플+</span></div>
-          <div class="bp on" data-key="tripletie" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">3인동타</span></div>
-          <div class="bp disabled" id="bp-twotie" data-key="twotie" onclick="toggleBp(this)"><div class="bp-box"></div><span class="bp-label">2인동타<span style="font-size:.65rem;color:var(--primary);margin-left:3px">(3명)</span></span></div>
-        </div>
+    <!-- 타당금액 -->
+    <div class="unit-row">
+      <label>💰 타당 금액</label>
+      <input type="number" id="unitAmount" value="1000" min="100" step="100" />
+      <span class="unit-hint">원 / 1타 기준</span>
+    </div>
+
+    <!-- 배판 조건 -->
+    <div style="margin-bottom:14px">
+      <div style="font-size:.75rem;font-weight:700;color:var(--text-sub);margin-bottom:8px">⚡ 배판 조건</div>
+      <div class="baepan-list">
+        <div class="bp on" data-key="birdie" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">🐦 버디/이글 배판</span></div>
+        <div class="bp on" data-key="highscore" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">💥 트리플보기 배판</span></div>
+        <div class="bp on" data-key="par3double" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">🎯 더블(Par3) 배판</span></div>
+        <div class="bp on" data-key="tripletie" onclick="toggleBp(this)"><div class="bp-box">✓</div><span class="bp-label">🤝 3인 동타 배판</span></div>
+        <div class="bp disabled" id="bp-twotie" data-key="twotie" onclick="toggleBp(this)"><div class="bp-box"></div><span class="bp-label">2인 동타 따판 <span style="font-size:.65rem;color:var(--primary)">(3명)</span></span></div>
+        <div class="bp bp-tatadble" id="bp-tatadble" data-key="tatadble" onclick="toggleBp(this)"><div class="bp-box"></div><span class="bp-label">🔥 전홀 전원동타시 따따블 <span style="font-size:.65rem">(×2 누적)</span></span></div>
+      </div>
+      <div id="tatadbleDesc" style="display:none;background:var(--purple-light);border:1px solid #c4b5fd;border-radius:8px;padding:9px 12px;font-size:.75rem;color:var(--purple);line-height:1.7;margin-top:6px">
+        🔥 <strong>따따블</strong>: 전 홀 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)<br>
+        예) 1,000원 → 동타 → 2,000원 → 또동타 → 4,000원 → 또동타 → 8,000원
       </div>
     </div>
 
@@ -305,21 +268,20 @@
       </div>
     </div>
 
-    <!-- 원금 -->
+    <!-- 보유금액 -->
     <div style="margin-bottom:16px">
-      <div style="font-size:.75rem;font-weight:700;color:var(--text-sub);margin-bottom:8px">💰 출발 원금 <span style="font-weight:400;color:var(--text-muted)">(선택 — 홀별 자산 추적)</span></div>
+      <div style="font-size:.75rem;font-weight:700;color:var(--text-sub);margin-bottom:8px">💰 게임 시작 보유금액 <span style="font-weight:400;color:var(--text-muted)">(핸디 지급 전 금액 — 홀별 잔액 추적)</span></div>
       <div class="wallet-grid" id="walletGrid"></div>
     </div>
 
     <div class="loader" id="loader"><div class="spinner"></div><div class="loader-text" id="loaderText">AI 분석 중...</div><div class="loader-step" id="loaderStep"></div></div>
-
     <div class="btn-row">
       <button class="btn btn-primary btn-full" id="analyzeBtn" disabled>🤖 AI 분석 시작</button>
       <button class="btn btn-ghost" onclick="doReset()" style="padding:12px 16px">🔄 초기화</button>
     </div>
   </div>
 
-  <!-- ② 인식결과 확인 -->
+  <!-- ② 인식결과 -->
   <div id="verifySection" style="display:none">
     <div class="sec-title">② 인식 결과 확인 및 수정</div>
     <div class="verify-layout">
@@ -331,9 +293,7 @@
         </div>
         <div class="card" style="margin-bottom:12px">
           <div class="card-title" style="margin-bottom:10px">✏️ 직접 수정 가능 · Par3 홀에서 🎯 니어리스트 선택</div>
-          <div class="table-wrap">
-            <table class="sc-table"><thead id="tHead"></thead><tbody id="tBody"></tbody></table>
-          </div>
+          <div class="table-wrap"><table class="sc-table"><thead id="tHead"></thead><tbody id="tBody"></tbody></table></div>
         </div>
         <div class="btn-row">
           <button class="btn btn-gold" id="calcBtn">💰 정산 계산하기</button>
@@ -347,7 +307,7 @@
     </div>
   </div>
 
-  <!-- ③ 정산 결과 -->
+  <!-- ③ 결과 -->
   <div id="resultsSection" style="display:none">
     <div class="sec-title">③ 홀별 정산 내역</div>
     <div id="holeResults"></div>
@@ -365,7 +325,7 @@
     <div class="card"><div class="rank-grid" id="rankGrid"></div></div>
     <div id="assetWrap" style="display:none">
       <div class="divider"></div>
-      <div class="sec-title">💰 홀별 자산 변화</div>
+      <div class="sec-title">💰 홀별 보유금액 변화</div>
       <div class="card"><div style="overflow-x:auto"><table class="ast-table" id="assetTable"></table></div></div>
     </div>
     <div class="divider"></div>
@@ -384,89 +344,55 @@
 <!-- 사용법 모달 -->
 <div class="modal-overlay" id="helpModal" onclick="if(event.target===this)closeModal('helpModal')">
   <div class="modal">
-    <div class="modal-hdr">
-      <div class="modal-title">📖 사용법 안내</div>
-      <button class="modal-close" onclick="closeModal('helpModal')">×</button>
-    </div>
-    <!-- 저작권 -->
+    <div class="modal-hdr"><div class="modal-title">📖 사용법 안내</div><button class="modal-close" onclick="closeModal('helpModal')">×</button></div>
     <div style="background:var(--primary-light);border:1px solid var(--primary);border-radius:10px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
       <span style="font-size:1.4rem">©</span>
-      <div>
-        <div style="font-size:.82rem;font-weight:700;color:var(--primary)">저작권 및 문의</div>
-        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · <a href="mailto:paeyougpark@gmail.com" style="color:var(--primary)">paeyougpark@gmail.com</a></div>
-      </div>
+      <div><div style="font-size:.82rem;font-weight:700;color:var(--primary)">저작권 및 문의</div><div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · <a href="mailto:paeyougpark@gmail.com" style="color:var(--primary)">paeyougpark@gmail.com</a></div></div>
     </div>
-
-    <div class="help-block"><div class="help-block-title">⛳ 이 프로그램은?</div><div class="help-block-body">골프 라운딩 후 정확한 정산을 위한 AI 계산기입니다. 스코어카드 이미지를 올리면 자동으로 인식해 홀별 득실·배판·니어리스트를 계산합니다.</div></div>
-
-    <div class="help-block"><div class="help-block-title">📸 이미지 업로드 방법</div><div class="help-block-body">
-      <strong style="color:var(--primary)">📱 스마트스코어</strong><br>
-      • 1장 업로드 — 1장에 4명 전체 포함<br><br>
-      <strong style="color:var(--primary)">🎮 골프존</strong><br>
-      • 플레이어별 화면을 <strong>2번 캡처</strong>해서 2장 업로드<br>
-      • 카드1 (플레이어1·2) + 카드2 (플레이어3·4)
-    </div></div>
-
-    <div class="help-block"><div class="help-block-title">👤 플레이어 선택</div><div class="help-block-body">• 기본값 4명 전원 선택<br>• 3명 라운드: 제외할 플레이어 클릭<br>• 3명 선택 시 "2인 동타 배판" 조건 자동 활성화</div></div>
-
-    <div class="help-block"><div class="help-block-title">🎯 Par3 니어리스트</div><div class="help-block-body">• Par3 홀 아래 🎯 버튼으로 수령자 선택<br>• 나머지 플레이어에게 각 1타 금액 수령<br>• 배판 홀인 경우 니어리스트 보상도 2배 적용</div></div>
-
-    <div class="help-block"><div class="help-block-title">🚀 향후 업데이트 예정</div><div class="help-block-body">• 스킨스 게임 지원<br>• 요청에 따른 추가 조건값 반영 가능</div></div>
-
-    <div class="help-block" style="background:var(--red-light);border-color:#fca5a5"><div class="help-block-title" style="color:var(--red)">⚠️ 주의사항</div><div class="help-block-body" style="color:var(--red)">• AI 인식 오류 가능 — 원본 이미지와 반드시 비교 후 수정하세요</div></div>
-
+    <div class="help-block"><div class="help-block-title">⛳ 이 프로그램은?</div><div class="help-block-body">골프 라운딩 후 정확한 정산을 위한 AI 계산기입니다.</div></div>
+    <div class="help-block"><div class="help-block-title">📸 이미지 업로드</div><div class="help-block-body"><strong style="color:var(--primary)">📱 스마트스코어</strong> — 1장 (4명 전체)<br><br><strong style="color:var(--primary)">🎮 골프존</strong> — 2장: 카드1(P1·P2) + 카드2(P3·P4)</div></div>
+    <div class="help-block"><div class="help-block-title">🔥 따따블 규칙</div><div class="help-block-body">전 홀 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)<br>• 1,000원 → 동타 → 2,000원 → 동타 → 4,000원<br>• 배판 조건까지 겹치면 × 2배 추가 적용</div></div>
+    <div class="help-block"><div class="help-block-title">👤 플레이어 & 2인동타</div><div class="help-block-body">3명 라운드: 제외할 플레이어 클릭 → "2인 동타 따판" 자동 활성화</div></div>
+    <div class="help-block"><div class="help-block-title">💰 홀별 보유금액 추적</div><div class="help-block-body">게임 시작 보유금액 입력 → 매 홀 정산 후 잔액 자동 계산</div></div>
+    <div class="help-block" style="background:var(--red-light);border-color:#fca5a5"><div class="help-block-title" style="color:var(--red)">⚠️ 주의</div><div class="help-block-body" style="color:var(--red)">AI 인식 오류 가능 — 원본 이미지와 반드시 비교 후 수정하세요</div></div>
     <div style="text-align:center;margin-top:16px"><button onclick="closeModal('helpModal')" class="btn btn-primary" style="padding:9px 32px">확인</button></div>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-/* ━━━ STATE ━━━ */
-let state = {
-  files:[], b64s:[], mimes:[],
-  players:[], activePlayers:[], holes:[], nearests:{},
+let state={
+  files:[],b64s:[],mimes:[],
+  players:[],activePlayers:[],holes:[],nearests:{},
   unitAmount:1000,
-  baepan:{birdie:true,highscore:true,tripletie:true,twotie:false},
-  warnings:[], cardTotals:null, wallets:[],
+  baepan:{birdie:true,highscore:true,par3double:true,tripletie:true,twotie:false,tatadble:false},
+  warnings:[],cardTotals:null,wallets:[]
 }
-
 const $=id=>document.getElementById(id)
 function openModal(id){$(id).classList.add('on')}
 function closeModal(id){$(id).classList.remove('on')}
-
-/* ━━━ TOAST ━━━ */
 let toastTimer
-function showToast(msg,type='ok'){
-  clearTimeout(toastTimer);const t=$('toast');t.textContent=msg
-  t.className=`toast on ${type}`;toastTimer=setTimeout(()=>t.className='toast',4000)
-}
+function showToast(msg,type='ok'){clearTimeout(toastTimer);const t=$('toast');t.textContent=msg;t.className=`toast on ${type}`;toastTimer=setTimeout(()=>t.className='toast',4000)}
 
-/* ━━━ BAEPAN ━━━ */
 function toggleBp(el){
   if(el.classList.contains('disabled'))return
   el.classList.toggle('on');const key=el.dataset.key;state.baepan[key]=el.classList.contains('on')
   el.querySelector('.bp-box').textContent=state.baepan[key]?'✓':''
+  if(key==='tatadble')$('tatadbleDesc').style.display=state.baepan.tatadble?'block':'none'
 }
-
-/* ━━━ PLAYER CHIPS ━━━ */
 function toggleChip(el){
   const on=document.querySelectorAll('.chip.on')
   if(el.classList.contains('on')&&on.length<=2){showToast('최소 2명은 선택해야 합니다.','err');return}
-  el.classList.toggle('on');el.classList.toggle('off')
-  updateActivePlayers()
+  el.classList.toggle('on');el.classList.toggle('off');updateActivePlayers()
 }
 function updateActivePlayers(){
   state.activePlayers=[]
-  document.querySelectorAll('.chip').forEach((c,i)=>{if(c.classList.contains('on'))state.activePlayers.push(parseInt(c.dataset.pi))})
-  const is3=state.activePlayers.length===3
-  const tw=$('bp-twotie')
-  if(is3){tw.classList.remove('disabled')}
-  else{tw.classList.add('disabled');tw.classList.remove('on');state.baepan.twotie=false;tw.querySelector('.bp-box').textContent=''}
+  document.querySelectorAll('.chip').forEach((c)=>{if(c.classList.contains('on'))state.activePlayers.push(parseInt(c.dataset.pi))})
+  const is3=state.activePlayers.length===3,tw=$('bp-twotie')
+  if(is3){tw.classList.remove('disabled')}else{tw.classList.add('disabled');tw.classList.remove('on');state.baepan.twotie=false;tw.querySelector('.bp-box').textContent=''}
   buildWalletGrid()
 }
 
-/* ━━━ MULTI FILE UPLOAD ━━━ */
 const dz=$('dropZone')
 dz.addEventListener('click',()=>$('multiFileInput').click())
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover')})
@@ -478,60 +404,36 @@ function addFiles(files){
   const imgs=files.filter(f=>f.type.startsWith('image/'))
   if(!imgs.length){showToast('이미지 파일만 가능합니다.','err');return}
   imgs.forEach(f=>{
-    if(state.files.find(x=>x.name===f.name&&x.size===f.size))return // 중복 방지
-    state.files.push(f)
-    state.b64s.push(null)
-    state.mimes.push(f.type||'image/jpeg')
-    const idx=state.files.length-1
-    preprocessImage(f,idx)
+    if(state.files.find(x=>x.name===f.name&&x.size===f.size))return
+    state.files.push(f);state.b64s.push(null);state.mimes.push(f.type||'image/jpeg')
+    preprocessImage(f,state.files.length-1)
   })
-  renderFileList()
-  $('multiFileInput').value=''
+  renderFileList();$('multiFileInput').value=''
 }
-
-function removeFile(idx){
-  state.files.splice(idx,1);state.b64s.splice(idx,1);state.mimes.splice(idx,1)
-  renderFileList();renderPreviewStrip();checkReady()
-}
-
+function removeFile(idx){state.files.splice(idx,1);state.b64s.splice(idx,1);state.mimes.splice(idx,1);renderFileList();renderPreviewStrip();checkReady()}
 function renderFileList(){
   const fl=$('fileList')
   fl.innerHTML=state.files.map((f,i)=>`
     <div class="file-item">
       <canvas id="fthumb_${i}" class="file-thumb" width="48" height="48"></canvas>
-      <div class="file-info">
-        <div class="file-name">${f.name}</div>
-        <div class="file-size">${(f.size/1024).toFixed(0)} KB${state.b64s[i]?'':' · 처리중...'}</div>
-      </div>
+      <div class="file-info"><div class="file-name">${f.name}</div><div class="file-size">${(f.size/1024).toFixed(0)} KB${state.b64s[i]?'':' · 처리중...'}</div></div>
       <button class="file-remove" onclick="removeFile(${i})">×</button>
-    </div>
-  `).join('')
-  // 썸네일 렌더
+    </div>`).join('')
   state.files.forEach((f,i)=>{
-    const canvas=$(`fthumb_${i}`)
-    if(!canvas)return
+    const canvas=$(`fthumb_${i}`);if(!canvas)return
     const reader=new FileReader()
     reader.onload=e=>{const img=new Image();img.onload=()=>{const ctx=canvas.getContext('2d');const s=Math.min(48/img.width,48/img.height);ctx.drawImage(img,0,0,img.width*s,img.height*s)};img.src=e.target.result}
     reader.readAsDataURL(f)
   })
 }
-
 function renderPreviewStrip(){
-  const strip=$('previewStrip')
-  strip.innerHTML=state.files.map((f,i)=>`
-    <div class="preview-thumb" onclick="this.classList.toggle('zoom-modal')">
-      <canvas id="pcanvas_${i}"></canvas>
-      <div class="pt-label">카드 ${i+1}</div>
-    </div>
-  `).join('')
+  $('previewStrip').innerHTML=state.files.map((f,i)=>`<div class="preview-thumb"><canvas id="pcanvas_${i}"></canvas><div class="pt-label">카드 ${i+1}</div></div>`).join('')
 }
-
 function preprocessImage(file,idx){
   const reader=new FileReader()
   reader.onload=e=>{
-    const src=e.target.result
-    const img=new Image();img.onload=()=>{
-      // 전처리 캔버스
+    const src=e.target.result,img=new Image()
+    img.onload=()=>{
       const c=document.createElement('canvas'),ctx=c.getContext('2d')
       c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0)
       const d=ctx.getImageData(0,0,img.width,img.height),px=d.data
@@ -539,132 +441,76 @@ function preprocessImage(file,idx){
       for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}
       ctx.putImageData(d,0,0)
       state.b64s[idx]=c.toDataURL('image/jpeg',.92).split(',')[1]
-
-      // 프리뷰 캔버스 업데이트
       renderPreviewStrip()
-      setTimeout(()=>{
-        const pc=$(`pcanvas_${idx}`)
-        if(pc){const ctx2=pc.getContext('2d');pc.width=100;pc.height=80;ctx2.drawImage(c,0,0,100,80)}
-      },50)
-
-      // 참조 이미지 업데이트
-      updateRefImages()
-      renderFileList()
-      checkReady()
+      setTimeout(()=>{const pc=$(`pcanvas_${idx}`);if(pc){const ctx2=pc.getContext('2d');pc.width=100;pc.height=80;ctx2.drawImage(c,0,0,100,80)}},50)
+      updateRefImages();renderFileList();checkReady()
     };img.src=src
   };reader.readAsDataURL(file)
 }
-
 function updateRefImages(){
-  const panel=$('refImages')
-  if(!panel)return
+  const panel=$('refImages');if(!panel)return
   panel.innerHTML=state.files.map((f,i)=>`
     <div style="margin-bottom:${i<state.files.length-1?'10px':'0'}">
-      <div class="ref-img-wrap" onclick="this.classList.toggle('zoomed')">
-        <img id="refImg_${i}" src="${URL.createObjectURL(f)}" />
-      </div>
+      <div class="ref-img-wrap" onclick="this.classList.toggle('zoomed')"><img src="${URL.createObjectURL(f)}" /></div>
       <div class="ref-img-lbl">카드 ${i+1} — 클릭 확대</div>
-    </div>
-  `).join('')
+    </div>`).join('')
 }
-
 function checkReady(){$('analyzeBtn').disabled=state.files.length===0||state.b64s.some(b=>!b)}
 
-/* ━━━ WALLET ━━━ */
 function buildWalletGrid(){
   const ap=state.activePlayers.length>0?state.activePlayers:state.players.map((_,i)=>i)
   const names=ap.map(i=>state.players[i]||`플레이어${i+1}`)
   $('walletGrid').innerHTML=names.map((n,j)=>`
-    <div class="w-item">
-      <label>💰 ${n}</label>
-      <input type="number" placeholder="예: 89000" value="${state.wallets[ap[j]]||''}" min="0" step="1000"
-        onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" />
-    </div>
-  `).join('')
+    <div class="w-item"><label>💰 ${n}</label>
+    <input type="number" placeholder="예: 89000" value="${state.wallets[ap[j]]||''}" min="0" step="1000" onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" /></div>`).join('')
 }
 
-/* ━━━ AI ANALYSIS ━━━ */
 $('analyzeBtn').addEventListener('click',runAnalysis)
 $('reAnalyzeBtn').addEventListener('click',runAnalysis)
-
 async function runAnalysis(){
   if(!state.b64s.length||state.b64s.some(b=>!b)){showToast('이미지를 먼저 업로드하세요.','err');return}
   state.unitAmount=parseInt($('unitAmount').value)||1000
   $('loader').classList.add('on');$('analyzeBtn').disabled=true
   $('verifySection').style.display='none';$('resultsSection').style.display='none'
-
-  try {
+  try{
     $('loaderText').textContent=`${state.files.length}장 분석 중...`
     $('loaderStep').textContent='AI가 스코어카드 형식을 자동으로 판단합니다'
-
-    const payload={
-      imageBase64:state.b64s[0],mimeType:state.mimes[0]||'image/jpeg',
-      ...(state.b64s[1]&&{imageBase64_2:state.b64s[1],mimeType2:state.mimes[1]||'image/jpeg'}),
-      totalImages:state.b64s.length,
-    }
+    const payload={imageBase64:state.b64s[0],mimeType:state.mimes[0]||'image/jpeg',
+      ...(state.b64s[1]&&{imageBase64_2:state.b64s[1],mimeType2:state.mimes[1]||'image/jpeg'}),totalImages:state.b64s.length}
     const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     const j=await r.json()
     if(!j.success)throw new Error(j.error||'분석 실패')
     state.cardTotals=j.data.cardTotals||j.data.totals
-    populateTable(j.data)
-    showToast(`분석 완료! ${j.debug?.estimatedCost||''}`)
-  } catch(err){
-    showToast(`오류: ${err.message}`,'err')
-    showFallback()
-  } finally {
-    $('loader').classList.remove('on');$('analyzeBtn').disabled=false;$('loaderStep').textContent=''
-  }
+    populateTable(j.data);showToast(`분석 완료! ${j.debug?.estimatedCost||''}`)
+  }catch(err){showToast(`오류: ${err.message}`,'err');showFallback()}
+  finally{$('loader').classList.remove('on');$('analyzeBtn').disabled=false;$('loaderStep').textContent=''}
 }
-
 function showFallback(){
-  const p=4,h=18
-  populateTable({players:Array.from({length:p},(_,i)=>`플레이어${i+1}`),holes:Array.from({length:h},(_,i)=>({hole:i+1,par:4,scores:new Array(p).fill(4),diffs:new Array(p).fill(0)})),totals:{},cardTotals:null})
+  populateTable({players:Array.from({length:4},(_,i)=>`플레이어${i+1}`),
+    holes:Array.from({length:18},(_,i)=>({hole:i+1,par:4,scores:new Array(4).fill(4),diffs:new Array(4).fill(0)})),totals:{},cardTotals:null})
   showToast('수동으로 점수를 입력해주세요.','err')
 }
 
-/* ━━━ POPULATE TABLE ━━━ */
 function populateTable(data){
-  state.players=data.players||['P1','P2','P3','P4']
-  state.holes=data.holes||[];state.nearests={}
-
-  // 칩 이름 업데이트
+  state.players=data.players||['P1','P2','P3','P4'];state.holes=data.holes||[];state.nearests={}
   state.players.forEach((name,i)=>{const el=$(`cn${i}`);if(el)el.textContent=name;const chip=document.querySelector(`.chip[data-pi="${i}"]`);if(chip)chip.style.display=''})
   for(let i=state.players.length;i<4;i++){const chip=document.querySelector(`.chip[data-pi="${i}"]`);if(chip)chip.style.display='none'}
-  updateActivePlayers()
-  updateRefImages()
-
+  updateActivePlayers();updateRefImages()
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
-  const outCount=9
-
   $('tHead').innerHTML=`<tr><th>홀</th><th>Par</th>${ap.map(pi=>`<th><input class="pname-input" data-pi="${pi}" value="${state.players[pi]}" /></th>`).join('')}</tr>`
   $('tHead').querySelectorAll('.pname-input').forEach(inp=>{
-    inp.addEventListener('change',()=>{
-      const pi=parseInt(inp.dataset.pi);state.players[pi]=inp.value.trim()||state.players[pi]
-      const cn=$(`cn${pi}`);if(cn)cn.textContent=state.players[pi]
-      renderNearestSelects();buildWalletGrid()
-    })
+    inp.addEventListener('change',()=>{const pi=parseInt(inp.dataset.pi);state.players[pi]=inp.value.trim()||state.players[pi];const cn=$(`cn${pi}`);if(cn)cn.textContent=state.players[pi];renderNearestSelects();buildWalletGrid()})
   })
-
   $('tBody').innerHTML=''
   state.holes.forEach((h,idx)=>{
-    if(h.hole===outCount+1){
-      const sums=ap.map(pi=>state.holes.slice(0,outCount).reduce((a,hh)=>a+(hh.scores[pi]||0),0))
+    if(h.hole===10){
+      const sums=ap.map(pi=>state.holes.slice(0,9).reduce((a,hh)=>a+(hh.scores[pi]||0),0))
       const tr=document.createElement('tr');tr.className='subtotal-row'
       tr.innerHTML=`<td>OUT</td><td>—</td>${sums.map(s=>`<td>${s}</td>`).join('')}`;$('tBody').appendChild(tr)
     }
     const isPar3=h.par===3,tr=document.createElement('tr')
     if(isPar3)tr.classList.add('par3-row')
-    tr.innerHTML=`
-      <td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--primary);font-size:.58rem;margin-left:2px">P3</span>':''}</td>
-      <td class="par-cell">${h.par}</td>
-      ${ap.map(pi=>{
-        const s=h.scores[pi]||h.par,diff=s-h.par,cls=sClass(diff),ds=diff>0?`+${diff}`:String(diff)
-        return `<td><div style="display:flex;flex-direction:column;align-items:center;gap:1px">
-          <input type="number" class="si ${cls}" data-hole="${idx}" data-pi="${pi}" value="${s}" min="1" max="15" />
-          <span class="${cls}" style="font-size:.6rem;font-family:'JetBrains Mono',monospace;opacity:.8">(${ds})</span>
-        </div></td>`
-      }).join('')}
-    `
+    tr.innerHTML=`<td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--primary);font-size:.58rem;margin-left:2px">P3</span>':''}</td><td class="par-cell">${h.par}</td>${ap.map(pi=>{const s=h.scores[pi]||h.par,diff=s-h.par,cls=sClass(diff),ds=diff>0?`+${diff}`:String(diff);return`<td><div style="display:flex;flex-direction:column;align-items:center;gap:1px"><input type="number" class="si ${cls}" data-hole="${idx}" data-pi="${pi}" value="${s}" min="1" max="15" /><span class="${cls}" style="font-size:.6rem;font-family:'JetBrains Mono',monospace;opacity:.8">(${ds})</span></div></td>`}).join('')}`
     $('tBody').appendChild(tr)
     if(isPar3){
       const ntr=document.createElement('tr');ntr.style.cssText='background:rgba(26,86,219,.03)'
@@ -672,35 +518,26 @@ function populateTable(data){
       $('tBody').appendChild(ntr)
     }
   })
-  if(state.holes.length>outCount){
-    const sums=ap.map(pi=>state.holes.slice(outCount).reduce((a,h)=>a+(h.scores[pi]||0),0))
+  if(state.holes.length>9){
+    const sums=ap.map(pi=>state.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0))
     const tr=document.createElement('tr');tr.className='subtotal-row'
     tr.innerHTML=`<td>IN</td><td>—</td>${sums.map(s=>`<td>${s}</td>`).join('')}`;$('tBody').appendChild(tr)
   }
   const tots=ap.map(pi=>state.holes.reduce((a,h)=>a+(h.scores[pi]||0),0))
   const trT=document.createElement('tr');trT.className='total-row'
   trT.innerHTML=`<td>TOTAL</td><td>—</td>${tots.map(s=>`<td>${s}</td>`).join('')}`;$('tBody').appendChild(trT)
-
   $('tBody').querySelectorAll('.si').forEach(inp=>{
-    inp.addEventListener('change',()=>{
-      const hi=parseInt(inp.dataset.hole),pi=parseInt(inp.dataset.pi),val=parseInt(inp.value)||0
-      state.holes[hi].scores[pi]=val;state.holes[hi].diffs[pi]=val-state.holes[hi].par
-      refreshColors();updateSubtotals();renderSummaryBar()
-    })
+    inp.addEventListener('change',()=>{const hi=parseInt(inp.dataset.hole),pi=parseInt(inp.dataset.pi),val=parseInt(inp.value)||0;state.holes[hi].scores[pi]=val;state.holes[hi].diffs[pi]=val-state.holes[hi].par;refreshColors();updateSubtotals();renderSummaryBar()})
   })
   refreshColors();renderSummaryBar();renderNearestSelects()
-  $('verifySection').style.display='block'
-  $('verifySection').scrollIntoView({behavior:'smooth',block:'start'})
+  $('verifySection').style.display='block';$('verifySection').scrollIntoView({behavior:'smooth',block:'start'})
 }
 
-/* ━━━ NEAREST ━━━ */
 function setNearest(hi,pi){state.nearests[hi]=state.nearests[hi]===pi?-1:pi;renderNearestSelects()}
 function renderNearestSelects(){
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
   state.holes.forEach((h,idx)=>{if(h.par!==3)return;ap.forEach(pi=>{const el=$(`nc_${idx}_${pi}`);if(!el)return;const sel=(state.nearests[idx]??-1)===pi;el.classList.toggle('sel',sel);el.textContent=sel?'✓':'';el.title=`${state.players[pi]} 니어`})})
 }
-
-/* ━━━ SUMMARY BAR ━━━ */
 function renderSummaryBar(){
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
   const ct=state.cardTotals
@@ -710,38 +547,26 @@ function renderSummaryBar(){
     const tot=out+inn,card=ct?.total?.[pi],ok=card===undefined||tot===card
     return{name:state.players[pi],out,inn,tot,card,ok}
   })
-  $('scoreBar').innerHTML=pd.map(p=>`
-    <div class="ssp">
-      <div class="ssp-name">${p.name}</div>
-      <div class="ssp-total ${!p.ok?'ssp-warn':''}">${p.tot}</div>
-      <div class="ssp-detail">${p.out}/${p.inn}</div>
-      ${p.card!==undefined?`<div class="ssp-detail" style="color:${p.ok?'var(--text-muted)':'var(--red)'}">카드:${p.card}</div>`:''}
-    </div>
-  `).join('')
+  $('scoreBar').innerHTML=pd.map(p=>`<div class="ssp"><div class="ssp-name">${p.name}</div><div class="ssp-total ${!p.ok?'ssp-warn':''}">${p.tot}</div><div class="ssp-detail">${p.out}/${p.inn}</div>${p.card!==undefined?`<div class="ssp-detail" style="color:${p.ok?'var(--text-muted)':'var(--red)'}">카드:${p.card}</div>`:''}</div>`).join('')
   const mm=pd.filter(p=>!p.ok).map(p=>`${p.name}: ${p.tot} ≠ ${p.card}`)
   const a=$('alertArea')
   if(mm.length>0)a.innerHTML=`<div class="alert-mismatch"><div class="at">⚠️ 합계 불일치 — 수정 또는 재인식 필요</div>${mm.map(m=>`<div class="ai">• ${m}</div>`).join('')}</div>`
   else if(ct?.total)a.innerHTML=`<div class="alert-ok">✅ 전반/후반/합계 카드와 일치</div>`
   else a.innerHTML=''
 }
-
-/* ━━━ TABLE UTILS ━━━ */
 function sClass(d){if(d<=-2)return's-eagle';if(d===-1)return's-birdie';if(d===0)return's-par';if(d===1)return's-bogey';if(d===2)return's-double';return's-triple'}
 function refreshColors(){
-  const tBody=$('tBody')
-  tBody.querySelectorAll('.si').forEach(inp=>{
+  $('tBody').querySelectorAll('.si').forEach(inp=>{
     const h=state.holes[parseInt(inp.dataset.hole)];if(!h)return
     const diff=(parseInt(inp.value)||0)-h.par,cls=sClass(diff)
-    inp.className=`si ${cls}`
-    const span=inp.parentElement?.querySelector('span')
+    inp.className=`si ${cls}`;const span=inp.parentElement?.querySelector('span')
     if(span){span.textContent=`(${diff>0?`+${diff}`:diff})`;span.className=cls}
   })
 }
 function updateSubtotals(){
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
   $('tBody').querySelectorAll('.subtotal-row,.total-row').forEach(row=>{
-    const l=row.cells[0].textContent
-    let s
+    const l=row.cells[0].textContent;let s
     if(l==='OUT')s=ap.map(pi=>state.holes.slice(0,9).reduce((a,h)=>a+(h.scores[pi]||0),0))
     else if(l==='IN')s=ap.map(pi=>state.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0))
     else s=ap.map(pi=>state.holes.reduce((a,h)=>a+(h.scores[pi]||0),0))
@@ -749,25 +574,37 @@ function updateSubtotals(){
   })
 }
 
-/* ━━━ CALCULATE ━━━ */
 $('calcBtn').addEventListener('click',calculate)
 function calculate(){
   state.unitAmount=parseInt($('unitAmount').value)||1000
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
-  const pCount=ap.length,unit=state.unitAmount,outCount=9
+  const pCount=ap.length,baseUnit=state.unitAmount,outCount=9
   const mkM=()=>Array.from({length:pCount},()=>new Array(pCount).fill(0))
   const bds=[],totals=new Array(pCount).fill(0)
+  let currentUnit=baseUnit,prevAllTied=false
 
   state.holes.forEach((h,idx)=>{
     const scores=ap.map(pi=>h.scores[pi]||h.par),diffs=scores.map(s=>s-h.par)
     const nearestRaw=state.nearests[idx]??-1,nearest=ap.indexOf(nearestRaw)
+
+    // 따따블: 이전 홀 전원 동타면 타당금액 2배 누적
+    if(state.baepan.tatadble&&prevAllTied){
+      currentUnit=Math.min(currentUnit*2,baseUnit*8)
+    }else if(!prevAllTied){
+      currentUnit=baseUnit
+    }
+    const allTiedThisHole=state.baepan.tatadble&&scores.every(s=>s===scores[0])
+    prevAllTied=allTiedThisHole
+    const unit=currentUnit
+
     const hasBirdie=state.baepan.birdie&&diffs.some(d=>d===-1)
     const hasEagle=state.baepan.birdie&&diffs.some(d=>d<=-2)
-    const hasHigh=state.baepan.highscore&&(h.par>=4?diffs.some(d=>d>=3):diffs.some(d=>d>=2))
+    const hasTriple=state.baepan.highscore&&h.par>=4&&diffs.some(d=>d>=3)
+    const hasPar3Double=state.baepan.par3double&&h.par===3&&diffs.some(d=>d>=2)
     const sc={};scores.forEach(s=>{sc[s]=(sc[s]||0)+1})
     const has3=state.baepan.tripletie&&pCount>=3&&Object.values(sc).some(c=>c>=3)
     const has2=state.baepan.twotie&&pCount===3&&Object.values(sc).some(c=>c>=2)
-    const isDouble=hasBirdie||hasEagle||hasHigh||has3||has2
+    const isDouble=hasBirdie||hasEagle||hasTriple||hasPar3Double||has3||has2
     const matrix=mkM(),txns=[]
 
     for(let a=0;a<pCount;a++)for(let b=a+1;b<pCount;b++){
@@ -780,12 +617,12 @@ function calculate(){
     }
     const nTxns=[]
     if(h.par===3&&nearest>=0&&nearest<pCount){
-      // 니어리스트 보상 = 단위금액 × 배판 multiplier (배판 홀이면 2배 적용)
       const nearAmt=unit*(isDouble?2:1)
       for(let p=0;p<pCount;p++){if(p===nearest)continue;matrix[p][nearest]+=nearAmt;nTxns.push({from:p,to:nearest,amount:nearAmt,multiplier:isDouble?2:1})}
     }
     for(let a=0;a<pCount;a++)for(let b=0;b<pCount;b++){if(a===b)continue;totals[a]-=matrix[a][b];totals[a]+=matrix[b][a]}
-    bds.push({hole:h.hole,par:h.par,scores,diffs,isDouble,nearest:nearest>=0?ap[nearest]:-1,txns,nTxns,hasBirdie,hasEagle,hasHigh,has3,has2})
+    const reasons=[hasBirdie?'버디':'',hasEagle?'이글':'',hasTriple?'트리플보기':'',hasPar3Double?'더블(Par3)':'',has3?'3인동타':'',has2?'2인동타':''].filter(Boolean).join(', ')
+    bds.push({hole:h.hole,par:h.par,scores,diffs,isDouble,nearest:nearest>=0?ap[nearest]:-1,txns,nTxns,hasBirdie,hasEagle,hasTriple,hasPar3Double,has3,has2,currentUnit,allTiedThisHole,reasons})
   })
 
   const hasW=ap.some(pi=>(state.wallets[pi]||0)>0)
@@ -794,32 +631,30 @@ function calculate(){
     const delta=new Array(pCount).fill(0)
     ;[...bd.txns,...bd.nTxns].forEach(t=>{delta[t.from]-=t.amount;delta[t.to]+=t.amount})
     cumD=cumD.map((v,i)=>v+delta[i])
-    return{hole:bd.hole,par:bd.par,delta:[...delta],cumulative:[...cumD],assets:hasW?ap.map((pi,j)=>(state.wallets[pi]||0)+cumD[j]):null}
+    return{hole:bd.hole,par:bd.par,delta:[...delta],cumulative:[...cumD],
+      assets:hasW?ap.map((pi,j)=>(state.wallets[pi]||0)+cumD[j]):null,currentUnit:bd.currentUnit}
   })
   renderResults(bds,totals,ap,outCount,assetHist)
 }
 
-/* ━━━ RENDER RESULTS ━━━ */
 function renderResults(bds,totals,ap,outCount,assetHist){
   const names=ap.map(pi=>state.players[pi])
   $('holeResults').innerHTML=''
   bds.forEach(bd=>{
     const div=document.createElement('div');div.className='hole-card'
     const nName=bd.nearest>=0?state.players[bd.nearest]:''
-    const reasons=[bd.hasBirdie?'버디':'',bd.hasEagle?'이글':'',bd.hasHigh?(bd.par>=4?'트리플+':'더블+'):'',bd.has3?'3인동타':'',bd.has2?'2인동타':''].filter(Boolean).join(', ')
+    const tatadbleTag=state.baepan.tatadble&&bd.currentUnit>state.unitAmount?`<span class="tatadble-tag">🔥 타당 ${fmt(bd.currentUnit)}원</span>`:''
+    const allTieTag=bd.allTiedThisHole&&state.baepan.tatadble?`<span style="background:#f0fdf4;border:1px solid #86efac;color:var(--green);font-size:.7rem;font-weight:700;border-radius:4px;padding:2px 7px">전원동타→다음홀따따블</span>`:''
     div.innerHTML=`
       <div class="hole-header">
-        <span class="hole-num">HOLE ${bd.hole}</span>
-        <span class="par-tag">Par ${bd.par}</span>
-        ${bd.isDouble?`<span class="double-tag">× 2배판 (${reasons})</span>`:''}
-        ${nName?`<span class="near-tag">🎯 ${nName}</span>`:''}
+        <span class="hole-num">HOLE ${bd.hole}</span><span class="par-tag">Par ${bd.par}</span>
+        ${tatadbleTag}${bd.isDouble?`<span class="double-tag">× 2배판 (${bd.reasons})</span>`:''}
+        ${allTieTag}${nName?`<span class="near-tag">🎯 ${nName}</span>`:''}
       </div>
       <div class="score-row">${names.map((n,i)=>`<div class="score-chip"><span class="cn">${n}</span><span class="${sClass(bd.diffs[i])}">${bd.scores[i]}</span> <span style="font-size:.62rem;color:var(--text-muted)">(${dLabel(bd.diffs[i])})</span></div>`).join('')}</div>
-      <div class="txn-row">${[...bd.txns,...bd.nTxns.map(t=>({...t,isN:true}))].map(t=>`<div class="txn"><span class="from">${names[t.from]}</span><span style="color:var(--text-muted)">→</span><span class="to">${names[t.to]}</span><span class="amt">${fmt(t.amount)}원</span>${t.isN?`<span style="font-size:.65rem;color:var(--primary)">(니어${t.multiplier>1?` ×${t.multiplier}`:''})</span>`:''}</div>`).join('')||'<span style="color:var(--text-muted);font-size:.75rem">동타 — 정산 없음</span>'}</div>
-    `
+      <div class="txn-row">${[...bd.txns,...bd.nTxns.map(t=>({...t,isN:true}))].map(t=>`<div class="txn"><span class="from">${names[t.from]}</span><span style="color:var(--text-muted)">→</span><span class="to">${names[t.to]}</span><span class="amt">${fmt(t.amount)}원</span>${t.isN?`<span style="font-size:.65rem;color:var(--primary)">(니어${t.multiplier>1?` ×${t.multiplier}`:''})</span>`:''}</div>`).join('')||'<span style="color:var(--text-muted);font-size:.75rem">동타 — 정산 없음</span>'}</div>`
     $('holeResults').appendChild(div)
   })
-
   const deltas=bds.map(bd=>{const d=new Array(ap.length).fill(0);[...bd.txns,...bd.nTxns].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});return d})
   const sD=(arr,n)=>{const r=new Array(n).fill(0);arr.forEach(d=>d.forEach((v,i)=>{r[i]+=v}));return r}
   const outT=sD(deltas.slice(0,outCount),ap.length),inT=sD(deltas.slice(outCount),ap.length)
@@ -829,46 +664,49 @@ function renderResults(bds,totals,ap,outCount,assetHist){
   $('rankGrid').innerHTML=ranked.map((r,ri)=>`<div class="rank-card ${ri===0?'r1':''}"><div class="rank-n">${ri+1}</div><div class="rank-name">${r.name}</div><div class="rank-amt ${r.total>0?'pos':r.total<0?'neg':''}">${r.total>0?'+':''}${fmt(r.total)}</div><div class="rank-unit">원</div></div>`).join('')
   renderAssetTable(assetHist,totals,ap,outCount)
   renderFlow(totals,names)
-  $('resultsSection').style.display='block'
-  $('resultsSection').scrollIntoView({behavior:'smooth',block:'start'})
+  $('resultsSection').style.display='block';$('resultsSection').scrollIntoView({behavior:'smooth',block:'start'})
   showToast('정산 완료! ⛳')
 }
 
-/* ━━━ ASSET TABLE ━━━ */
 function renderAssetTable(hist,totals,ap,outCount){
   const w=$('assetWrap'),t=$('assetTable');if(!w)return
   const hasW=hist.length>0&&hist[0].assets!==null
   const names=ap.map(pi=>state.players[pi])
   w.style.display='block'
-  const pC=names.map(n=>`<th>${n}<br><span style="font-size:.6rem">득실</span></th>`).join('')
-  const wC=hasW?names.map(n=>`<th style="color:var(--gold)">${n}<br><span style="font-size:.6rem">잔액</span></th>`).join(''):''
-  let html=`<thead><tr><th>홀</th><th>Par</th>${pC}${wC}</tr></thead><tbody>`
+  const showTatadble=state.baepan.tatadble
+  const pC=names.map(n=>`<th>${n}<br><span style="font-size:.6rem">홀 득실</span></th>`).join('')
+  const wC=hasW?names.map(n=>`<th style="color:var(--gold)">${n}<br><span style="font-size:.6rem">보유금액</span></th>`).join(''):''
+  const tH=showTatadble?'<th style="color:var(--purple);font-size:.6rem">타당</th>':''
+  let html=`<thead><tr><th>홀</th><th>Par</th>${tH}${pC}${wC}</tr></thead><tbody>`
   let odone=false
   hist.forEach(h=>{
     if(!odone&&h.hole>outCount&&outCount>0){
       odone=true
       const oc=hist[outCount-1]?.cumulative||[]
+      const tC=showTatadble?'<td>—</td>':''
       const dc=names.map((_,i)=>{const v=oc[i]||0;return`<td class="${v>0?'a-up':v<0?'a-dn':'a-eq'}">${v>0?'+':''}${fmt(v)}원</td>`}).join('')
-      const ac=hasW?names.map((_,i)=>{const w=state.wallets[ap[i]]||0,v=w+(oc[i]||0);return`<td class="${v>=w?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
-      html+=`<tr class="subtotal-row"><td colspan="2">OUT</td>${dc}${ac}</tr>`
+      const ac=hasW?names.map((_,i)=>{const wv=state.wallets[ap[i]]||0,v=wv+(oc[i]||0);return`<td class="${v>=wv?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
+      html+=`<tr class="subtotal-row"><td colspan="2">OUT</td>${tC}${dc}${ac}</tr>`
     }
+    const tC=showTatadble?`<td style="color:var(--purple);font-size:.7rem;font-weight:700">${fmt(h.currentUnit)}</td>`:''
     const dc=names.map((_,i)=>{const v=h.delta[i]||0;return`<td class="${v>0?'a-up':v<0?'a-dn':'a-eq'}">${v!==0?`${v>0?'+':''}${fmt(v)}원`:'—'}</td>`}).join('')
-    const ac=hasW?names.map((_,i)=>{const v=h.assets[i],w=state.wallets[ap[i]]||0;return`<td class="${v>=w?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
-    html+=`<tr><td class="hole-cell">${h.hole}홀</td><td class="par-cell">P${h.par}</td>${dc}${ac}</tr>`
+    const ac=hasW?names.map((_,i)=>{const v=h.assets[i],wv=state.wallets[ap[i]]||0;return`<td class="${v>=wv?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
+    html+=`<tr><td class="hole-cell">${h.hole}홀</td><td class="par-cell">P${h.par}</td>${tC}${dc}${ac}</tr>`
   })
   if(outCount>0&&hist.length>outCount){
     const ic=hist[hist.length-1]?.cumulative||[],oc=hist[outCount-1]?.cumulative||[]
+    const tC=showTatadble?'<td>—</td>':''
     const dc=names.map((_,i)=>{const v=(ic[i]||0)-(oc[i]||0);return`<td class="${v>0?'a-up':v<0?'a-dn':'a-eq'}">${v>0?'+':''}${fmt(v)}원</td>`}).join('')
-    const ac=hasW?names.map((_,i)=>{const w=state.wallets[ap[i]]||0,v=w+(ic[i]||0);return`<td class="${v>=w?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
-    html+=`<tr class="subtotal-row"><td colspan="2">IN</td>${dc}${ac}</tr>`
+    const ac=hasW?names.map((_,i)=>{const wv=state.wallets[ap[i]]||0,v=wv+(ic[i]||0);return`<td class="${v>=wv?'a-up':'a-dn'}">${fmt(v)}원</td>`}).join(''):''
+    html+=`<tr class="subtotal-row"><td colspan="2">IN</td>${tC}${dc}${ac}</tr>`
   }
+  const tC=showTatadble?'<td>—</td>':''
   const fc=names.map((_,i)=>{const v=totals[i];return`<td class="${v>0?'a-up':v<0?'a-dn':'a-eq'}">${v>0?'+':''}${fmt(v)}원</td>`}).join('')
-  const fac=hasW?names.map((_,i)=>{const w=state.wallets[ap[i]]||0,v=w+totals[i];return`<td class="${v>=w?'a-up':'a-dn'}" style="font-weight:700">${fmt(v)}원</td>`}).join(''):''
-  html+=`<tr class="total-row"><td colspan="2">최종</td>${fc}${fac}</tr></tbody>`
+  const fac=hasW?names.map((_,i)=>{const wv=state.wallets[ap[i]]||0,v=wv+totals[i];return`<td class="${v>=wv?'a-up':'a-dn'}" style="font-weight:700">${fmt(v)}원</td>`}).join(''):''
+  html+=`<tr class="total-row"><td colspan="2">최종</td>${tC}${fc}${fac}</tr></tbody>`
   t.innerHTML=html
 }
 
-/* ━━━ FLOW ━━━ */
 function renderFlow(totals,names){
   const n=names.length,W=620,H=300,cx=W/2,cy=H/2,R=105,nr=33
   const angles=names.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2)
@@ -879,8 +717,7 @@ function renderFlow(totals,names){
   const lA=losers.map(l=>-l.total),wA=winners.map(w=>w.total),arrows=[]
   let li=0,wi=0
   while(li<losers.length&&wi<winners.length){const amt=Math.min(lA[li],wA[wi]);if(amt>1)arrows.push({from:losers[li],to:winners[wi],amount:amt});lA[li]-=amt;wA[wi]-=amt;if(lA[li]<1)li++;if(wA[wi]<1)wi++}
-  const top=Math.max(...totals)
-  let defs='',ap2='',ns=''
+  const top=Math.max(...totals);let defs='',ap2='',ns=''
   arrows.forEach((a,ai)=>{
     const dx=a.to.x-a.from.x,dy=a.to.y-a.from.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist
     const x1=a.from.x+ux*nr,y1=a.from.y+uy*nr,x2=a.to.x-ux*(nr+8),y2=a.to.y-uy*(nr+8)
@@ -892,35 +729,28 @@ function renderFlow(totals,names){
   })
   nodes.forEach(nd=>{
     const isW=nd.total>0,isTop=nd.total===top&&nd.total>0
-    const fill=isTop?'#fef3c7':isW?'#dcfce7':'#fee2e2'
-    const stroke=isTop?'#d97706':isW?'#16a34a':'#dc2626'
+    const fill=isTop?'#fef3c7':isW?'#dcfce7':'#fee2e2',stroke=isTop?'#d97706':isW?'#16a34a':'#dc2626'
     const tc=isTop?'#d97706':isW?'#16a34a':'#dc2626',sign=nd.total>0?'+':''
     ns+=`<circle cx="${nd.x}" cy="${nd.y}" r="${nr}" fill="${fill}" stroke="${stroke}" stroke-width="2" />${isTop?`<circle cx="${nd.x}" cy="${nd.y}" r="${nr+4}" fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="3,3" opacity=".5" />`:''}<text x="${nd.x}" y="${nd.y-5}" text-anchor="middle" fill="#111827" font-size="11.5" font-weight="700" font-family="Noto Sans KR">${nd.name}</text><text x="${nd.x}" y="${nd.y+10}" text-anchor="middle" fill="${tc}" font-size="10" font-family="JetBrains Mono" font-weight="700">${sign}${fmt(nd.total)}</text><text x="${nd.x}" y="${nd.y+21}" text-anchor="middle" fill="#9ca3af" font-size="8" font-family="JetBrains Mono">원</text>`
   })
   $('flowWrap').innerHTML=`<svg class="flow-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${ap2}${ns}</svg>`
 }
 
-/* ━━━ UTILS ━━━ */
 function dLabel(d){if(d<=-3)return'알바트로스';if(d===-2)return'이글';if(d===-1)return'버디';if(d===0)return'Par';if(d===1)return'보기';if(d===2)return'더블';if(d===3)return'트리플';return`+${d}`}
 function fmt(n){return Math.round(n).toLocaleString('ko-KR')}
 
-/* ━━━ RESET ━━━ */
 function doReset(){
   if(!confirm('모든 데이터를 초기화할까요?'))return
-  state={files:[],b64s:[],mimes:[],players:[],activePlayers:[],holes:[],nearests:{},unitAmount:1000,baepan:{birdie:true,highscore:true,tripletie:true,twotie:false},warnings:[],cardTotals:null,wallets:[]}
-  $('fileList').innerHTML='';$('previewStrip').innerHTML='';$('previewGrid')&&($('previewGrid').innerHTML='')
-  $('multiFileInput').value=''
+  state={files:[],b64s:[],mimes:[],players:[],activePlayers:[],holes:[],nearests:{},unitAmount:1000,
+    baepan:{birdie:true,highscore:true,par3double:true,tripletie:true,twotie:false,tatadble:false},warnings:[],cardTotals:null,wallets:[]}
+  $('fileList').innerHTML='';$('previewStrip').innerHTML='';$('multiFileInput').value=''
   $('verifySection').style.display='none';$('resultsSection').style.display='none'
   document.querySelectorAll('.chip').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''})
-  document.querySelectorAll('.bp').forEach(el=>{const k=el.dataset.key,on=['birdie','highscore','tripletie'].includes(k);el.classList.toggle('on',on);el.querySelector('.bp-box').textContent=on?'✓':'';state.baepan[k]=on})
-  $('bp-twotie').classList.add('disabled')
-  $('walletGrid').innerHTML=''
-  $('analyzeBtn').disabled=true
-  updateActivePlayers();buildWalletGrid()
-  showToast('초기화 완료.')
+  document.querySelectorAll('.bp').forEach(el=>{const k=el.dataset.key,on=['birdie','highscore','par3double','tripletie'].includes(k);el.classList.toggle('on',on);el.querySelector('.bp-box').textContent=on?'✓':'';state.baepan[k]=on})
+  $('bp-twotie').classList.add('disabled');$('tatadbleDesc').style.display='none'
+  $('walletGrid').innerHTML='';$('analyzeBtn').disabled=true
+  updateActivePlayers();buildWalletGrid();showToast('초기화 완료.')
 }
-
-/* INIT */
 updateActivePlayers();buildWalletGrid()
 </script>
 </body>
