@@ -57,16 +57,19 @@
     /* ── CARD ── */
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
 
-    /* ── CARD MODE TABS ── */
-    .card-mode-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-    .card-mode-tab{padding:12px 10px;border-radius:var(--radius-lg);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .2s;user-select:none}
-    .card-mode-tab:hover{border-color:var(--primary);background:var(--primary-light)}
-    .card-mode-tab.active{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 3px rgba(26,107,60,.1)}
-    .card-mode-tab .tab-icon{font-size:1.3rem;display:block;margin-bottom:5px}
-    .card-mode-tab .tab-title{font-size:.78rem;font-weight:700;color:var(--text-sub)}
-    .card-mode-tab.active .tab-title{color:var(--primary)}
-    .card-mode-tab .tab-desc{font-size:.68rem;color:var(--text-muted);margin-top:3px;line-height:1.4}
-    .card-mode-tab.active .tab-desc{color:var(--primary-mid)}
+    /* ── MULTI FILE UPLOAD ── */
+    .drop-zone{border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2);margin-bottom:12px}
+    .drop-zone:hover,.drop-zone.dragover{border-color:var(--primary);background:var(--primary-light)}
+    .file-item{display:flex;align-items:center;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:9px 13px}
+    .file-thumb{width:44px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--border);background:var(--gray-100)}
+    .file-info{flex:1;min-width:0}
+    .file-name{font-size:.8rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+    .file-size{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+    .file-remove{background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;padding:4px;border-radius:4px;flex-shrink:0}
+    .file-remove:hover{color:var(--red)}
+    .preview-thumb{flex-shrink:0;width:90px;height:72px;border-radius:8px;overflow:hidden;border:2px solid var(--border);position:relative;cursor:zoom-in;background:var(--gray-100)}
+    .preview-thumb canvas,.preview-thumb img{width:100%;height:100%;object-fit:cover}
+    .preview-thumb .pt-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.55);color:#fff;font-size:.6rem;text-align:center;padding:2px;font-weight:600}
 
     /* mode desc */
     .mode-desc-bar{background:var(--blue-light);border:1px solid rgba(37,99,168,.2);border-radius:var(--radius);padding:10px 14px;font-size:.8rem;color:var(--blue);margin-bottom:16px;font-weight:500}
@@ -278,7 +281,7 @@
     .toast.error{background:var(--red)}
     .toast.success{background:var(--primary)}
 
-    @media(max-width:760px){.verify-layout{grid-template-columns:1fr};.card-mode-tabs{grid-template-columns:1fr 1fr}}
+    @media(max-width:760px){.verify-layout{grid-template-columns:1fr}}
     @media(max-width:520px){.rank-cards{grid-template-columns:1fr 1fr};.upload-multi-grid{grid-template-columns:1fr}}
   </style>
 </head>
@@ -308,56 +311,32 @@
   </div>
   <div class="card">
 
-    <div class="card-mode-tabs" id="cardModeTabs">
-      <div class="card-mode-tab active" data-mode="1card-4p" onclick="setCardMode(this)">
-        <span class="tab-icon">🃏</span>
-        <div class="tab-title">1장 · 4명</div>
-        <div class="tab-desc">스마트스코어 등<br>1장에 4명 18홀</div>
-      </div>
-      <div class="card-mode-tab" data-mode="2card-4p" onclick="setCardMode(this)">
-        <span class="tab-icon">🃏🃏</span>
-        <div class="tab-title">2장 · 4명 (골프존)</div>
-        <div class="tab-desc">1장에 2명씩<br>카드1(P1·2)+카드2(P3·4)</div>
-      </div>
-      <div class="card-mode-tab" data-mode="2card-split" onclick="setCardMode(this)">
-        <span class="tab-icon">✂️🃏</span>
-        <div class="tab-title">2장 · 전반/후반</div>
-        <div class="tab-desc">4명이 전반·후반<br>카드로 분리된 경우</div>
-      </div>
-      <div class="card-mode-tab" data-mode="1card-2p" onclick="setCardMode(this)">
-        <span class="tab-icon">🃏👤👤</span>
-        <div class="tab-title">1장 · 2명</div>
-        <div class="tab-desc">골프존 1장<br>2명 18홀</div>
+    <!-- AI 자동 판단 안내 -->
+    <div style="background:var(--primary-light);border:1px solid rgba(26,107,60,.2);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px">
+      <div style="font-size:1.5rem;flex-shrink:0">🤖</div>
+      <div>
+        <div style="font-size:.85rem;font-weight:700;color:var(--primary);margin-bottom:3px">AI 자동 인식</div>
+        <div style="font-size:.78rem;color:var(--text-sub);line-height:1.7">
+          어떤 형태든 AI가 자동으로 판단합니다 — <span style="color:var(--primary);font-weight:600">스마트스코어 · 골프존 · 전후반 분리 · 2명/4명</span><br>
+          이미지를 1~4장 올리면 플레이어·홀·Par 모두 자동 인식
+        </div>
       </div>
     </div>
 
-    <div class="mode-desc-bar" id="modeDesc">
-      📋 1장에 4명 전체 18홀이 포함된 스코어카드 (스마트스코어 등)
+    <!-- 다중 파일 업로드 -->
+    <div class="drop-zone" id="dropZone">
+      <input type="file" id="multiFileInput" accept="image/*" multiple />
+      <span class="slot-icon">📷</span>
+      <div class="slot-title">스코어카드 이미지 선택</div>
+      <div class="slot-sub">여러 장 동시 선택 가능 (최대 4장) · JPG · PNG · WEBP</div>
+      <div class="slot-filename" id="dropZoneName">클릭하거나 드래그</div>
     </div>
 
-    <div class="upload-multi-grid">
-      <div class="upload-slot" id="slot1">
-        <input type="file" id="fileInput" accept="image/*" />
-        <span class="slot-icon">📷</span>
-        <div class="slot-title" id="slot1Title">스코어카드</div>
-        <div class="slot-sub" id="slot1Sub">4명 18홀 포함</div>
-        <div class="slot-filename" id="slot1Name">클릭하거나 드래그</div>
-      </div>
-      <div class="upload-slot" id="slot2" style="opacity:.4;pointer-events:none">
-        <input type="file" id="fileInput2" accept="image/*" />
-        <span class="slot-icon">📷</span>
-        <div class="slot-title" id="slot2Title">스코어카드 2장</div>
-        <div class="slot-sub" id="slot2Sub">이 모드에서는 불필요</div>
-        <div class="slot-filename" id="slot2Name">클릭하거나 드래그</div>
-      </div>
-    </div>
+    <!-- 파일 목록 -->
+    <div id="fileList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
 
-    <div class="preview-container" id="previewContainer">
-      <div class="preview-box"><span class="preview-label">원본 1</span><img id="previewOrig" alt="원본" /></div>
-      <div class="preview-box"><span class="preview-label">전처리 1</span><canvas id="previewCanvas"></canvas></div>
-      <div class="preview-box" id="preview2Box" style="display:none"><span class="preview-label">원본 2</span><img id="previewOrig2" alt="원본2" /></div>
-      <div class="preview-box" id="preview2CanvasBox" style="display:none"><span class="preview-label">전처리 2</span><canvas id="previewCanvas2"></canvas></div>
-    </div>
+    <!-- 미리보기 -->
+    <div id="previewStrip" style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px"></div>
 
     <!-- 타당금액 -->
     <div class="unit-row">
@@ -535,7 +514,7 @@
       <span style="font-size:1.3rem">©</span>
       <div>
         <div style="font-size:.82rem;font-weight:700;color:var(--primary)">저작권 및 문의</div>
-        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · <a href="mailto:paeyougpark@gmail.com" style="color:var(--primary)">paeyougpark@gmail.com</a></div>
+        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · <a href="/cdn-cgi/l/email-protection#89f9e8ecf0e6fceef9e8fbe2c9eee4e8e0e5a7eae6e4" style="color:var(--primary)"><span class="__cf_email__" data-cfemail="156574706c7a60726574677e557278747c793b767a78">[email&#160;protected]</span></a></div>
       </div>
     </div>
     <div class="help-block"><div class="help-block-title">⛳ 이 프로그램은?</div><div class="help-block-body">골프 라운딩 후 정확한 정산을 위한 AI 자동 계산기입니다.</div></div>
@@ -555,13 +534,10 @@
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ━━━ STATE ━━━ */
 let state = {
-  imageFile:null, imageFile2:null,
-  cardMode:'1card-4p',
-  processedBase64:null, processedBase64_2:null,
-  mimeType:'image/jpeg', mimeType2:'image/jpeg',
+  files:[], b64s:[], mimes:[],
   aiData:null, players:[], activePlayers:[], holes:[], nearests:{},
   unitAmount:1000,
   baepan:{birdie:true, triple:true, par3double:true, tripletie:true, twotie:false, tatadble:false},
@@ -569,9 +545,7 @@ let state = {
 }
 
 const $=id=>document.getElementById(id)
-const fileInput=$('fileInput'),fileInput2=$('fileInput2')
-const slot1=$('slot1'),slot2=$('slot2')
-const previewCont=$('previewContainer'),loader=$('loader')
+const loader=$('loader')
 const loaderText=$('loaderText'),loaderStep=$('loaderStep')
 const analyzeBtn=$('analyzeBtn'),resetBtn=$('resetBtn')
 const verifySection=$('verifySection')
@@ -583,26 +557,7 @@ const resultsSection=$('resultsSection'),holeResults=$('holeResults'),toast=$('t
 let toastTimer
 function showToast(msg,type='success'){clearTimeout(toastTimer);toast.textContent=msg;toast.className=`toast ${type} show`;toastTimer=setTimeout(()=>toast.classList.remove('show'),4000)}
 
-/* ━━━ CARD MODE ━━━ */
-const MODE_CONFIG = {
-  '1card-4p':{slots:1,desc:'📋 1장에 4명 전체 18홀 (스마트스코어 등)',s1title:'스코어카드',s1sub:'4명 18홀 포함',s2title:'불필요',s2sub:'이 모드에서는 불필요',pCount:4},
-  '2card-4p':{slots:2,desc:'🎮 골프존: 카드1=P1·P2 / 카드2=P3·P4',s1title:'카드 1 (P1·P2)',s1sub:'2명 18홀',s2title:'카드 2 (P3·P4)',s2sub:'2명 18홀',pCount:4},
-  '2card-split':{slots:2,desc:'✂️ 전반/후반 분리: 카드1=전반9홀 / 카드2=후반9홀',s1title:'카드 1 (전반 1–9홀)',s1sub:'4명 전반',s2title:'카드 2 (후반 10–18홀)',s2sub:'4명 후반',pCount:4},
-  '1card-2p':{slots:1,desc:'👤 골프존 1장: 2명 18홀',s1title:'스코어카드',s1sub:'2명 18홀',s2title:'불필요',s2sub:'이 모드에서는 불필요',pCount:2},
-}
-
-function setCardMode(el){
-  document.querySelectorAll('.card-mode-tab').forEach(t=>t.classList.remove('active'))
-  el.classList.add('active')
-  const mode=el.dataset.mode, cfg=MODE_CONFIG[mode]
-  state.cardMode=mode
-  $('modeDesc').textContent=cfg.desc
-  $('slot1Title').textContent=cfg.s1title;$('slot1Sub').textContent=cfg.s1sub
-  $('slot2Title').textContent=cfg.s2title;$('slot2Sub').textContent=cfg.s2sub
-  const s2=$('slot2')
-  if(cfg.slots>=2){s2.style.opacity='1';s2.style.pointerEvents='auto'}
-  else{s2.style.opacity='.4';s2.style.pointerEvents='none'}
-}
+/* ━━━ CARD MODE → 제거됨 (AI 자동 판단) ━━━ */
 
 /* ━━━ BAEPAN ━━━ */
 function toggleBaepan(el){
@@ -631,55 +586,89 @@ function updateActivePlayers(){
   buildWalletGrid()
 }
 
-/* ━━━ FILE UPLOAD ━━━ */
-slot1.addEventListener('click',()=>fileInput.click())
-slot2.addEventListener('click',()=>fileInput2.click())
-function addDrag(slot,num){
-  slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover')})
-  slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'))
-  slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0],num)})
-}
-addDrag(slot1,1);addDrag(slot2,2)
-fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],1)})
-fileInput2.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],2)})
+/* ━━━ MULTI FILE UPLOAD ━━━ */
+const dz=$('dropZone')
+dz.addEventListener('click',()=>$('multiFileInput').click())
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover')})
+dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'))
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');addFiles(Array.from(e.dataTransfer.files))})
+$('multiFileInput').addEventListener('change',e=>addFiles(Array.from(e.target.files)))
 
-function preprocessImage(file,origId,canvasId,cb){
+function addFiles(files){
+  const imgs=files.filter(f=>f.type.startsWith('image/'))
+  if(!imgs.length){showToast('이미지 파일만 가능합니다.','error');return}
+  const remaining=4-state.files.length
+  if(remaining<=0){showToast('최대 4장까지 가능합니다.','error');return}
+  imgs.slice(0,remaining).forEach(f=>{
+    if(state.files.find(x=>x.name===f.name&&x.size===f.size))return
+    state.files.push(f);state.b64s.push(null);state.mimes.push(f.type||'image/jpeg')
+    preprocessImg(f,state.files.length-1)
+  })
+  renderFileList();$('multiFileInput').value=''
+}
+
+function removeFile(idx){
+  state.files.splice(idx,1);state.b64s.splice(idx,1);state.mimes.splice(idx,1)
+  renderFileList();renderPreviewStrip();checkReady();updateRefImages()
+}
+
+function renderFileList(){
+  const fl=$('fileList')
+  fl.innerHTML=state.files.map((f,i)=>`
+    <div class="file-item">
+      <canvas id="fthumb_${i}" class="file-thumb" width="44" height="44"></canvas>
+      <div class="file-info">
+        <div class="file-name">${f.name}</div>
+        <div class="file-size">${(f.size/1024).toFixed(0)} KB · 카드 ${i+1}${state.b64s[i]?'':' · 처리중...'}</div>
+      </div>
+      <button class="file-remove" onclick="removeFile(${i})">×</button>
+    </div>`).join('')
+  state.files.forEach((f,i)=>{
+    const canvas=$(\`fthumb_\${i}\`);if(!canvas)return
+    const reader=new FileReader()
+    reader.onload=e=>{const img=new Image();img.onload=()=>{const ctx=canvas.getContext('2d');const s=Math.min(44/img.width,44/img.height);ctx.drawImage(img,0,0,img.width*s,img.height*s)};img.src=e.target.result}
+    reader.readAsDataURL(f)
+  })
+}
+
+function renderPreviewStrip(){
+  $('previewStrip').innerHTML=state.files.map((f,i)=>`
+    <div class="preview-thumb">
+      <canvas id="pcanvas_${i}"></canvas>
+      <div class="pt-label">카드 ${i+1}</div>
+    </div>`).join('')
+}
+
+function preprocessImg(file,idx){
   const reader=new FileReader()
   reader.onload=e=>{
-    const src=e.target.result
-    $(origId).src=src
-    const img=new Image()
+    const src=e.target.result,img=new Image()
     img.onload=()=>{
-      const c=$(canvasId),ctx=c.getContext('2d')
+      const c=document.createElement('canvas'),ctx=c.getContext('2d')
       c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0)
       const d=ctx.getImageData(0,0,img.width,img.height),px=d.data
       const cf=1.5,ic=128*(1-cf)
       for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}
       ctx.putImageData(d,0,0)
-      cb(c.toDataURL('image/jpeg',.92).split(',')[1])
-    }
-    img.src=src
-  }
-  reader.readAsDataURL(file)
+      state.b64s[idx]=c.toDataURL('image/jpeg',.92).split(',')[1]
+      renderPreviewStrip()
+      setTimeout(()=>{const pc=$(\`pcanvas_\${idx}\`);if(pc){const ctx2=pc.getContext('2d');pc.width=90;pc.height=72;ctx2.drawImage(c,0,0,90,72)}},50)
+      renderFileList();updateRefImages();checkReady()
+      showToast(\`카드 \${idx+1} 준비 완료.\`)
+    };img.src=src
+  };reader.readAsDataURL(file)
 }
 
-function handleFile(file,slot){
-  if(!file.type.startsWith('image/')){showToast('이미지 파일만 가능합니다.','error');return}
-  previewCont.classList.add('visible')
-  if(slot===1){
-    state.imageFile=file;state.mimeType=file.type||'image/jpeg'
-    $('slot1Name').textContent=file.name;slot1.classList.add('has-file')
-    $('refImg1').src=URL.createObjectURL(file);$('refSlot1').style.display='block'
-    preprocessImage(file,'previewOrig','previewCanvas',b64=>{state.processedBase64=b64;checkReady();showToast('카드 1 준비 완료.')})
-  } else {
-    state.imageFile2=file;state.mimeType2=file.type||'image/jpeg'
-    $('slot2Name').textContent=file.name;slot2.classList.add('has-file')
-    $('preview2Box').style.display='block';$('preview2CanvasBox').style.display='block'
-    $('refImg2').src=URL.createObjectURL(file);$('refSlot2').style.display='block'
-    preprocessImage(file,'previewOrig2','previewCanvas2',b64=>{state.processedBase64_2=b64;checkReady();showToast('카드 2 준비 완료.')})
-  }
+function updateRefImages(){
+  const r1=$('refSlot1'),r2=$('refSlot2')
+  if(!r1)return
+  if(state.files[0]){$('refImg1').src=URL.createObjectURL(state.files[0]);r1.style.display='block'}
+  else{r1.style.display='none'}
+  if(state.files[1]){$('refImg2').src=URL.createObjectURL(state.files[1]);r2.style.display='block'}
+  else{r2.style.display='none'}
 }
-function checkReady(){analyzeBtn.disabled=!state.processedBase64}
+
+function checkReady(){analyzeBtn.disabled=state.files.length===0||state.b64s.some(b=>!b)}
 
 /* ━━━ WALLET ━━━ */
 function buildWalletGrid(){
@@ -699,25 +688,26 @@ reAnalyzeBtn.addEventListener('click',runAnalysis)
 $('resetVerifyBtn').addEventListener('click',()=>{verifySection.style.display='none';resultsSection.classList.remove('visible')})
 
 async function runAnalysis(){
-  if(!state.processedBase64){showToast('이미지를 먼저 업로드하세요.','error');return}
+  if(!state.b64s.length||state.b64s.some(b=>!b)){showToast('이미지를 먼저 업로드하세요.','error');return}
   state.unitAmount=parseInt($('unitAmount').value)||1000
   loader.classList.add('visible');analyzeBtn.disabled=true
   verifySection.style.display='none';resultsSection.classList.remove('visible')
   try{
-    const isMulti=!!state.processedBase64_2
-    const modeDesc2={'1card-4p':'1장 · 4명 18홀 분석 중...','2card-4p':'골프존 2장 · 4명 분석 중...','2card-split':'전반/후반 2장 분석 중...','1card-2p':'골프존 1장 · 2명 분석 중...'}
-    loaderText.textContent=modeDesc2[state.cardMode]||'AI 분석 중...'
-    loaderStep.textContent=isMulti?'2장 동시 전송 (~36원)':'1장 분석 (~33원)'
-    const payload={imageBase64:state.processedBase64,mimeType:'image/jpeg',cardMode:state.cardMode,
-      ...(isMulti&&{imageBase64_2:state.processedBase64_2,mimeType2:'image/jpeg'})}
+    loaderText.textContent=`${state.files.length}장 스코어카드 AI 분석 중...`
+    loaderStep.textContent='카드 유형 자동 판단 중...'
+    // ✅ 새 형식: images 배열로 전송
+    const payload={
+      images: state.b64s.map((b64,i)=>({base64:b64, mimeType:state.mimes[i]||'image/jpeg'}))
+    }
     const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     const j=await r.json()
     if(!j.success)throw new Error(j.error||'분석 실패')
-    loaderText.textContent='Step2: 타수 변환 완료'
+    loaderText.textContent='타수 변환 완료'
+    if(j.debug?.detectedType) loaderStep.textContent=`감지: ${j.debug.detectedType}`
     state.aiData=j.data;state.warnings=j.warnings||[]
     state.cardTotals=j.data.cardTotals||j.data.totals
     populateVerifyTable(j.data)
-    showToast(`AI 분석 완료! ${j.debug?.estimatedCost||''}`)
+    showToast(`분석 완료! ${j.debug?.detectedType||''} (${j.debug?.estimatedCost||''})`)
   }catch(err){
     showToast(`오류: ${err.message}`,'error');showFallbackTable()
   }finally{
@@ -1036,15 +1026,12 @@ function fmtNum(n){return Math.round(n).toLocaleString('ko-KR')}
 
 /* ━━━ RESET ━━━ */
 resetBtn.addEventListener('click',()=>{
-  state={imageFile:null,imageFile2:null,cardMode:'1card-4p',processedBase64:null,processedBase64_2:null,mimeType:'image/jpeg',mimeType2:'image/jpeg',
+  state={files:[],b64s:[],mimes:[],
     aiData:null,players:[],activePlayers:[],holes:[],nearests:{},unitAmount:1000,
     baepan:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},
     warnings:[],cardTotals:null,wallets:[]}
-  fileInput.value='';fileInput2.value=''
-  previewCont.classList.remove('visible')
-  $('preview2Box').style.display='none';$('preview2CanvasBox').style.display='none'
-  slot1.classList.remove('has-file');slot2.classList.remove('has-file')
-  $('slot1Name').textContent='클릭하거나 드래그';$('slot2Name').textContent='클릭하거나 드래그'
+  $('multiFileInput').value=''
+  $('fileList').innerHTML='';$('previewStrip').innerHTML=''
   $('refSlot1').style.display='none';$('refSlot2').style.display='none'
   $('refImg1').src='';$('refImg2').src=''
   $('walletGrid').innerHTML=''
@@ -1053,16 +1040,4 @@ resetBtn.addEventListener('click',()=>{
   document.querySelectorAll('.pchip').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''})
   document.querySelectorAll('.baepan-item').forEach(el=>{
     const k=el.dataset.key,on=['birdie','triple','par3double','tripletie'].includes(k)
-    el.classList.toggle('checked',on);el.querySelector('.baepan-check').textContent=on?'✓':'';state.baepan[k]=on
-  })
-  $('bp-twotie').classList.add('disabled');$('tatadbleDesc').style.display='none'
-  analyzeBtn.disabled=true
-  updateActivePlayers()
-  showToast('초기화 완료.')
-})
-
-/* INIT */
-updateActivePlayers()
-</script>
-</body>
-</html>
+    el.classList.toggle('checked',on);el.querySelector('.baepan-check').textContent=on?'✓':'';state.
