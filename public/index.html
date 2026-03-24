@@ -696,7 +696,7 @@ function buildWalletGrid(){
   grid.innerHTML=state.players.map((p,pi)=>`
     <div class="wallet-item">
       <label>💰 ${p}</label>
-      <input type="number" placeholder="예: 89000" value="${existing[pi]||''}" min="0" step="1000"
+      <input type="number" placeholder="예: 0" value="${existing[pi]||''}" min="0" step="1000"
         onchange="state.wallets[${pi}]=parseInt(this.value)||0" />
     </div>
   `).join('')
