@@ -462,7 +462,7 @@ function buildWalletGrid(){
   const names=ap.map(i=>state.players[i]||`플레이어${i+1}`)
   $('walletGrid').innerHTML=names.map((n,j)=>`
     <div class="w-item"><label>💰 ${n}</label>
-    <input type="number" placeholder="예: 89000" value="${state.wallets[ap[j]]||''}" min="0" step="1000" onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" /></div>`).join('')
+    <input type="number" placeholder="예: 0" value="${state.wallets[ap[j]]||''}" min="0" step="1000" onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" /></div>`).join('')
 }
 
 $('analyzeBtn').addEventListener('click',runAnalysis)
