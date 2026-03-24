@@ -624,7 +624,7 @@ function renderFileList(){
       <button class="file-remove" onclick="removeFile(${i})">×</button>
     </div>`).join('')
   state.files.forEach((f,i)=>{
-    const canvas=$(\`fthumb_\${i}\`);if(!canvas)return
+    const canvas=$('fthumb_'+i);if(!canvas)return
     const reader=new FileReader()
     reader.onload=e=>{const img=new Image();img.onload=()=>{const ctx=canvas.getContext('2d');const s=Math.min(44/img.width,44/img.height);ctx.drawImage(img,0,0,img.width*s,img.height*s)};img.src=e.target.result}
     reader.readAsDataURL(f)
@@ -652,9 +652,9 @@ function preprocessImg(file,idx){
       ctx.putImageData(d,0,0)
       state.b64s[idx]=c.toDataURL('image/jpeg',.92).split(',')[1]
       renderPreviewStrip()
-      setTimeout(()=>{const pc=$(\`pcanvas_\${idx}\`);if(pc){const ctx2=pc.getContext('2d');pc.width=90;pc.height=72;ctx2.drawImage(c,0,0,90,72)}},50)
+      setTimeout(()=>{const pc=$('pcanvas_'+idx);if(pc){const ctx2=pc.getContext('2d');pc.width=90;pc.height=72;ctx2.drawImage(c,0,0,90,72)}},50)
       renderFileList();updateRefImages();checkReady()
-      showToast(\`카드 \${idx+1} 준비 완료.\`)
+      showToast('카드 '+(idx+1)+' 준비 완료.')
     };img.src=src
   };reader.readAsDataURL(file)
 }
