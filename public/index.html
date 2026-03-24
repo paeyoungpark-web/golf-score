@@ -5,380 +5,442 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>⛳ Golf Score — AI 정산 시스템</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-base:#0a0f0d;--bg-surface:#111a15;--bg-card:rgba(20,35,25,0.85);
-      --bg-glass:rgba(30,55,38,0.45);--green-700:#1a4a28;--green-500:#2d7a45;
-      --green-400:#3d9e5c;--green-300:#5cc47a;--gold:#c9a227;--gold-light:#f0c940;
-      --red-acc:#e05555;--blue-acc:#4a90d9;--purple:#8b5cf6;--purple-light:rgba(139,92,246,.15);
-      --text-primary:#e8f5ec;--text-secondary:#7aab88;--text-muted:#3d6648;
-      --border:rgba(45,122,69,0.3);--border-strong:rgba(45,122,69,0.6);
-      --shadow-green:0 0 40px rgba(45,122,69,0.15);--shadow-gold:0 0 30px rgba(201,162,39,0.25);
-      --radius:12px;--radius-lg:20px;
+      --bg:#f7f5f0;
+      --surface:#ffffff;
+      --surface2:#faf9f6;
+      --surface3:#f2f0ea;
+      --primary:#1a6b3c;
+      --primary-light:#e8f5ee;
+      --primary-dark:#145430;
+      --primary-mid:#2d8a52;
+      --accent:#c8973a;
+      --accent-light:#fdf3e0;
+      --red:#c0392b;--red-light:#fdf0ee;
+      --blue:#2563a8;--blue-light:#eff4fd;
+      --purple:#6d3bb5;--purple-light:#f3eeff;
+      --gray-900:#1a1a1a;--gray-700:#3d3d3d;--gray-500:#737373;--gray-300:#c8c8c0;--gray-100:#f0ede6;
+      --text:#1a1a1a;--text-sub:#5a5a50;--text-muted:#9a9a8a;
+      --border:#e2ddd4;--border-focus:#1a6b3c;
+      --shadow-sm:0 1px 4px rgba(0,0,0,.06);
+      --shadow:0 2px 12px rgba(0,0,0,.08);
+      --shadow-md:0 6px 24px rgba(0,0,0,.10);
+      --shadow-lg:0 12px 40px rgba(0,0,0,.12);
+      --radius:10px;--radius-lg:16px;--radius-xl:22px;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
-    body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(45,122,69,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(201,162,39,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
-    .app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 20px 80px}
-    header{display:flex;align-items:center;gap:20px;padding:32px 0 28px;border-bottom:1px solid var(--border)}
-    .logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.08em;background:linear-gradient(135deg,var(--green-300) 0%,var(--gold-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-    .logo-sub{font-size:.7em;opacity:.7;display:block;letter-spacing:.2em}
-    .ver-badge{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-    .header-badge{background:var(--bg-glass);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.75rem;color:var(--text-secondary);backdrop-filter:blur(8px)}
-    .ver-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:3px 10px}
-    .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.12em;color:var(--green-300);margin-bottom:16px;display:flex;align-items:center;gap:10px}
-    .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border-strong),transparent)}
-    .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(16px);box-shadow:var(--shadow-green),inset 0 1px 0 rgba(255,255,255,.04);padding:28px;margin-bottom:24px}
+    body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased}
 
-    /* Upload */
-    .upload-multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-    .upload-slot{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s}
-    .upload-slot:hover,.upload-slot.dragover{border-color:var(--green-400);background:rgba(45,122,69,.08)}
-    .upload-slot.has-file{border-color:var(--green-500);border-style:solid;background:rgba(45,122,69,.06)}
-    .slot-icon{font-size:2.2rem;display:block;margin-bottom:10px}
-    .slot-title{font-size:.85rem;color:var(--text-secondary);margin-bottom:4px}
-    .slot-sub{font-size:.75rem;color:var(--text-muted);margin-bottom:6px}
-    .slot-filename{font-size:.75rem;color:var(--green-300);font-family:'JetBrains Mono',monospace}
+    /* ── HEADER ── */
+    .app-header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:64px;display:flex;align-items:center;position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm)}
+    .header-logo{display:flex;align-items:center;gap:10px}
+    .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary) 0%,var(--primary-mid) 100%);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;box-shadow:0 2px 8px rgba(26,107,60,.3)}
+    .logo-text{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gray-900);letter-spacing:-.01em}
+    .logo-sub{font-family:'Noto Sans KR',sans-serif;font-size:.72rem;font-weight:400;color:var(--text-muted);margin-left:4px;letter-spacing:.02em}
+    .header-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+    .help-btn{background:none;border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text-sub);font-size:.78rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:500;transition:all .2s;letter-spacing:.01em}
+    .help-btn:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+    .ver-tag{font-size:.68rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;background:var(--gray-100);border-radius:6px;padding:3px 9px}
+
+    /* ── LAYOUT ── */
+    .app-body{max-width:1000px;margin:0 auto;padding:32px 20px 80px}
+
+    /* ── SECTION TITLE ── */
+    .sec-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .sec-title-num{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sec-title-text{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;color:var(--gray-900);letter-spacing:-.01em}
+    .sec-title-line{flex:1;height:1px;background:var(--border)}
+
+    /* ── CARD ── */
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
+
+    /* ── CARD MODE TABS ── */
+    .card-mode-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+    .card-mode-tab{padding:12px 10px;border-radius:var(--radius-lg);border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;text-align:center;transition:all .2s;user-select:none}
+    .card-mode-tab:hover{border-color:var(--primary);background:var(--primary-light)}
+    .card-mode-tab.active{border-color:var(--primary);background:var(--primary-light);box-shadow:0 0 0 3px rgba(26,107,60,.1)}
+    .card-mode-tab .tab-icon{font-size:1.3rem;display:block;margin-bottom:5px}
+    .card-mode-tab .tab-title{font-size:.78rem;font-weight:700;color:var(--text-sub)}
+    .card-mode-tab.active .tab-title{color:var(--primary)}
+    .card-mode-tab .tab-desc{font-size:.68rem;color:var(--text-muted);margin-top:3px;line-height:1.4}
+    .card-mode-tab.active .tab-desc{color:var(--primary-mid)}
+
+    /* mode desc */
+    .mode-desc-bar{background:var(--blue-light);border:1px solid rgba(37,99,168,.2);border-radius:var(--radius);padding:10px 14px;font-size:.8rem;color:var(--blue);margin-bottom:16px;font-weight:500}
+
+    /* ── UPLOAD SLOTS ── */
+    .upload-multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+    .upload-slot{border:2px dashed var(--gray-300);border-radius:var(--radius-lg);padding:28px 20px;text-align:center;cursor:pointer;transition:all .25s;background:var(--surface2)}
+    .upload-slot:hover,.upload-slot.dragover{border-color:var(--primary);background:var(--primary-light)}
+    .upload-slot.has-file{border-color:var(--primary);border-style:solid;background:var(--primary-light)}
+    .slot-icon{font-size:2rem;display:block;margin-bottom:8px}
+    .slot-title{font-size:.85rem;font-weight:700;color:var(--text-sub);margin-bottom:3px}
+    .slot-sub{font-size:.73rem;color:var(--text-muted);margin-bottom:5px}
+    .slot-filename{font-size:.72rem;color:var(--primary);font-family:'JetBrains Mono',monospace;font-weight:600}
     #fileInput,#fileInput2{display:none}
-    .preview-container{display:none;gap:12px;margin-bottom:20px}
-    .preview-container.visible{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
-    .preview-box{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:#000;position:relative}
-    .preview-box canvas,.preview-box img{width:100%;height:180px;object-fit:contain;display:block}
-    .preview-label{position:absolute;top:8px;left:8px;background:rgba(0,0,0,.7);border-radius:6px;padding:4px 10px;font-size:.7rem;color:var(--text-secondary);text-transform:uppercase}
 
-    /* ✅ 타당금액 (단독 강조) */
-    .unit-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;background:rgba(45,122,69,.12);border:1px solid var(--border-strong);border-radius:var(--radius);padding:14px 18px}
-    .unit-row label{font-size:.82rem;font-weight:700;color:var(--green-300);letter-spacing:.05em;white-space:nowrap}
-    .unit-row input{width:140px;background:rgba(0,0,0,.4);border:1.5px solid var(--green-500);border-radius:8px;padding:10px 14px;color:var(--gold-light);font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:700;outline:none}
-    .unit-row input:focus{border-color:var(--green-300);box-shadow:0 0 0 3px rgba(45,122,69,.2)}
+    /* ── PREVIEW ── */
+    .preview-container{display:none;gap:10px;margin-bottom:20px}
+    .preview-container.visible{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+    .preview-box{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:var(--gray-100);position:relative}
+    .preview-box canvas,.preview-box img{width:100%;height:160px;object-fit:contain;display:block}
+    .preview-label{position:absolute;top:7px;left:7px;background:rgba(0,0,0,.6);border-radius:5px;padding:3px 8px;font-size:.65rem;color:#fff;text-transform:uppercase;font-weight:600;letter-spacing:.05em}
+
+    /* ── UNIT ROW ── */
+    .unit-row{display:flex;align-items:center;gap:14px;margin-bottom:20px;background:linear-gradient(135deg,var(--accent-light) 0%,#fff8ed 100%);border:1.5px solid rgba(200,151,58,.3);border-radius:var(--radius-lg);padding:14px 18px}
+    .unit-row label{font-size:.82rem;font-weight:700;color:var(--accent);white-space:nowrap;letter-spacing:.02em}
+    .unit-row input{width:140px;background:#fff;border:1.5px solid rgba(200,151,58,.4);border-radius:8px;padding:9px 13px;color:var(--gray-900);font-family:'JetBrains Mono',monospace;font-size:1.05rem;font-weight:600;outline:none;transition:all .2s}
+    .unit-row input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,151,58,.15)}
     .unit-hint{font-size:.75rem;color:var(--text-muted)}
 
-    /* Wallet */
-    .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:4px}
-    .wallet-item{background:var(--bg-glass);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
-    .wallet-item label{display:block;font-size:.72rem;color:var(--text-secondary);margin-bottom:6px}
-    .wallet-item input{width:100%;background:rgba(0,0,0,.35);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--gold-light);font-family:'JetBrains Mono',monospace;font-size:.95rem;font-weight:700;outline:none;-moz-appearance:textfield}
-    .wallet-item input::-webkit-inner-spin-button{display:none}
-    .wallet-item input:focus{border-color:var(--gold)}
-
-    /* ✅ 배판 */
+    /* ── BAEPAN ── */
     .baepan-section{margin-bottom:20px}
-    .baepan-title{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-    .baepan-grid{display:flex;flex-wrap:wrap;gap:8px}
-    .baepan-item{display:flex;align-items:center;gap:8px;cursor:pointer;background:var(--bg-glass);border:1px solid var(--border);border-radius:8px;padding:8px 14px;transition:all .2s;user-select:none}
-    .baepan-item:hover{border-color:var(--green-400)}
-    .baepan-check{width:18px;height:18px;border:2px solid var(--border-strong);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:white;font-weight:700;flex-shrink:0}
-    .baepan-item.checked .baepan-check{background:var(--green-500);border-color:var(--green-400)}
-    .baepan-item.checked{border-color:var(--green-500);background:rgba(45,122,69,.15)}
-    .baepan-label{font-size:.82rem;color:var(--text-secondary)}
-    .baepan-item.checked .baepan-label{color:var(--green-300)}
+    .section-label{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px}
+    .baepan-grid{display:flex;flex-wrap:wrap;gap:7px}
+    .baepan-item{display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--surface2);border:1.5px solid var(--border);border-radius:8px;padding:7px 13px;transition:all .2s;user-select:none}
+    .baepan-item:hover{border-color:var(--primary);background:var(--primary-light)}
+    .baepan-check{width:17px;height:17px;border:2px solid var(--gray-300);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:white;font-weight:700;flex-shrink:0;transition:all .2s}
+    .baepan-item.checked .baepan-check{background:var(--primary);border-color:var(--primary)}
+    .baepan-item.checked{border-color:var(--primary);background:var(--primary-light)}
+    .baepan-label{font-size:.8rem;color:var(--text-sub)}
+    .baepan-item.checked .baepan-label{color:var(--primary);font-weight:600}
     .baepan-item.disabled{opacity:.35;pointer-events:none}
-    /* 따따블 특별 스타일 */
     .baepan-item.tatadble-item.checked{border-color:var(--purple);background:var(--purple-light)}
     .baepan-item.tatadble-item.checked .baepan-check{background:var(--purple);border-color:var(--purple)}
-    .baepan-item.tatadble-item.checked .baepan-label{color:#c4b5fd}
-    .tatadble-desc{display:none;background:var(--purple-light);border:1px solid rgba(139,92,246,.4);border-radius:8px;padding:10px 14px;font-size:.75rem;color:#c4b5fd;line-height:1.7;margin-top:8px}
+    .baepan-item.tatadble-item.checked .baepan-label{color:var(--purple)}
+    .tatadble-desc{display:none;background:var(--purple-light);border:1px solid rgba(109,59,181,.25);border-radius:8px;padding:10px 14px;font-size:.75rem;color:var(--purple);line-height:1.7;margin-top:8px}
 
-    /* ✅ 플레이어 칩 */
+    /* ── PLAYER CHIPS ── */
     .player-chips-wrap{margin-bottom:20px}
-    .player-chips-title{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
     .player-chips{display:flex;flex-wrap:wrap;gap:8px}
-    .pchip{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg-glass);cursor:pointer;transition:all .2s;font-size:.82rem;font-weight:700;color:var(--text-secondary);user-select:none}
-    .pchip.on{border-color:var(--green-400);background:rgba(45,122,69,.2);color:var(--green-300)}
-    .pchip.off{border-color:var(--border);background:rgba(0,0,0,.2);color:var(--text-muted);text-decoration:line-through;opacity:.5}
-    .pchip-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+    .pchip{display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:24px;border:1.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;font-size:.82rem;font-weight:600;color:var(--text-sub);user-select:none}
+    .pchip.on{border-color:var(--primary);background:var(--primary-light);color:var(--primary)}
+    .pchip.off{opacity:.45;text-decoration:line-through}
+    .pchip-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 
-    /* Loader */
-    .loader{display:none;flex-direction:column;align-items:center;gap:16px;padding:40px}
+    /* ── WALLET ── */
+    .wallet-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:4px}
+    .wallet-item{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:12px 14px}
+    .wallet-item label{display:block;font-size:.7rem;font-weight:700;color:var(--text-muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em}
+    .wallet-item input{width:100%;background:#fff;border:1.5px solid var(--border);border-radius:7px;padding:7px 10px;color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.92rem;font-weight:600;outline:none;-moz-appearance:textfield;transition:border-color .2s}
+    .wallet-item input::-webkit-inner-spin-button{display:none}
+    .wallet-item input:focus{border-color:var(--accent)}
+
+    /* ── DIVIDER ── */
+    .section-divider{height:1px;background:var(--border);margin:20px 0}
+
+    /* ── LOADER ── */
+    .loader{display:none;flex-direction:column;align-items:center;gap:14px;padding:36px}
     .loader.visible{display:flex}
-    .spinner{width:48px;height:48px;border:3px solid var(--border);border-top-color:var(--green-400);border-radius:50%;animation:spin .8s linear infinite}
+    .spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loader-text{color:var(--text-secondary);font-size:.9rem}
-    .loader-step{font-size:.78rem;color:var(--text-muted);margin-top:4px}
+    .loader-text{font-size:.88rem;color:var(--text-sub);font-weight:600}
+    .loader-step{font-size:.75rem;color:var(--text-muted)}
 
-    /* Buttons */
-    .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.95rem;transition:all .25s;letter-spacing:.03em}
-    .btn-primary{background:linear-gradient(135deg,var(--green-500),var(--green-700));color:var(--text-primary);box-shadow:0 4px 20px rgba(45,122,69,.4)}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(45,122,69,.5)}
-    .btn-secondary{background:var(--bg-glass);color:var(--text-secondary);border:1px solid var(--border)}
-    .btn-secondary:hover{border-color:var(--green-400);color:var(--text-primary)}
-    .btn-gold{background:linear-gradient(135deg,var(--gold),#a07a10);color:#1a1200;font-weight:700;box-shadow:0 4px 20px rgba(201,162,39,.35)}
-    .btn-gold:hover{transform:translateY(-2px)}
-    .btn-danger{background:rgba(224,85,85,.15);color:var(--red-acc);border:1px solid rgba(224,85,85,.3)}
+    /* ── BUTTONS ── */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 22px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.88rem;transition:all .2s;letter-spacing:-.01em;white-space:nowrap}
+    .btn-primary{background:linear-gradient(135deg,var(--primary) 0%,var(--primary-dark) 100%);color:#fff;box-shadow:0 3px 12px rgba(26,107,60,.3)}
+    .btn-primary:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(26,107,60,.38)}
+    .btn-secondary{background:var(--surface2);color:var(--text-sub);border:1.5px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+    .btn-gold{background:linear-gradient(135deg,var(--accent) 0%,#a07530 100%);color:#fff;box-shadow:0 3px 12px rgba(200,151,58,.3)}
+    .btn-gold:hover{transform:translateY(-1px);box-shadow:0 5px 18px rgba(200,151,58,.38)}
+    .btn-danger{background:var(--red-light);color:var(--red);border:1.5px solid rgba(192,57,43,.2)}
+    .btn-danger:hover{background:#fce4e1}
     .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+    .btn-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .btn-row .spacer{flex:1}
 
-    /* Verify */
-    .verify-section{display:none;margin-top:8px}
-    .verify-layout{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start}
-    .verify-image-panel{position:sticky;top:20px}
-    .panel-title{font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px}
-    .ref-image-wrap{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:#000;cursor:zoom-in;margin-bottom:8px}
-    .ref-image-wrap img{width:100%;display:block;object-fit:contain;max-height:460px}
-    .ref-image-wrap.zoom{cursor:zoom-out}
-    .ref-image-wrap.zoom img{max-height:none}
-    .ref-img-label{font-size:.72rem;color:var(--text-muted);text-align:center;padding:4px}
+    /* ── VERIFY ── */
+    .verify-section{display:none;margin-top:4px}
+    .verify-layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+    .ref-panel{position:sticky;top:76px}
+    .ref-panel-title{font-size:.72rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+    .ref-img-wrap{border-radius:var(--radius-lg);overflow:hidden;border:1px solid var(--border);background:var(--gray-100);cursor:zoom-in;margin-bottom:5px}
+    .ref-img-wrap img{width:100%;display:block;object-fit:contain;max-height:400px}
+    .ref-img-wrap.zoom{cursor:zoom-out}
+    .ref-img-wrap.zoom img{max-height:none}
+    .ref-img-lbl{font-size:.68rem;color:var(--text-muted);text-align:center;padding:4px}
 
-    /* Score summary */
-    .score-summary-bar{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:20px;padding:16px;background:rgba(0,0,0,.25);border-radius:var(--radius);border:1px solid var(--border)}
-    .score-summary-player{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:100px;flex:1}
-    .ssp-name{font-size:.78rem;color:var(--text-secondary);font-weight:700;text-align:center}
-    .ssp-total{font-family:'JetBrains Mono',monospace;font-size:1.5rem;font-weight:700;color:var(--gold-light)}
-    .ssp-detail{font-size:.7rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
-    .ssp-warn{color:var(--red-acc)!important}
-    .mismatch-alert{background:rgba(224,85,85,.1);border:1px solid rgba(224,85,85,.4);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px}
-    .mismatch-alert .alert-title{color:var(--red-acc);font-weight:700;margin-bottom:8px;font-size:.9rem}
-    .mismatch-alert .alert-item{font-size:.82rem;color:#ffaaaa;margin-bottom:3px}
-    .match-alert{background:rgba(45,122,69,.12);border:1px solid rgba(45,122,69,.4);border-radius:var(--radius);padding:14px 18px;margin-bottom:16px;color:var(--green-300);font-size:.88rem}
+    /* ── SCORE SUMMARY ── */
+    .score-bar{display:flex;flex-wrap:wrap;gap:10px;padding:14px;background:var(--surface2);border-radius:var(--radius-lg);border:1px solid var(--border);margin-bottom:14px}
+    .score-summary-player{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:80px;flex:1}
+    .ssp-name{font-size:.72rem;font-weight:700;color:var(--text-sub);text-align:center}
+    .ssp-total{font-family:'JetBrains Mono',monospace;font-size:1.4rem;font-weight:600;color:var(--accent)}
+    .ssp-detail{font-size:.65rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace}
+    .ssp-warn{color:var(--red)!important}
+    .mismatch-alert{background:var(--red-light);border:1px solid rgba(192,57,43,.25);border-radius:var(--radius);padding:11px 14px;margin-bottom:12px}
+    .mismatch-alert .alert-title{color:var(--red);font-weight:700;margin-bottom:4px;font-size:.85rem}
+    .mismatch-alert .alert-item{font-size:.78rem;color:var(--red);margin-bottom:2px;opacity:.85}
+    .match-alert{background:#f0faf4;border:1px solid rgba(26,107,60,.25);border-radius:var(--radius);padding:11px 14px;margin-bottom:12px;color:var(--primary);font-size:.85rem;font-weight:700}
 
-    /* Score table */
-    .table-wrapper{overflow-x:auto;margin-bottom:20px}
-    .score-table{width:100%;border-collapse:collapse;font-size:.82rem;white-space:nowrap}
-    .score-table th{background:rgba(45,122,69,.2);color:var(--green-300);font-family:'JetBrains Mono',monospace;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:8px 10px;text-align:center;border-bottom:1px solid var(--border-strong)}
-    .score-table td{padding:5px 7px;text-align:center;border-bottom:1px solid rgba(45,122,69,.08)}
-    .score-table tr:hover td{background:rgba(45,122,69,.05)}
-    .score-table input[type=number]{width:48px;background:rgba(0,0,0,.4);border:1px solid var(--border);border-radius:6px;color:var(--text-primary);font-family:'JetBrains Mono',monospace;font-size:.88rem;font-weight:700;text-align:center;padding:3px 2px;outline:none;-moz-appearance:textfield}
+    /* ── SCORE TABLE ── */
+    .table-wrapper{overflow-x:auto;margin-bottom:16px}
+    .score-table{width:100%;border-collapse:collapse;font-size:.8rem;white-space:nowrap}
+    .score-table th{background:var(--primary-light);color:var(--primary);font-family:'JetBrains Mono',monospace;font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:8px 9px;text-align:center;border-bottom:2px solid rgba(26,107,60,.2)}
+    .score-table td{padding:5px 7px;text-align:center;border-bottom:1px solid var(--gray-100)}
+    .score-table tr:hover td{background:var(--primary-light)}
+    .score-table input[type=number]{width:46px;background:var(--surface2);border:1.5px solid var(--border);border-radius:6px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:600;text-align:center;padding:3px 2px;outline:none;-moz-appearance:textfield;transition:border-color .2s}
     .score-table input[type=number]::-webkit-inner-spin-button{display:none}
-    .score-table input[type=number]:focus{border-color:var(--green-400)}
-    .score-table .par-cell{color:var(--text-secondary);font-family:'JetBrains Mono',monospace;font-size:.78rem}
-    .score-table .hole-cell{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.75rem}
-    .score-table .subtotal-row td{background:rgba(45,122,69,.12);font-weight:700;font-family:'JetBrains Mono',monospace}
-    .score-table .total-row td{background:rgba(201,162,39,.1);color:var(--gold-light);font-weight:700;font-family:'JetBrains Mono',monospace}
-    .player-name-input{background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--green-300);font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.82rem;text-align:center;outline:none;width:76px;padding:2px 4px}
-    .player-name-input:focus{border-bottom-color:var(--gold-light)}
-    .score-eagle{color:#4af0a0!important;text-shadow:0 0 8px rgba(74,240,160,.5)}
-    .score-birdie{color:var(--green-300)!important}
-    .score-par{color:var(--text-primary)!important}
-    .score-bogey{color:#e0a030!important}
-    .score-double{color:var(--red-acc)!important}
-    .score-triple{color:#ff3333!important;text-shadow:0 0 8px rgba(255,51,51,.4)}
-    .par3-row{background:rgba(74,144,217,.04)!important}
-    .nearest-check{width:16px;height:16px;border:2px solid rgba(74,144,217,.5);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.65rem;transition:all .2s;flex-shrink:0}
-    .nearest-check.selected{background:var(--blue-acc);border-color:var(--blue-acc);color:white}
+    .score-table input[type=number]:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(26,107,60,.12)}
+    .score-table .par-cell{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.75rem}
+    .score-table .hole-cell{color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.72rem}
+    .score-table .subtotal-row td{background:var(--gray-100);font-weight:700;font-family:'JetBrains Mono',monospace}
+    .score-table .total-row td{background:var(--accent-light);color:var(--accent);font-weight:700;font-family:'JetBrains Mono',monospace}
+    .player-name-input{background:transparent;border:none;border-bottom:1.5px solid var(--border);color:var(--primary);font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.78rem;text-align:center;outline:none;width:70px;padding:2px 3px;transition:border-color .2s}
+    .player-name-input:focus{border-bottom-color:var(--primary)}
+    .score-eagle{color:#059669!important;font-weight:700}
+    .score-birdie{color:var(--primary)!important;font-weight:700}
+    .score-par{color:var(--text)!important}
+    .score-bogey{color:var(--accent)!important}
+    .score-double{color:var(--red)!important}
+    .score-triple{color:#7f1d1d!important;font-weight:700}
+    .par3-row{background:rgba(37,99,168,.03)!important}
+    .nearest-check{width:15px;height:15px;border:2px solid var(--blue);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.58rem;transition:all .2s;flex-shrink:0;color:transparent}
+    .nearest-check.selected{background:var(--blue);color:white}
 
-    /* Asset table */
-    .asset-table{width:100%;border-collapse:collapse;font-size:.8rem;white-space:nowrap}
-    .asset-table th{background:rgba(45,122,69,.2);color:var(--green-300);font-family:'JetBrains Mono',monospace;font-size:.7rem;padding:7px 10px;text-align:center;border-bottom:1px solid var(--border-strong)}
-    .asset-table td{padding:5px 10px;text-align:center;border-bottom:1px solid rgba(45,122,69,.07);font-family:'JetBrains Mono',monospace;font-size:.78rem}
-    .asset-table .subtotal-row td{background:rgba(45,122,69,.1);font-weight:700}
-    .asset-table .total-row td{background:rgba(201,162,39,.1);color:var(--gold-light);font-weight:700}
-    .asset-up{color:var(--green-300)!important;font-weight:700}
-    .asset-dn{color:var(--red-acc)!important;font-weight:700}
+    /* ── RESULTS ── */
+    .divider{height:1px;background:var(--border);margin:24px 0}
+    .hole-result{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;margin-bottom:8px;box-shadow:var(--shadow-sm);transition:all .2s}
+    .hole-result:hover{box-shadow:var(--shadow);border-color:rgba(26,107,60,.2)}
+    .hole-result-header{display:flex;align-items:center;gap:7px;margin-bottom:8px;flex-wrap:wrap}
+    .hole-badge{background:var(--primary);color:#fff;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-weight:700;border-radius:7px;padding:3px 10px;min-width:52px;text-align:center}
+    .hole-par-badge{background:var(--gray-100);color:var(--text-muted);font-family:'JetBrains Mono',monospace;font-size:.7rem;border-radius:5px;padding:2px 7px}
+    .double-badge{background:var(--accent-light);color:var(--accent);font-size:.7rem;font-weight:700;border-radius:5px;padding:2px 8px;border:1px solid rgba(200,151,58,.3)}
+    .tatadble-badge{background:var(--purple-light);color:var(--purple);font-size:.7rem;font-weight:700;border-radius:5px;padding:2px 8px;border:1px solid rgba(109,59,181,.2)}
+    .nearest-badge{background:var(--blue-light);color:var(--blue);font-size:.7rem;font-weight:700;border-radius:5px;padding:2px 8px}
+    .hole-scores-row{display:flex;gap:7px;margin-bottom:7px;flex-wrap:wrap}
+    .player-score-chip{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+    .player-score-chip .chip-name{color:var(--text-muted);font-size:.65rem;display:block;margin-bottom:1px;font-family:'Noto Sans KR',sans-serif}
+    .hole-transactions{display:flex;flex-wrap:wrap;gap:6px}
+    .txn{display:flex;align-items:center;gap:5px;background:var(--gray-100);border-radius:6px;padding:3px 10px;font-size:.75rem}
+    .txn .from{color:var(--red);font-weight:700}
+    .txn .to{color:var(--primary);font-weight:700}
+    .txn .amt{color:var(--accent);font-family:'JetBrains Mono',monospace;font-weight:700}
+
+    /* ── SUMMARY TABLE ── */
+    .summary-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.85rem}
+    .summary-table th{background:var(--primary-light);color:var(--primary);padding:8px 13px;text-align:left;font-size:.75rem;border-bottom:2px solid rgba(26,107,60,.2)}
+    .summary-table td{padding:8px 13px;border-bottom:1px solid var(--gray-100)}
+    .summary-table .positive{color:var(--primary);font-weight:700}
+    .summary-table .negative{color:var(--red);font-weight:700}
+    .summary-table .zero{color:var(--text-muted)}
+
+    /* ── RANK CARDS ── */
+    .rank-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-top:8px}
+    .rank-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;text-align:center;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;transition:all .2s}
+    .rank-card:hover{box-shadow:var(--shadow)}
+    .rank-card.rank-1{border-color:rgba(200,151,58,.5);box-shadow:0 0 0 2px rgba(200,151,58,.2),var(--shadow);background:linear-gradient(135deg,#fffbf0 0%,#fff8e6 100%)}
+    .rank-card.rank-1::before{content:'🏆';position:absolute;top:-8px;right:-8px;font-size:2.5rem;opacity:.18}
+    .rank-num{font-family:'Playfair Display',serif;font-size:2.2rem;color:var(--gray-300);line-height:1}
+    .rank-card.rank-1 .rank-num{color:var(--accent)}
+    .rank-name{font-weight:700;font-size:.92rem;margin:6px 0 3px;color:var(--gray-900)}
+    .rank-amount{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700}
+    .rank-amount.positive{color:var(--primary)}
+    .rank-amount.negative{color:var(--red)}
+    .rank-unit{font-size:.65rem;color:var(--text-muted);margin-top:2px}
+
+    /* ── ASSET TABLE ── */
+    .asset-table{width:100%;border-collapse:collapse;font-size:.78rem;white-space:nowrap}
+    .asset-table th{background:var(--accent-light);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:.65rem;padding:6px 9px;text-align:center;border-bottom:2px solid rgba(200,151,58,.2)}
+    .asset-table td{padding:5px 9px;text-align:center;border-bottom:1px solid var(--gray-100);font-family:'JetBrains Mono',monospace;font-size:.75rem}
+    .asset-table .subtotal-row td{background:var(--gray-100);font-weight:700}
+    .asset-table .total-row td{background:var(--accent-light);color:var(--accent);font-weight:700}
+    .asset-up{color:var(--primary)!important;font-weight:700}
+    .asset-dn{color:var(--red)!important;font-weight:700}
     .asset-eq{color:var(--text-muted)}
 
-    /* Results */
-    .results-section{display:none}
-    .results-section.visible{display:block}
-    .hole-result{background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;margin-bottom:10px;transition:all .2s}
-    .hole-result:hover{border-color:var(--border-strong)}
-    .hole-result-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap}
-    .hole-badge{font-family:'Bebas Neue',sans-serif;font-size:1.1rem;letter-spacing:.1em;background:rgba(45,122,69,.3);border:1px solid var(--border);border-radius:6px;padding:2px 10px;color:var(--green-300);min-width:56px;text-align:center}
-    .hole-par-badge{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--text-muted);background:rgba(0,0,0,.3);border-radius:4px;padding:2px 8px}
-    .double-badge{background:rgba(201,162,39,.2);border:1px solid rgba(201,162,39,.4);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--gold-light);font-weight:700}
-    .tatadble-badge{background:var(--purple-light);border:1px solid rgba(139,92,246,.4);border-radius:4px;padding:2px 8px;font-size:.72rem;color:#c4b5fd;font-weight:700}
-    .nearest-badge{background:rgba(74,144,217,.2);border:1px solid rgba(74,144,217,.4);border-radius:4px;padding:2px 8px;font-size:.72rem;color:var(--blue-acc);font-weight:700}
-    .hole-scores-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
-    .player-score-chip{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-family:'JetBrains Mono',monospace;font-size:.82rem}
-    .player-score-chip .chip-name{color:var(--text-secondary);font-size:.68rem;display:block;margin-bottom:2px}
-    .hole-transactions{display:flex;flex-wrap:wrap;gap:8px}
-    .txn{display:flex;align-items:center;gap:6px;background:rgba(0,0,0,.25);border-radius:6px;padding:4px 10px;font-size:.78rem}
-    .txn .from{color:var(--red-acc);font-weight:700}
-    .txn .to{color:var(--green-300);font-weight:700}
-    .txn .amt{color:var(--gold-light);font-family:'JetBrains Mono',monospace;font-weight:700}
-    .summary-table{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.88rem}
-    .summary-table th{background:rgba(45,122,69,.2);color:var(--green-300);padding:9px 14px;text-align:left;font-size:.78rem;border-bottom:1px solid var(--border-strong)}
-    .summary-table td{padding:9px 14px;border-bottom:1px solid rgba(45,122,69,.1)}
-    .summary-table .positive{color:var(--green-300);font-weight:700}
-    .summary-table .negative{color:var(--red-acc);font-weight:700}
-    .summary-table .zero{color:var(--text-muted)}
-    .rank-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:8px}
-    .rank-card{background:var(--bg-glass);border:1px solid var(--border);border-radius:var(--radius);padding:18px;text-align:center;position:relative;overflow:hidden}
-    .rank-card.rank-1{border-color:var(--gold);box-shadow:var(--shadow-gold);background:rgba(201,162,39,.08)}
-    .rank-card.rank-1::before{content:'🏆';position:absolute;top:-10px;right:-10px;font-size:3rem;opacity:.15}
-    .rank-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--text-muted);line-height:1}
-    .rank-card.rank-1 .rank-num{color:var(--gold)}
-    .rank-name{font-weight:700;font-size:1rem;margin:6px 0 2px}
-    .rank-amount{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:700}
-    .rank-amount.positive{color:var(--green-300)}
-    .rank-amount.negative{color:var(--red-acc)}
-    .rank-unit{font-size:.7rem;color:var(--text-muted);margin-top:2px}
+    /* ── FLOW ── */
     .flow-container{width:100%;display:flex;justify-content:center}
-    .flow-svg{width:100%;max-width:700px}
-    .flow-legend{display:flex;gap:20px;justify-content:center;margin-top:12px;flex-wrap:wrap}
-    .flow-legend-item{display:flex;align-items:center;gap:6px;font-size:.78rem;color:var(--text-secondary)}
-    .flow-legend-dot{width:10px;height:10px;border-radius:50%}
-    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:1000;align-items:center;justify-content:center}
+    .flow-svg{width:100%;max-width:680px}
+    .flow-legend{display:flex;gap:18px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+    .flow-legend-item{display:flex;align-items:center;gap:5px;font-size:.72rem;color:var(--text-muted)}
+    .flow-legend-dot{width:8px;height:8px;border-radius:50%}
+
+    /* ── MODAL ── */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(6px);z-index:1000;align-items:center;justify-content:center}
     .modal-overlay.visible{display:flex}
-    .modal{background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius-lg);padding:32px;max-width:620px;width:92%;box-shadow:0 0 60px rgba(0,0,0,.5);max-height:88vh;overflow-y:auto}
-    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.1em;color:var(--green-300);margin-bottom:0}
-    .toast{position:fixed;bottom:32px;right:32px;background:var(--bg-card);border:1px solid var(--border-strong);border-radius:var(--radius);padding:14px 20px;backdrop-filter:blur(16px);font-size:.875rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);max-width:320px}
+    .modal{background:var(--surface);border-radius:var(--radius-xl);padding:28px;max-width:580px;width:92%;box-shadow:var(--shadow-lg);max-height:88vh;overflow-y:auto;border:1px solid var(--border)}
+    .modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gray-900);margin-bottom:0}
+    .modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.3rem;padding:3px;border-radius:5px;transition:color .2s}
+    .modal-close:hover{color:var(--text)}
+    .help-block{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:13px 16px;margin-bottom:10px}
+    .help-block-title{font-size:.82rem;font-weight:700;color:var(--primary);margin-bottom:5px}
+    .help-block-body{font-size:.78rem;color:var(--text-sub);line-height:1.75}
+
+    /* ── TOAST ── */
+    .toast{position:fixed;bottom:24px;right:20px;background:var(--gray-900);color:#fff;border-radius:10px;padding:11px 18px;font-size:.82rem;z-index:9999;transform:translateY(20px);opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);max-width:300px;box-shadow:var(--shadow-lg)}
     .toast.show{transform:translateY(0);opacity:1}
-    .toast.error{border-color:rgba(224,85,85,.5)}
-    .action-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-    .action-row .spacer{flex:1}
-    .divider{height:1px;background:linear-gradient(to right,transparent,var(--border-strong),transparent);margin:28px 0}
-    .card-mode-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-    .card-mode-tab{flex:1;min-width:140px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg-glass);cursor:pointer;text-align:center;transition:all .2s;user-select:none}
-    .card-mode-tab:hover{border-color:var(--green-400)}
-    .card-mode-tab.active{border-color:var(--blue-acc);background:rgba(74,144,217,.12)}
-    .card-mode-tab .tab-icon{font-size:1.4rem;display:block;margin-bottom:4px}
-    .card-mode-tab .tab-title{font-size:.82rem;font-weight:700;color:var(--text-secondary)}
-    .card-mode-tab.active .tab-title{color:var(--blue-acc)}
-    .card-mode-tab .tab-desc{font-size:.72rem;color:var(--text-muted);margin-top:3px;line-height:1.4}
-    .card-mode-tab.active .tab-desc{color:rgba(74,144,217,.7)}
-    @media(max-width:900px){.verify-layout{grid-template-columns:1fr}}
-    @media(max-width:640px){.upload-multi-grid{grid-template-columns:1fr};.rank-cards{grid-template-columns:1fr 1fr}}
+    .toast.error{background:var(--red)}
+    .toast.success{background:var(--primary)}
+
+    @media(max-width:760px){.verify-layout{grid-template-columns:1fr};.card-mode-tabs{grid-template-columns:1fr 1fr}}
+    @media(max-width:520px){.rank-cards{grid-template-columns:1fr 1fr};.upload-multi-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
-<div class="app">
-  <header>
+
+<div class="app-header">
+  <div class="header-logo">
+    <div class="logo-icon">⛳</div>
     <div>
-      <div class="logo">⛳ GOLF<span class="logo-sub">AI 자동 정산 시스템</span></div>
+      <span class="logo-text">Golf Score</span>
+      <span class="logo-sub">AI 자동 정산</span>
     </div>
-    <div class="ver-badge">
-      <div style="display:flex;gap:8px;align-items:center">
-        <button onclick="$('helpModal').classList.add('visible')" style="background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.4);border-radius:8px;padding:4px 14px;color:var(--gold-light);font-size:.78rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📖 사용법</button>
-        <div class="header-badge">Claude Sonnet 4 · Cloudflare</div>
+  </div>
+  <div class="header-right">
+    <button class="help-btn" onclick="$('helpModal').classList.add('visible')">📖 사용법</button>
+    <span class="ver-tag">v4.2.0</span>
+  </div>
+</div>
+
+<div class="app-body">
+
+  <!-- ① 업로드 -->
+  <div class="sec-title">
+    <div class="sec-title-num">1</div>
+    <div class="sec-title-text">스코어카드 업로드</div>
+    <div class="sec-title-line"></div>
+  </div>
+  <div class="card">
+
+    <div class="card-mode-tabs" id="cardModeTabs">
+      <div class="card-mode-tab active" data-mode="1card-4p" onclick="setCardMode(this)">
+        <span class="tab-icon">🃏</span>
+        <div class="tab-title">1장 · 4명</div>
+        <div class="tab-desc">스마트스코어 등<br>1장에 4명 18홀</div>
       </div>
-      <div class="ver-tag">v4.1.0 · <span style="color:var(--green-300)">2026-03-24</span></div>
+      <div class="card-mode-tab" data-mode="2card-4p" onclick="setCardMode(this)">
+        <span class="tab-icon">🃏🃏</span>
+        <div class="tab-title">2장 · 4명 (골프존)</div>
+        <div class="tab-desc">1장에 2명씩<br>카드1(P1·2)+카드2(P3·4)</div>
+      </div>
+      <div class="card-mode-tab" data-mode="2card-split" onclick="setCardMode(this)">
+        <span class="tab-icon">✂️🃏</span>
+        <div class="tab-title">2장 · 전반/후반</div>
+        <div class="tab-desc">4명이 전반·후반<br>카드로 분리된 경우</div>
+      </div>
+      <div class="card-mode-tab" data-mode="1card-2p" onclick="setCardMode(this)">
+        <span class="tab-icon">🃏👤👤</span>
+        <div class="tab-title">1장 · 2명</div>
+        <div class="tab-desc">골프존 1장<br>2명 18홀</div>
+      </div>
     </div>
-  </header>
 
-  <div style="margin-top:36px">
-    <div class="section-title">① 스코어카드 업로드</div>
-    <div class="card">
+    <div class="mode-desc-bar" id="modeDesc">
+      📋 1장에 4명 전체 18홀이 포함된 스코어카드 (스마트스코어 등)
+    </div>
 
-      <!-- 카드 모드 -->
-      <div class="card-mode-tabs" id="cardModeTabs">
-        <div class="card-mode-tab active" data-mode="1card-4p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏</span>
-          <div class="tab-title">1장 · 4명</div>
-          <div class="tab-desc">스마트스코어 등<br>1장에 4명 18홀</div>
+    <div class="upload-multi-grid">
+      <div class="upload-slot" id="slot1">
+        <input type="file" id="fileInput" accept="image/*" />
+        <span class="slot-icon">📷</span>
+        <div class="slot-title" id="slot1Title">스코어카드</div>
+        <div class="slot-sub" id="slot1Sub">4명 18홀 포함</div>
+        <div class="slot-filename" id="slot1Name">클릭하거나 드래그</div>
+      </div>
+      <div class="upload-slot" id="slot2" style="opacity:.4;pointer-events:none">
+        <input type="file" id="fileInput2" accept="image/*" />
+        <span class="slot-icon">📷</span>
+        <div class="slot-title" id="slot2Title">스코어카드 2장</div>
+        <div class="slot-sub" id="slot2Sub">이 모드에서는 불필요</div>
+        <div class="slot-filename" id="slot2Name">클릭하거나 드래그</div>
+      </div>
+    </div>
+
+    <div class="preview-container" id="previewContainer">
+      <div class="preview-box"><span class="preview-label">원본 1</span><img id="previewOrig" alt="원본" /></div>
+      <div class="preview-box"><span class="preview-label">전처리 1</span><canvas id="previewCanvas"></canvas></div>
+      <div class="preview-box" id="preview2Box" style="display:none"><span class="preview-label">원본 2</span><img id="previewOrig2" alt="원본2" /></div>
+      <div class="preview-box" id="preview2CanvasBox" style="display:none"><span class="preview-label">전처리 2</span><canvas id="previewCanvas2"></canvas></div>
+    </div>
+
+    <!-- 타당금액 -->
+    <div class="unit-row">
+      <label>💰 타당 금액</label>
+      <input type="number" id="unitAmount" value="1000" min="100" step="100" />
+      <span class="unit-hint">원 / 1타 기준</span>
+    </div>
+
+    <!-- 배판 조건 -->
+    <div class="baepan-section">
+      <div class="section-label">⚡ 배판 조건</div>
+      <div class="baepan-grid">
+        <div class="baepan-item checked" data-key="birdie" onclick="toggleBaepan(this)">
+          <div class="baepan-check">✓</div><span class="baepan-label">🐦 버디/이글 배판</span>
         </div>
-        <div class="card-mode-tab" data-mode="2card-4p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏🃏</span>
-          <div class="tab-title">2장 · 4명 (골프존)</div>
-          <div class="tab-desc">1장에 2명씩<br>카드1(P1·2) + 카드2(P3·4)</div>
+        <div class="baepan-item checked" data-key="triple" onclick="toggleBaepan(this)">
+          <div class="baepan-check">✓</div><span class="baepan-label">💥 트리플보기 배판</span>
         </div>
-        <div class="card-mode-tab" data-mode="2card-split" onclick="setCardMode(this)">
-          <span class="tab-icon">✂️🃏</span>
-          <div class="tab-title">2장 · 전반/후반</div>
-          <div class="tab-desc">4명이 전반·후반<br>카드로 분리된 경우</div>
+        <div class="baepan-item checked" data-key="par3double" onclick="toggleBaepan(this)">
+          <div class="baepan-check">✓</div><span class="baepan-label">🎯 더블(Par3) 배판</span>
         </div>
-        <div class="card-mode-tab" data-mode="1card-2p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏👤👤</span>
-          <div class="tab-title">1장 · 2명</div>
-          <div class="tab-desc">골프존 1장<br>2명 18홀</div>
+        <div class="baepan-item checked" data-key="tripletie" onclick="toggleBaepan(this)">
+          <div class="baepan-check">✓</div><span class="baepan-label">🤝 3인 동타 배판</span>
+        </div>
+        <div class="baepan-item disabled" id="bp-twotie" data-key="twotie" onclick="toggleBaepan(this)">
+          <div class="baepan-check"></div><span class="baepan-label">2인 동타 따판 <span style="font-size:.65rem;color:var(--blue)">(3명시)</span></span>
+        </div>
+        <div class="baepan-item tatadble-item" id="bp-tatadble" data-key="tatadble" onclick="toggleBaepan(this)">
+          <div class="baepan-check"></div><span class="baepan-label">🔥 전홀 전원동타 따따블 <span style="font-size:.65rem;color:var(--purple)">×2 누적</span></span>
         </div>
       </div>
-
-      <div id="modeDesc" style="font-size:.8rem;color:var(--blue-acc);background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px">
-        📋 1장에 4명 전체 18홀이 포함된 스코어카드 (스마트스코어 등)
+      <div class="tatadble-desc" id="tatadbleDesc">
+        🔥 <strong>따따블</strong>: 전 홀에서 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)<br>
+        예) 1,000원 → 동타 → 2,000원 → 동타 → 4,000원 → 동타 → 8,000원
       </div>
+    </div>
 
-      <div class="upload-multi-grid">
-        <div class="upload-slot" id="slot1">
-          <input type="file" id="fileInput" accept="image/*" />
-          <span class="slot-icon">🃏</span>
-          <div class="slot-title" id="slot1Title">스코어카드</div>
-          <div class="slot-sub" id="slot1Sub" style="color:var(--blue-acc);font-size:.72rem">4명 18홀 포함</div>
-          <div class="slot-filename" id="slot1Name">클릭하거나 드래그</div>
-        </div>
-        <div class="upload-slot" id="slot2" style="opacity:.4;pointer-events:none">
-          <input type="file" id="fileInput2" accept="image/*" />
-          <span class="slot-icon">🃏</span>
-          <div class="slot-title" id="slot2Title">스코어카드 2장</div>
-          <div class="slot-sub" id="slot2Sub" style="color:var(--text-muted);font-size:.72rem">이 모드에서는 불필요</div>
-          <div class="slot-filename" id="slot2Name">클릭하거나 드래그</div>
-        </div>
+    <!-- 참가 플레이어 -->
+    <div class="player-chips-wrap">
+      <div class="section-label">👤 참가 플레이어 <span style="font-size:.7rem;color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(클릭으로 제외)</span></div>
+      <div class="player-chips" id="playerChips">
+        <div class="pchip on" data-pi="0" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn0">플레이어1</span></div>
+        <div class="pchip on" data-pi="1" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn1">플레이어2</span></div>
+        <div class="pchip on" data-pi="2" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn2">플레이어3</span></div>
+        <div class="pchip on" data-pi="3" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn3">플레이어4</span></div>
       </div>
+    </div>
 
-      <div class="preview-container" id="previewContainer">
-        <div class="preview-box"><span class="preview-label">원본 1</span><img id="previewOrig" alt="원본" /></div>
-        <div class="preview-box"><span class="preview-label">전처리 1</span><canvas id="previewCanvas"></canvas></div>
-        <div class="preview-box" id="preview2Box" style="display:none"><span class="preview-label">원본 2</span><img id="previewOrig2" alt="원본2" /></div>
-        <div class="preview-box" id="preview2CanvasBox" style="display:none"><span class="preview-label">전처리 2</span><canvas id="previewCanvas2"></canvas></div>
-      </div>
+    <!-- 보유금액 -->
+    <div style="margin-bottom:20px">
+      <div class="section-label">💰 게임 시작 보유금액 <span style="font-size:.7rem;color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(핸디 지급 전 금액 — 홀별 잔액 추적)</span></div>
+      <div class="wallet-grid" id="walletGrid"></div>
+    </div>
 
-      <!-- ✅ 타당금액만 (플레이어수/홀수 제거) -->
-      <div class="unit-row">
-        <label>💰 타당 금액</label>
-        <input type="number" id="unitAmount" value="1000" min="100" step="100" />
-        <span class="unit-hint">원 / 1타 기준</span>
-      </div>
+    <div class="loader" id="loader">
+      <div class="spinner"></div>
+      <div class="loader-text" id="loaderText">AI 분석 중...</div>
+      <div class="loader-step" id="loaderStep"></div>
+    </div>
 
-      <!-- ✅ 배판 조건 (세분화 + 따따블 추가) -->
-      <div class="baepan-section">
-        <div class="baepan-title">⚡ 배판 조건</div>
-        <div class="baepan-grid">
-          <div class="baepan-item checked" data-key="birdie" onclick="toggleBaepan(this)">
-            <div class="baepan-check">✓</div><span class="baepan-label">🐦 버디/이글 배판</span>
-          </div>
-          <div class="baepan-item checked" data-key="triple" onclick="toggleBaepan(this)">
-            <div class="baepan-check">✓</div><span class="baepan-label">💥 트리플보기 배판</span>
-          </div>
-          <div class="baepan-item checked" data-key="par3double" onclick="toggleBaepan(this)">
-            <div class="baepan-check">✓</div><span class="baepan-label">🎯 더블(Par3) 배판</span>
-          </div>
-          <div class="baepan-item checked" data-key="tripletie" onclick="toggleBaepan(this)">
-            <div class="baepan-check">✓</div><span class="baepan-label">🤝 3인 동타 배판</span>
-          </div>
-          <div class="baepan-item disabled" id="bp-twotie" data-key="twotie" onclick="toggleBaepan(this)">
-            <div class="baepan-check"></div><span class="baepan-label">2인 동타 따판 <span style="font-size:.65rem;color:var(--blue-acc)">(3명시)</span></span>
-          </div>
-          <div class="baepan-item tatadble-item" id="bp-tatadble" data-key="tatadble" onclick="toggleBaepan(this)">
-            <div class="baepan-check"></div><span class="baepan-label">🔥 전홀 전원동타 따따블 <span style="font-size:.65rem;color:var(--purple)">×2 누적</span></span>
-          </div>
-        </div>
-        <div class="tatadble-desc" id="tatadbleDesc">
-          🔥 <strong>따따블</strong>: 전 홀에서 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)<br>
-          예) 1,000원 → 동타 → 2,000원 → 동타 → 4,000원 → 동타 → 8,000원
-        </div>
-      </div>
-
-      <!-- ✅ 참여 플레이어 선택 -->
-      <div class="player-chips-wrap">
-        <div class="player-chips-title">👤 참가 플레이어 <span style="font-size:.72rem;color:var(--text-muted);text-transform:none;letter-spacing:0">(클릭으로 제외)</span></div>
-        <div class="player-chips" id="playerChips">
-          <div class="pchip on" data-pi="0" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn0">플레이어1</span></div>
-          <div class="pchip on" data-pi="1" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn1">플레이어2</span></div>
-          <div class="pchip on" data-pi="2" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn2">플레이어3</span></div>
-          <div class="pchip on" data-pi="3" onclick="toggleChip(this)"><div class="pchip-dot"></div><span id="cn3">플레이어4</span></div>
-        </div>
-      </div>
-
-      <!-- ✅ 게임 시작 보유금액 -->
-      <div style="margin-bottom:20px">
-        <div style="font-size:.78rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">
-          💰 게임 시작 보유금액 <span style="font-size:.72rem;color:var(--text-muted);text-transform:none;letter-spacing:0">(핸디 지급 전 금액 — 홀별 잔액 추적)</span>
-        </div>
-        <div class="wallet-grid" id="walletGrid"></div>
-      </div>
-
-      <div class="loader" id="loader"><div class="spinner"></div><div class="loader-text" id="loaderText">AI 분석 중...</div><div class="loader-step" id="loaderStep"></div></div>
-
-      <div class="action-row">
-        <button class="btn btn-primary" id="analyzeBtn" disabled>🤖 AI 분석 시작</button>
-        <button class="btn btn-secondary" id="resetBtn">↩ 초기화</button>
-      </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" id="analyzeBtn" disabled style="flex:1;max-width:280px">🤖 AI 분석 시작</button>
+      <button class="btn btn-secondary" id="resetBtn">↩ 초기화</button>
     </div>
   </div>
 
-  <!-- STEP 2 -->
+  <!-- ② 인식결과 -->
   <div class="verify-section" id="verifySection">
-    <div class="section-title">② 인식 결과 확인 및 수정</div>
+    <div class="sec-title">
+      <div class="sec-title-num">2</div>
+      <div class="sec-title-text">인식 결과 확인 및 수정</div>
+      <div class="sec-title-line"></div>
+    </div>
     <div class="verify-layout">
       <div>
-        <div class="card" style="margin-bottom:16px">
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">📊 인식된 스코어 요약 — 카드 합계와 비교하세요</div>
-          <div class="score-summary-bar" id="scoreSummaryBar"></div>
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;font-weight:500">📊 인식된 스코어 요약 — 카드 합계와 비교하세요</div>
+          <div class="score-bar" id="scoreSummaryBar"></div>
           <div id="mismatchAlert"></div>
         </div>
-        <div class="card" style="margin-bottom:16px">
-          <div style="font-size:.82rem;color:var(--text-secondary);margin-bottom:12px">
-            ✏️ 점수를 직접 수정할 수 있습니다. <span style="color:var(--blue-acc)">Par3 홀의 🎯 버튼으로 니어리스트를 지정하세요.</span>
+        <div class="card" style="margin-bottom:14px">
+          <div style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;font-weight:500">
+            ✏️ 점수를 직접 수정할 수 있습니다 · <span style="color:var(--blue)">Par3 홀의 🎯 버튼으로 니어리스트를 지정하세요</span>
           </div>
           <div class="table-wrapper">
             <table class="score-table" id="scoreTable">
@@ -386,57 +448,77 @@
             </table>
           </div>
         </div>
-        <div class="action-row">
+        <div class="btn-row">
           <button class="btn btn-gold" id="calcBtn">💰 정산 계산하기</button>
           <button class="btn btn-danger" id="reAnalyzeBtn">🔄 다시 인식</button>
           <div class="spacer"></div>
           <button class="btn btn-secondary" id="resetVerifyBtn">↩ 처음부터</button>
         </div>
       </div>
-      <div class="verify-image-panel">
-        <div class="panel-title">📸 원본 스코어카드</div>
+      <div class="ref-panel" id="refPanel">
+        <div class="ref-panel-title">📸 원본 스코어카드</div>
         <div id="refSlot1" style="display:none">
-          <div class="ref-image-wrap" id="refWrap1" onclick="this.classList.toggle('zoom')"><img id="refImg1" alt="카드 1" /></div>
-          <div class="ref-img-label">카드 1 — 클릭 확대</div>
+          <div class="ref-img-wrap" id="refWrap1" onclick="this.classList.toggle('zoom')"><img id="refImg1" alt="카드 1" /></div>
+          <div class="ref-img-lbl">카드 1 — 클릭 확대</div>
         </div>
         <div id="refSlot2" style="display:none;margin-top:12px">
-          <div class="ref-image-wrap" id="refWrap2" onclick="this.classList.toggle('zoom')"><img id="refImg2" alt="카드 2" /></div>
-          <div class="ref-img-label">카드 2 — 클릭 확대</div>
+          <div class="ref-img-wrap" id="refWrap2" onclick="this.classList.toggle('zoom')"><img id="refImg2" alt="카드 2" /></div>
+          <div class="ref-img-lbl">카드 2 — 클릭 확대</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- STEP 3 -->
+  <!-- ③ 결과 -->
   <div class="results-section" id="resultsSection">
     <div class="divider"></div>
-    <div class="section-title">③ 홀별 정산 내역</div>
+    <div class="sec-title">
+      <div class="sec-title-num">3</div>
+      <div class="sec-title-text">홀별 정산 내역</div>
+      <div class="sec-title-line"></div>
+    </div>
     <div id="holeResults"></div>
     <div class="divider"></div>
-    <div class="section-title">📈 구간별 결산</div>
+    <div class="sec-title">
+      <div class="sec-title-num" style="background:var(--accent)">📈</div>
+      <div class="sec-title-text">구간별 결산</div>
+      <div class="sec-title-line"></div>
+    </div>
     <div class="card">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px">
-        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">🌅 전반 OUT 1–9홀</div><table class="summary-table" id="outTable"></table></div>
-        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">🌆 후반 IN 10–18홀</div><table class="summary-table" id="inTable"></table></div>
-        <div><div style="font-family:'Bebas Neue',sans-serif;letter-spacing:.1em;color:var(--text-secondary);margin-bottom:10px">⛳ 최종 합계</div><table class="summary-table" id="totalTable"></table></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+        <div><div style="font-size:.78rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">🌅 전반 OUT 1–9홀</div><table class="summary-table" id="outTable"></table></div>
+        <div><div style="font-size:.78rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">🌆 후반 IN 10–18홀</div><table class="summary-table" id="inTable"></table></div>
+        <div><div style="font-size:.78rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.08em">⛳ 최종 합계</div><table class="summary-table" id="totalTable"></table></div>
       </div>
     </div>
     <div class="divider"></div>
-    <div class="section-title">🏆 최종 순위 & 정산</div>
+    <div class="sec-title">
+      <div class="sec-title-num" style="background:var(--accent)">🏆</div>
+      <div class="sec-title-text">최종 순위 & 정산</div>
+      <div class="sec-title-line"></div>
+    </div>
     <div class="card"><div class="rank-cards" id="rankCards"></div></div>
-    <div class="divider"></div>
-    <div class="section-title" id="assetTitle" style="display:none">💰 홀별 보유금액 변화</div>
-    <div class="card" id="assetSection" style="display:none">
-      <div style="overflow-x:auto"><table class="asset-table" id="assetTable"></table></div>
+    <div id="assetWrap" style="display:none">
+      <div class="divider"></div>
+      <div class="sec-title">
+        <div class="sec-title-num" style="background:var(--accent)">💰</div>
+        <div class="sec-title-text" id="assetTitle">홀별 보유금액 변화</div>
+        <div class="sec-title-line"></div>
+      </div>
+      <div class="card"><div style="overflow-x:auto"><table class="asset-table" id="assetTable"></table></div></div>
     </div>
     <div class="divider"></div>
-    <div class="section-title">💸 돈의 흐름</div>
+    <div class="sec-title">
+      <div class="sec-title-num" style="background:var(--accent)">💸</div>
+      <div class="sec-title-text">돈의 흐름</div>
+      <div class="sec-title-line"></div>
+    </div>
     <div class="card">
       <div class="flow-container" id="flowContainer"></div>
       <div class="flow-legend">
-        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--green-400)"></div>수령자</div>
-        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--red-acc)"></div>지급자</div>
-        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--gold)"></div>최고수령</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--primary)"></div>수령자</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--red)"></div>지급자</div>
+        <div class="flow-legend-item"><div class="flow-legend-dot" style="background:var(--accent)"></div>최고수령</div>
       </div>
     </div>
   </div>
@@ -445,36 +527,29 @@
 <!-- 사용법 모달 -->
 <div class="modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('visible')">
   <div class="modal">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+    <div class="modal-hdr">
       <div class="modal-title">📖 사용법 안내</div>
-      <button onclick="$('helpModal').classList.remove('visible')" style="background:none;border:none;color:var(--text-muted);cursor:pointer;font-size:1.4rem">×</button>
+      <button class="modal-close" onclick="$('helpModal').classList.remove('visible')">×</button>
     </div>
-    <div style="background:rgba(45,122,69,.12);border:1px solid rgba(45,122,69,.3);border-radius:10px;padding:16px;margin-bottom:12px">
-      <div style="color:var(--green-300);font-weight:700;margin-bottom:6px">© 저작권 및 문의</div>
-      <div style="color:var(--text-secondary);font-size:.85rem">박배영 · <a href="mailto:paeyougpark@gmail.com" style="color:var(--blue-acc)">paeyougpark@gmail.com</a></div>
-    </div>
-    <div style="background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.25);border-radius:10px;padding:14px 16px;margin-bottom:10px">
-      <div style="color:var(--blue-acc);font-weight:700;margin-bottom:6px;font-size:.88rem">📸 업로드 방법</div>
-      <div style="color:var(--text-secondary);font-size:.82rem;line-height:1.8">
-        📱 스마트스코어 — 1장 업로드 (4명 전체)<br>
-        🎮 골프존 — 2장: 카드1(P1·P2) + 카드2(P3·P4)
+    <div style="background:var(--primary-light);border:1px solid rgba(26,107,60,.2);border-radius:var(--radius-lg);padding:13px 16px;margin-bottom:10px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:1.3rem">©</span>
+      <div>
+        <div style="font-size:.82rem;font-weight:700;color:var(--primary)">저작권 및 문의</div>
+        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · <a href="mailto:paeyougpark@gmail.com" style="color:var(--primary)">paeyougpark@gmail.com</a></div>
       </div>
     </div>
-    <div style="background:var(--purple-light);border:1px solid rgba(139,92,246,.4);border-radius:10px;padding:14px 16px;margin-bottom:10px">
-      <div style="color:#c4b5fd;font-weight:700;margin-bottom:6px;font-size:.88rem">🔥 따따블 규칙</div>
-      <div style="color:var(--text-secondary);font-size:.82rem;line-height:1.8">
-        전 홀에서 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)<br>
-        1,000원 → 동타 → 2,000원 → 동타 → 4,000원<br>
-        배판 조건까지 겹치면 누적금액에서 추가 ×2
-      </div>
-    </div>
-    <div style="background:rgba(224,85,85,.08);border:1px solid rgba(224,85,85,.25);border-radius:10px;padding:14px 16px;margin-bottom:16px">
-      <div style="color:var(--red-acc);font-weight:700;margin-bottom:6px;font-size:.88rem">⚠️ 주의사항</div>
-      <div style="color:#ffaaaa;font-size:.82rem;line-height:1.8">
-        AI 인식 오류 가능 — 원본 이미지와 반드시 비교 후 수동 수정하세요
-      </div>
-    </div>
-    <div style="text-align:center"><button onclick="$('helpModal').classList.remove('visible')" class="btn btn-primary" style="padding:10px 40px">확인</button></div>
+    <div class="help-block"><div class="help-block-title">⛳ 이 프로그램은?</div><div class="help-block-body">골프 라운딩 후 정확한 정산을 위한 AI 자동 계산기입니다.</div></div>
+    <div class="help-block"><div class="help-block-title">📸 이미지 업로드</div><div class="help-block-body">
+      📱 <strong>스마트스코어</strong> — 1장 업로드 (4명 전체)<br>
+      🎮 <strong>골프존</strong> — 2장: 카드1(P1·P2) + 카드2(P3·P4)
+    </div></div>
+    <div class="help-block" style="background:var(--purple-light);border-color:rgba(109,59,181,.2)"><div class="help-block-title" style="color:var(--purple)">🔥 따따블 규칙</div><div class="help-block-body">
+      전 홀 전원 동타 → 다음 홀 타당 2배 누적 (최대 8배)<br>
+      1,000원 → 동타 → 2,000원 → 동타 → 4,000원
+    </div></div>
+    <div class="help-block"><div class="help-block-title">🎯 Par3 니어리스트</div><div class="help-block-body">Par3 홀 아래 🎯 버튼으로 수령자 선택 → 나머지 플레이어에게 각 1타 금액 수령</div></div>
+    <div class="help-block" style="background:var(--red-light);border-color:rgba(192,57,43,.2)"><div class="help-block-title" style="color:var(--red)">⚠️ 주의사항</div><div class="help-block-body" style="color:var(--red)">AI 인식 오류 가능 — 원본 이미지와 반드시 비교 후 수정하세요</div></div>
+    <div style="text-align:center;margin-top:16px"><button onclick="$('helpModal').classList.remove('visible')" class="btn btn-primary" style="padding:9px 36px">확인</button></div>
   </div>
 </div>
 
@@ -525,8 +600,8 @@ function setCardMode(el){
   $('slot1Title').textContent=cfg.s1title;$('slot1Sub').textContent=cfg.s1sub
   $('slot2Title').textContent=cfg.s2title;$('slot2Sub').textContent=cfg.s2sub
   const s2=$('slot2')
-  if(cfg.slots>=2){s2.style.opacity='1';s2.style.pointerEvents='auto';s2.querySelector('.slot-sub').style.color='var(--blue-acc)'}
-  else{s2.style.opacity='.4';s2.style.pointerEvents='none';s2.querySelector('.slot-sub').style.color='var(--text-muted)'}
+  if(cfg.slots>=2){s2.style.opacity='1';s2.style.pointerEvents='auto'}
+  else{s2.style.opacity='.4';s2.style.pointerEvents='none'}
 }
 
 /* ━━━ BAEPAN ━━━ */
@@ -556,7 +631,7 @@ function updateActivePlayers(){
   buildWalletGrid()
 }
 
-/* ━━━ FILE UPLOAD (원본 그대로) ━━━ */
+/* ━━━ FILE UPLOAD ━━━ */
 slot1.addEventListener('click',()=>fileInput.click())
 slot2.addEventListener('click',()=>fileInput2.click())
 function addDrag(slot,num){
@@ -612,13 +687,13 @@ function buildWalletGrid(){
   const names=ap.map(i=>state.players[i]||`플레이어${i+1}`)
   $('walletGrid').innerHTML=names.map((n,j)=>`
     <div class="wallet-item">
-      <label>💰 ${n}</label>
-      <input type="number" placeholder="예: 89000" value="${state.wallets[ap[j]]||''}" min="0" step="1000"
+      <label>${n}</label>
+      <input type="number" placeholder="0" value="${state.wallets[ap[j]]||''}" min="0" step="1000"
         onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" />
     </div>`).join('')
 }
 
-/* ━━━ AI ANALYSIS (원본 그대로) ━━━ */
+/* ━━━ AI ANALYSIS ━━━ */
 analyzeBtn.addEventListener('click',runAnalysis)
 reAnalyzeBtn.addEventListener('click',runAnalysis)
 $('resetVerifyBtn').addEventListener('click',()=>{verifySection.style.display='none';resultsSection.classList.remove('visible')})
@@ -651,10 +726,8 @@ async function runAnalysis(){
 }
 
 function showFallbackTable(){
-  const ap=state.activePlayers.length>0?state.activePlayers:[0,1,2,3]
-  const pCount=ap.length, totalH=18
   const players=Array.from({length:4},(_,i)=>`플레이어${i+1}`)
-  const holes=Array.from({length:totalH},(_,i)=>({hole:i+1,par:4,scores:new Array(4).fill(4),diffs:new Array(4).fill(0)}))
+  const holes=Array.from({length:18},(_,i)=>({hole:i+1,par:4,scores:new Array(4).fill(4),diffs:new Array(4).fill(0)}))
   state.warnings=['AI 인식 실패 — 수동으로 점수를 입력해주세요.']
   populateVerifyTable({players,holes,totals:{},cardTotals:null})
 }
@@ -663,8 +736,6 @@ function showFallbackTable(){
 function populateVerifyTable(data){
   state.players=data.players||['P1','P2','P3','P4']
   state.holes=data.holes||[];state.nearests={}
-
-  // 칩 이름 업데이트
   state.players.forEach((name,i)=>{
     const cn=$(`cn${i}`);if(cn)cn.textContent=name
     const chip=document.querySelector(`.pchip[data-pi="${i}"]`);if(chip)chip.style.display=''
@@ -673,10 +744,8 @@ function populateVerifyTable(data){
     const chip=document.querySelector(`.pchip[data-pi="${i}"]`);if(chip)chip.style.display='none'
   }
   updateActivePlayers()
-
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
   const outCount=9
-
   tableHead.innerHTML=`<tr><th>홀</th><th>Par</th>${ap.map(pi=>`<th><input class="player-name-input" data-pi="${pi}" value="${state.players[pi]}" /></th>`).join('')}</tr>`
   tableHead.querySelectorAll('.player-name-input').forEach(inp=>{
     inp.addEventListener('change',()=>{
@@ -685,7 +754,6 @@ function populateVerifyTable(data){
       renderSummaryBar();renderNearestSelects();buildWalletGrid()
     })
   })
-
   tableBody.innerHTML=''
   state.holes.forEach((h,idx)=>{
     if(h.hole===outCount+1){
@@ -696,19 +764,19 @@ function populateVerifyTable(data){
     const isPar3=h.par===3,tr=document.createElement('tr')
     if(isPar3)tr.classList.add('par3-row')
     tr.innerHTML=`
-      <td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--blue-acc);font-size:.62rem;margin-left:2px">P3</span>':''}</td>
+      <td class="hole-cell">${h.hole}${isPar3?'<span style="color:var(--blue);font-size:.6rem;margin-left:2px">P3</span>':''}</td>
       <td class="par-cell">${h.par}</td>
       ${ap.map(pi=>{
         const s=h.scores[pi]||h.par,diff=s-h.par,cls=diffClass(diff),ds=diff>0?`+${diff}`:String(diff)
         return `<td><div style="display:flex;flex-direction:column;align-items:center;gap:2px">
           <input type="number" class="score-input ${cls}" data-hole="${idx}" data-player="${pi}" value="${s}" min="1" max="15" />
-          <span class="${cls}" style="font-size:.65rem;font-family:'JetBrains Mono',monospace;opacity:.85">(${ds})</span>
+          <span class="${cls}" style="font-size:.62rem;font-family:'JetBrains Mono',monospace;opacity:.8">(${ds})</span>
         </div></td>`
       }).join('')}`
     tableBody.appendChild(tr)
     if(isPar3){
-      const ntr=document.createElement('tr');ntr.style.cssText='background:rgba(74,144,217,.04)'
-      ntr.innerHTML=`<td colspan="2" style="font-size:.7rem;color:var(--blue-acc);padding:4px 8px;text-align:right">🎯 니어리스트</td>${ap.map(pi=>`<td style="padding:3px 8px;text-align:center"><span class="nearest-check" id="nc_${idx}_${pi}" onclick="setNearest(${idx},${pi})"></span></td>`).join('')}`
+      const ntr=document.createElement('tr');ntr.style.cssText='background:rgba(37,99,168,.04)'
+      ntr.innerHTML=`<td colspan="2" style="font-size:.68rem;color:var(--blue);padding:4px 8px;text-align:right;font-weight:600">🎯 니어리스트</td>${ap.map(pi=>`<td style="padding:3px 8px;text-align:center"><span class="nearest-check" id="nc_${idx}_${pi}" onclick="setNearest(${idx},${pi})"></span></td>`).join('')}`
       tableBody.appendChild(ntr)
     }
   })
@@ -720,7 +788,6 @@ function populateVerifyTable(data){
   const tots=ap.map(pi=>state.holes.reduce((a,h)=>a+(h.scores[pi]||0),0))
   const trT=document.createElement('tr');trT.className='total-row'
   trT.innerHTML=`<td>TOTAL</td><td>—</td>${tots.map(s=>`<td>${s}</td>`).join('')}`;tableBody.appendChild(trT)
-
   tableBody.querySelectorAll('.score-input').forEach(inp=>{
     inp.addEventListener('change',()=>{
       const hi=parseInt(inp.dataset.hole),pi=parseInt(inp.dataset.player),val=parseInt(inp.value)||0
@@ -765,11 +832,11 @@ function renderSummaryBar(){
     <div class="score-summary-player">
       <div class="ssp-name">${p.name}</div>
       <div class="ssp-total ${!p.match?'ssp-warn':''}">${p.total}</div>
-      <div class="ssp-detail">전반${p.outSum}/후반${p.inSum}</div>
-      ${p.cardTotal!==undefined?`<div class="ssp-detail" style="color:${p.match?'var(--text-muted)':'var(--red-acc)'}">카드:${p.cardTotal}</div>`:''}
+      <div class="ssp-detail">${p.outSum}/${p.inSum}</div>
+      ${p.cardTotal!==undefined?`<div class="ssp-detail" style="color:${p.match?'var(--text-muted)':'var(--red)'}">카드:${p.cardTotal}</div>`:''}
     </div>`).join('')
   const mm=pd.filter(p=>!p.match).map(p=>`${p.name}: ${p.total} ≠ ${p.cardTotal}`)
-  if(mm.length>0) alertEl.innerHTML=`<div class="mismatch-alert"><div class="alert-title">⚠️ 합계 불일치</div>${mm.map(m=>`<div class="alert-item">• ${m}</div>`).join('')}</div>`
+  if(mm.length>0) alertEl.innerHTML=`<div class="mismatch-alert"><div class="alert-title">⚠️ 합계 불일치 — 수정 또는 재인식 필요</div>${mm.map(m=>`<div class="alert-item">• ${m}</div>`).join('')}</div>`
   else if(ct?.total) alertEl.innerHTML=`<div class="match-alert">✅ 합계가 카드와 일치합니다</div>`
   else alertEl.innerHTML=''
 }
@@ -804,24 +871,16 @@ function calculate(){
   const pCount=ap.length,baseUnit=state.unitAmount,outCount=9
   const makeMatrix=()=>Array.from({length:pCount},()=>new Array(pCount).fill(0))
   const breakdowns=[],playerTotals=new Array(pCount).fill(0)
-
-  // 따따블 상태
-  let currentUnit=baseUnit, prevAllTied=false
+  let currentUnit=baseUnit,prevAllTied=false
 
   state.holes.forEach((h,idx)=>{
     const scores=ap.map(pi=>h.scores[pi]||h.par),diffs=scores.map(s=>s-h.par)
     const nearestRaw=state.nearests[idx]??-1,nearest=ap.indexOf(nearestRaw)
-
-    // ✅ 따따블: 이전 홀 전원 동타면 이번 홀 타당 2배
-    if(state.baepan.tatadble&&prevAllTied){
-      currentUnit=Math.min(currentUnit*2,baseUnit*8)
-    } else if(!prevAllTied){
-      currentUnit=baseUnit
-    }
+    if(state.baepan.tatadble&&prevAllTied){currentUnit=Math.min(currentUnit*2,baseUnit*8)}
+    else if(!prevAllTied){currentUnit=baseUnit}
     const allTiedThisHole=state.baepan.tatadble&&scores.every(s=>s===scores[0])
     prevAllTied=allTiedThisHole
     const unit=currentUnit
-
     const hasBirdie=state.baepan.birdie&&diffs.some(d=>d===-1)
     const hasEagle=state.baepan.birdie&&diffs.some(d=>d<=-2)
     const hasTriple=state.baepan.triple&&h.par>=4&&diffs.some(d=>d>=3)
@@ -831,7 +890,6 @@ function calculate(){
     const hasTwoTie=state.baepan.twotie&&pCount===3&&Object.values(sc).some(c=>c>=2)
     const isDouble=hasBirdie||hasEagle||hasTriple||hasPar3Double||hasTripleTie||hasTwoTie
     const matrix=makeMatrix(),transactions=[]
-
     for(let a=0;a<pCount;a++)for(let b=a+1;b<pCount;b++){
       let gap=diffs[a]-diffs[b];if(gap===0)continue
       if(diffs[a]<=-2&&diffs[b]>-2)gap-=2;if(diffs[b]<=-2&&diffs[a]>-2)gap+=2
@@ -873,7 +931,7 @@ function renderResults(bds,playerTotals,ap,outCount,assetHistory=[]){
     const tatadbleTag=state.baepan.tatadble&&bd.currentUnit>state.unitAmount
       ?`<span class="tatadble-badge">🔥 ${fmtNum(bd.currentUnit)}원/타</span>`:''
     const allTieTag=bd.allTiedThisHole&&state.baepan.tatadble
-      ?`<span style="background:rgba(45,122,69,.2);border:1px solid var(--green-500);border-radius:4px;padding:2px 7px;font-size:.7rem;color:var(--green-300);font-weight:700">전원동타→따따블</span>`:''
+      ?`<span style="background:#f0faf4;border:1px solid rgba(26,107,60,.25);border-radius:5px;padding:2px 7px;font-size:.7rem;color:var(--primary);font-weight:600">전원동타→따따블</span>`:''
     div.innerHTML=`
       <div class="hole-result-header">
         <span class="hole-badge">HOLE ${bd.hole}</span>
@@ -883,11 +941,10 @@ function renderResults(bds,playerTotals,ap,outCount,assetHistory=[]){
         ${allTieTag}
         ${bd.nearest>=0?`<span class="nearest-badge">🎯 ${state.players[bd.nearest]}</span>`:''}
       </div>
-      <div class="hole-scores-row">${names.map((p,i)=>`<div class="player-score-chip"><span class="chip-name">${p}</span><span class="${diffClass(bd.diffs[i])}">${bd.scores[i]}</span><span style="font-size:.68rem;color:var(--text-muted);margin-left:3px">(${diffLabel(bd.diffs[i])})</span></div>`).join('')}</div>
-      <div class="hole-transactions">${[...bd.transactions,...bd.nearestTxns.map(t=>({...t,isNearest:true}))].map(t=>`<div class="txn"><span class="from">${names[t.from]}</span><span style="color:var(--text-muted)">→</span><span class="to">${names[t.to]}</span><span class="amt">${fmtNum(t.amount)}원</span>${t.isNearest?'<span style="font-size:.7rem;color:var(--blue-acc)">(니어)</span>':''}</div>`).join('')||'<span style="color:var(--text-muted);font-size:.8rem">동타 — 정산 없음</span>'}</div>`
+      <div class="hole-scores-row">${names.map((p,i)=>`<div class="player-score-chip"><span class="chip-name">${p}</span><span class="${diffClass(bd.diffs[i])}">${bd.scores[i]}</span><span style="font-size:.65rem;color:var(--text-muted);margin-left:3px">(${diffLabel(bd.diffs[i])})</span></div>`).join('')}</div>
+      <div class="hole-transactions">${[...bd.transactions,...bd.nearestTxns.map(t=>({...t,isNearest:true}))].map(t=>`<div class="txn"><span class="from">${names[t.from]}</span><span style="color:var(--text-muted)">→</span><span class="to">${names[t.to]}</span><span class="amt">${fmtNum(t.amount)}원</span>${t.isNearest?'<span style="font-size:.68rem;color:var(--blue)">(니어)</span>':''}</div>`).join('')||'<span style="color:var(--text-muted);font-size:.78rem">동타 — 정산 없음</span>'}</div>`
     holeResults.appendChild(div)
   })
-
   const deltas=bds.map(bd=>{const d=new Array(ap.length).fill(0);[...bd.transactions,...bd.nearestTxns].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});return d})
   const sumD=(arr,n)=>{const r=new Array(n).fill(0);arr.forEach(d=>d.forEach((v,i)=>{r[i]+=v}));return r}
   const outT=sumD(deltas.slice(0,outCount),ap.length),inT=sumD(deltas.slice(outCount),ap.length)
@@ -898,20 +955,19 @@ function renderResults(bds,playerTotals,ap,outCount,assetHistory=[]){
   renderAssetTable(assetHistory,playerTotals,ap,outCount)
   renderMoneyFlow(playerTotals,names)
   resultsSection.scrollIntoView({behavior:'smooth',block:'start'})
-  showToast('정산 완료!')
+  showToast('정산 완료! ⛳')
 }
 
 /* ━━━ ASSET TABLE ━━━ */
 function renderAssetTable(history,finalTotals,ap,outCount){
-  const section=$('assetSection'),title=$('assetTitle'),table=$('assetTable')
-  if(!section||!table)return
+  const wrap=$('assetWrap'),table=$('assetTable');if(!wrap||!table)return
   const hasWallet=history.length>0&&history[0].assets!==null
   const names=ap.map(pi=>state.players[pi])
-  section.style.display='block';title.style.display='flex'
+  wrap.style.display='block'
   const showTata=state.baepan.tatadble
-  const pCols=names.map(n=>`<th>${n}<br><span style="font-size:.65rem">홀 득실</span></th>`).join('')
-  const wCols=hasWallet?names.map(n=>`<th style="color:var(--gold-light)">${n}<br><span style="font-size:.65rem">보유금액</span></th>`).join(''):''
-  const tCol=showTata?'<th style="color:#c4b5fd;font-size:.65rem">타당</th>':''
+  const pCols=names.map(n=>`<th>${n}<br><span style="font-size:.6rem">홀 득실</span></th>`).join('')
+  const wCols=hasWallet?names.map(n=>`<th style="color:var(--accent)">${n}<br><span style="font-size:.6rem">보유금액</span></th>`).join(''):''
+  const tCol=showTata?`<th style="color:var(--purple);font-size:.6rem">타당</th>`:''
   let html=`<thead><tr><th>홀</th><th>Par</th>${tCol}${pCols}${wCols}</tr></thead><tbody>`
   let outDone=false
   history.forEach(h=>{
@@ -923,7 +979,7 @@ function renderAssetTable(history,finalTotals,ap,outCount){
       const ac=hasWallet?names.map((_,i)=>{const wv=state.wallets[ap[i]]||0,v=wv+(oc[i]||0);return`<td class="${v>=wv?'asset-up':'asset-dn'}">${fmtNum(v)}원</td>`}).join(''):''
       html+=`<tr class="subtotal-row"><td colspan="2">OUT</td>${tc}${dc}${ac}</tr>`
     }
-    const tc=showTata?`<td style="color:#c4b5fd;font-size:.72rem;font-weight:700">${fmtNum(h.currentUnit)}</td>`:''
+    const tc=showTata?`<td style="color:var(--purple);font-size:.72rem;font-weight:600">${fmtNum(h.currentUnit)}</td>`:''
     const dc=names.map((_,i)=>{const v=h.delta[i]||0;return`<td class="${v>0?'asset-up':v<0?'asset-dn':'asset-eq'}">${v!==0?`${v>0?'+':''}${fmtNum(v)}원`:'—'}</td>`}).join('')
     const ac=hasWallet?names.map((_,i)=>{const v=h.assets[i],wv=state.wallets[ap[i]]||0;return`<td class="${v>=wv?'asset-up':'asset-dn'}">${fmtNum(v)}원</td>`}).join(''):''
     html+=`<tr><td class="hole-cell">${h.hole}홀</td><td class="par-cell">P${h.par}</td>${tc}${dc}${ac}</tr>`
@@ -944,7 +1000,7 @@ function renderAssetTable(history,finalTotals,ap,outCount){
 
 /* ━━━ MONEY FLOW ━━━ */
 function renderMoneyFlow(finalTotals,names){
-  const n=names.length,W=640,H=340,cx=W/2,cy=H/2,R=115,nodeR=36
+  const n=names.length,W=640,H=320,cx=W/2,cy=H/2,R=110,nodeR=34
   const angles=names.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2)
   const nodes=names.map((p,i)=>({x:cx+R*Math.cos(angles[i]),y:cy+R*Math.sin(angles[i]),name:p,total:finalTotals[i]}))
   const maxTotal=Math.max(...finalTotals.map(Math.abs),1)
@@ -958,18 +1014,18 @@ function renderMoneyFlow(finalTotals,names){
   arrows.forEach((a,ai)=>{
     const dx=a.to.x-a.from.x,dy=a.to.y-a.from.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist
     const x1=a.from.x+ux*nodeR,y1=a.from.y+uy*nodeR,x2=a.to.x-ux*(nodeR+8),y2=a.to.y-uy*(nodeR+8)
-    const mx=(x1+x2)/2-uy*35,my=(y1+y2)/2+ux*35
-    const thick=Math.max(1.5,Math.min(5,(a.amount/maxTotal)*5+1)),op=Math.max(.35,Math.min(.85,a.amount/maxTotal+.2))
-    defs+=`<marker id="ar${ai}" markerWidth="7" markerHeight="7" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="rgba(224,85,85,${op})" /></marker>`
-    arrowPaths+=`<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" stroke="rgba(224,85,85,${op})" stroke-width="${thick}" fill="none" marker-end="url(#ar${ai})" stroke-dasharray="5,3" />`
-    arrowPaths+=`<text x="${mx}" y="${my-10}" text-anchor="middle" fill="var(--gold-light)" font-size="10.5" font-family="JetBrains Mono,monospace" font-weight="700">${fmtNum(a.amount)}</text>`
+    const mx=(x1+x2)/2-uy*30,my=(y1+y2)/2+ux*30
+    const thick=Math.max(1.5,Math.min(4.5,(a.amount/maxTotal)*4+1)),op=Math.max(.3,Math.min(.75,a.amount/maxTotal+.2))
+    defs+=`<marker id="ar${ai}" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(192,57,43,${op})" /></marker>`
+    arrowPaths+=`<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" stroke="rgba(192,57,43,${op})" stroke-width="${thick}" fill="none" marker-end="url(#ar${ai})" stroke-dasharray="5,3" />`
+    arrowPaths+=`<text x="${mx}" y="${my-9}" text-anchor="middle" fill="#c8973a" font-size="10" font-family="JetBrains Mono" font-weight="700">${fmtNum(a.amount)}</text>`
   })
   nodes.forEach(nd=>{
-    const isWinner=nd.total>0,isTop=nd.total===topTotal&&nd.total>0
-    const fill=isTop?'rgba(201,162,39,.22)':isWinner?'rgba(45,122,69,.28)':'rgba(224,85,85,.18)'
-    const stroke=isTop?'#c9a227':isWinner?'#5cc47a':'#e05555'
-    const amtColor=isWinner?'#5cc47a':nd.total<0?'#e05555':'#7aab88',sign=nd.total>0?'+':''
-    nodesSvg+=`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="2.5" />${isTop?`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR+5}" fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="4,4" opacity=".45" />`:''}<text x="${nd.x}" y="${nd.y-7}" text-anchor="middle" fill="#e8f5ec" font-size="12" font-weight="700" font-family="Noto Sans KR,sans-serif">${nd.name}</text><text x="${nd.x}" y="${nd.y+10}" text-anchor="middle" fill="${amtColor}" font-size="10.5" font-family="JetBrains Mono,monospace" font-weight="700">${sign}${fmtNum(nd.total)}</text><text x="${nd.x}" y="${nd.y+22}" text-anchor="middle" fill="#3d6648" font-size="9" font-family="JetBrains Mono,monospace">원</text>`
+    const isW=nd.total>0,isTop=nd.total===topTotal&&nd.total>0
+    const fill=isTop?'#fdf3e0':isW?'#f0faf4':'#fdf0ee'
+    const stroke=isTop?'#c8973a':isW?'#1a6b3c':'#c0392b'
+    const tc=isTop?'#c8973a':isW?'#1a6b3c':'#c0392b',sign=nd.total>0?'+':''
+    nodesSvg+=`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR}" fill="${fill}" stroke="${stroke}" stroke-width="2" />${isTop?`<circle cx="${nd.x}" cy="${nd.y}" r="${nodeR+4}" fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="3,3" opacity=".5" />`:''}<text x="${nd.x}" y="${nd.y-5}" text-anchor="middle" fill="#1a1a1a" font-size="11" font-weight="700" font-family="Noto Sans KR">${nd.name}</text><text x="${nd.x}" y="${nd.y+10}" text-anchor="middle" fill="${tc}" font-size="10" font-family="JetBrains Mono" font-weight="700">${sign}${fmtNum(nd.total)}</text><text x="${nd.x}" y="${nd.y+21}" text-anchor="middle" fill="#9a9a8a" font-size="8" font-family="JetBrains Mono">원</text>`
   })
   $('flowContainer').innerHTML=`<svg class="flow-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${arrowPaths}${nodesSvg}</svg>`
 }
@@ -992,7 +1048,7 @@ resetBtn.addEventListener('click',()=>{
   $('refSlot1').style.display='none';$('refSlot2').style.display='none'
   $('refImg1').src='';$('refImg2').src=''
   $('walletGrid').innerHTML=''
-  $('assetSection').style.display='none';$('assetTitle').style.display='none'
+  $('assetWrap').style.display='none'
   verifySection.style.display='none';resultsSection.classList.remove('visible')
   document.querySelectorAll('.pchip').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''})
   document.querySelectorAll('.baepan-item').forEach(el=>{
