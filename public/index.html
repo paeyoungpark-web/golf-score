@@ -671,9 +671,12 @@ async function runAnalysis(){
   try{
     loaderText.textContent=`${state.files.length}장 스코어카드 AI 분석 중...`
     loaderStep.textContent='카드 유형 자동 판단 중...'
+    
+    // ✅ Anthropic 400 에러 해결을 위해 mimeType을 'image/jpeg'로 고정
     const payload={
-      images: state.b64s.map((b64,i)=>({base64:b64, mimeType:state.mimes[i]||'image/jpeg'}))
+      images: state.b64s.map((b64,i)=>({base64:b64, mimeType:'image/jpeg'}))
     }
+    
     const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     const j=await r.json()
     if(!j.success)throw new Error(j.error||'분석 실패')
