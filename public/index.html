@@ -323,11 +323,11 @@
       </div>
     </div>
 
-    <!-- 파일 선택 버튼 -->
+    <!-- 파일 선택 -->
     <input type="file" id="multiFileInput" accept="image/*" multiple style="display:none" />
-    <button onclick="$('multiFileInput').click()" style="width:100%;padding:16px;background:var(--primary-light);border:1.5px solid rgba(26,107,60,.3);border-radius:var(--radius-lg);cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-size:.92rem;font-weight:700;color:var(--primary);margin-bottom:12px;display:flex;align-items:center;justify-content:center;gap:8px">
+    <label for="multiFileInput" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:18px;background:var(--primary-light);border:1.5px solid rgba(26,107,60,.3);border-radius:var(--radius-lg);cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:12px">
       📷 스코어카드 이미지 선택 <span style="font-size:.75rem;font-weight:400;color:var(--text-muted)">(최대 4장)</span>
-    </button>
+    </label>
 
     <!-- 파일 목록 -->
     <div id="fileList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
@@ -584,11 +584,6 @@ function updateActivePlayers(){
 }
 
 /* ━━━ MULTI FILE UPLOAD ━━━ */
-const dz=$('dropZone')
-dz.addEventListener('click',()=>$('multiFileInput').click())
-dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('dragover')})
-dz.addEventListener('dragleave',()=>dz.classList.remove('dragover'))
-dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('dragover');addFiles(Array.from(e.dataTransfer.files))})
 $('multiFileInput').addEventListener('change',e=>addFiles(Array.from(e.target.files)))
 
 function addFiles(files){
