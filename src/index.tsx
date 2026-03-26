@@ -30,82 +30,88 @@ function parseJSON(raw: string): any {
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 1: AI 자동 판단 OCR
-// - 이미지 형태 자동 인식 (골프존/스마트스코어/기타)
-// - 2명씩, 전후반 분리, 4명 1장 등 모두 자동 처리
-// - 최대 4장 동시 입력 지원
+// STEP 1: AI 자동 판단 OCR (강화된 부호 검증)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 async function step1_extract(
   apiKey: string,
   images: { base64: string; mimeType: string }[]
 ): Promise<any> {
 
-  const systemPrompt = `You are an expert golf scorecard OCR system. You can read ANY type of Korean golf scorecard image.
-
-## YOUR TASK
-Analyze the provided image(s) and extract complete scorecard data.
+  const systemPrompt = `You are an expert golf scorecard OCR system for Korean golf apps (골프존, 스마트스코어, etc).
 
 ## STEP 1: IDENTIFY SCORECARD TYPE
-First, examine the image(s) and determine:
+- 1 image, 4 players → 18 holes, 4 players
+- 1 image, 2 players → 18 holes, 2 players
+- 2 images, 2 players each → image1=P1&P2, image2=P3&P4
+- 2 images, same players different holes → front(1-9) + back(10-18)
 
-A) **How many players** are shown? (1~4 players)
-B) **How many holes** are shown? (9 holes = front/back split, 18 holes = full round)
-C) **How many images** were provided? Use this to understand the data:
-   - 1 image with 4 players → full round 18 holes, 4 players
-   - 1 image with 2 players → full round 18 holes, 2 players  
-   - 2 images, each with 2 players → combine: image1=P1&P2, image2=P3&P4 (18 holes each)
-   - 2 images with same players but different holes → front/back split: image1=holes1-9, image2=holes10-18
-   - 3~4 images → analyze each and combine logically
+## STEP 2: READ ACTUAL STROKE NUMBERS FIRST
 
-## STEP 2: READ SCORES
-For each player in each hole:
-1. Read the PAR value for that hole (par3, par4, par5, or par6)
-2. Read the SCORE (actual strokes OR diff from par)
-3. Determine if values are shown as:
-   - **Diff format**: numbers like -2, -1, 0, +1, +2, +3 (or with icons: 🐦=birdie=-1)
-   - **Actual strokes**: numbers like 2, 3, 4, 5, 6, 7
-4. Read the player's total score shown on the card (cardTotal)
+### GolfZon scorecard layout:
+- Each player has a "Score" row showing the ACTUAL STROKES taken (e.g. 2,3,4,5,6,7,8)
+- Visual decorations indicate good/bad scores:
+  - Red heart/circle around number = birdie or better (under par)
+  - Blue box/square around number = bogey or worse (over par)
+  - No decoration = par
 
-## STEP 3: VERIFY WITH MATH
+### CRITICAL RULE - Read the NUMBER, not the decoration:
+- See "6" in a blue box on Par4? → actual=6, diff=+2 (double bogey)
+- See "3" in a red heart on Par4? → actual=3, diff=-1 (birdie)  
+- See "2" in double red heart on Par4? → actual=2, diff=-2 (eagle)
+- A LARGE number (5,6,7,8) is ALWAYS over par regardless of decoration
+- A SMALL number (1,2,3) is ALWAYS under or at par
+
+## STEP 3: MANDATORY VERIFICATION USING SUBTOTALS
+
+After reading all stroke numbers, verify using the OUT/IN/T columns on the card:
+
+1. Read OUT subtotal (T column after hole 9) = sum of holes 1-9 actual strokes
+2. Read IN subtotal (T column after hole 18) = sum of holes 10-18 actual strokes  
+3. Read TOTAL = OUT + IN
+
 For each player:
-- ParTotal = sum of all par values
-- If scores are in diff format: cardTotal should equal ParTotal + sum(diffs)
-- If scores are actual strokes: cardTotal should equal sum(scores)
-- Use cardTotal to verify and correct sign ambiguities
+- Calculate sum of your read strokes for holes 1-9
+- This MUST equal the OUT subtotal shown on card
+- If mismatch: find and fix the wrong hole(s)
 
-## CRITICAL RULES
-- Return rawScores as DIFF values (actual - par). If image shows actual strokes, convert: diff = actual - par
-- If a hole value is ambiguous (e.g., "1" could be birdie=-1 or bogey=+1), use cardTotal math to determine correct sign
-- Icons/decorations: heart=birdie=-1, eagle=−2, etc.
-- ALWAYS output exactly 18 rawScore values per player (for 9-hole splits, combine both images)
-- Player names: read exactly as shown
+Example verification:
+- Card shows OUT=37 for player
+- You read holes 1-9 as: 6,3,3,5,4,3,6,4,3 = sum=37 ✓ CORRECT
+- If your sum=33 but card shows 37: you misread some holes, fix them
+
+## STEP 4: OUTPUT DIFFS
+After verifying strokes match subtotals, convert to diffs:
+rawScores[player][hole] = actual_strokes - par
 
 ## OUTPUT FORMAT (JSON only, no markdown):
 {
-  "detectedType": "description of what you detected (e.g. '골프존 2장, 각 2명 18홀')",
-  "courseName": null,
-  "date": null,
-  "players": ["플레이어1", "플레이어2", "플레이어3", "플레이어4"],
-  "pars": [4,5,3,4,4,4,5,3,4,4,4,3,4,4,5,4,3,4],
+  "detectedType": "골프존 1장 2명 18홀",
+  "players": ["급~송아지~", "달성군수"],
+  "pars": [4,4,3,4,5,3,5,4,4, 5,4,4,4,3,4,3,4,5],
   "rawScores": [
-    [0,1,-1,0,0,1,-1,0,2, 1,0,0,-1,0,1,0,0,0],
-    [1,0,0,0,1,0,0,1,0, 0,2,1,0,0,0,1,0,0]
+    [2,-1,0,1,-1,1,-1,1,3, -1,-1,-1,-1,0,0,3,0,0],
+    [0,0,1,0,0,0,0,1,0, 0,0,0,0,1,0,0,0,0]
   ],
-  "cardTotal": [76, 79, 82, 85]
-}
-
-NOTES:
-- pars: array of 18 par values
-- rawScores: one array per player, each with 18 diff values
-- cardTotal: total score shown on card for each player
-- If only 2 players detected, return only 2 entries in players/rawScores/cardTotal`
+  "cardTotal": [76, 79],
+  "outTotal": [37, 36],
+  "inTotal": [39, 43]
+}`
 
   const imageBlocks = images.map(img => ({
     type: 'image' as const,
     source: { type: 'base64' as const, media_type: img.mimeType as any, data: img.base64 },
   }))
 
-  const userText = `I'm providing ${images.length} scorecard image(s). Please analyze and extract all player scores. Return JSON only.`
+  const userText = `Analyze ${images.length} scorecard image(s).
+
+IMPORTANT REMINDER:
+1. Read the ACTUAL STROKE NUMBER shown in each cell first
+2. Large numbers (5,6,7,8) = over par = POSITIVE diff
+3. Small numbers with red decoration = under par = NEGATIVE diff  
+4. Verify your reading: sum of holes 1-9 strokes MUST equal the OUT total shown on card
+5. Fix any holes where your sum doesn't match the card subtotals
+
+Return JSON only.`
 
   const content = await callClaude(apiKey, {
     model: 'claude-sonnet-4-20250514',
@@ -132,20 +138,20 @@ CONVERSION: actual = par + diff
 - PAR 6: diff -3→3, -2→4, -1→5, 0→6, 1→7, 2→8, 3→9, 4→10
 
 STEPS:
-1. For each player i and hole h: scores[i] = pars[h] + rawScores[i][h]
-2. OUT = sum of holes 1-9, IN = sum of holes 10-18, total = OUT + IN
-3. Verify total matches cardTotal (within ±1 rounding tolerance)
-4. Return JSON only, no markdown.
+1. Convert each diff to actual strokes: actual = par + diff
+2. OUT = sum holes 1-9, IN = sum holes 10-18, total = OUT + IN
+3. Verify OUT matches outTotal from input, IN matches inTotal
+4. Return JSON only.
 
 OUTPUT FORMAT:
 {
   "scoreFormat": "diff",
   "players": [...],
   "holes": [
-    {"hole":1,"par":4,"scores":[3,4,5,4],"diffs":[-1,0,1,0]}
+    {"hole":1,"par":4,"scores":[6,4,4,4],"diffs":[2,0,0,0]}
   ],
-  "totals": {"out":[36,38,40,42],"in":[36,40,42,44],"total":[72,78,82,86]},
-  "cardTotals": {"total":[72,78,82,86]}
+  "totals": {"out":[37,36,40,42],"in":[39,43,42,44],"total":[76,79,82,86]},
+  "cardTotals": {"total":[76,79,82,86]}
 }`
 
   const content = await callClaude(apiKey, {
@@ -154,7 +160,7 @@ OUTPUT FORMAT:
     system: systemPrompt,
     messages: [{
       role: 'user',
-      content: `Convert this scorecard data:\n${JSON.stringify(raw, null, 2)}\n\nReturn JSON only.`,
+      content: `Convert this scorecard:\n${JSON.stringify(raw, null, 2)}\n\nVerify sums match outTotal/inTotal. Return JSON only.`,
     }],
   })
   return parseJSON(content)
@@ -177,9 +183,9 @@ function validate(parsed: any): string[] {
     const cardTotal = cardTotals.total?.[pi]
     if (cardTotal !== undefined && Math.abs(allSum - cardTotal) > 1)
       warnings.push(`${player}: 합산 ${allSum} ≠ 카드 합계 ${cardTotal}`)
-    if (parsed.totals?.out?.[pi] !== undefined && outSum !== parsed.totals.out[pi])
+    if (parsed.totals?.out?.[pi] !== undefined && Math.abs(outSum - parsed.totals.out[pi]) > 1)
       warnings.push(`${player}: 전반 합산 ${outSum} ≠ ${parsed.totals.out[pi]}`)
-    if (parsed.totals?.in?.[pi] !== undefined && inSum !== parsed.totals.in[pi])
+    if (parsed.totals?.in?.[pi] !== undefined && Math.abs(inSum - parsed.totals.in[pi]) > 1)
       warnings.push(`${player}: 후반 합산 ${inSum} ≠ ${parsed.totals.in[pi]}`)
   })
   return warnings
@@ -195,19 +201,14 @@ app.post('/api/analyze', async (c) => {
   try {
     const body = await c.req.json()
 
-    // ✅ 여러 장 이미지 지원 (최대 4장)
-    // 형식 1: images 배열 [{base64, mimeType}, ...]
-    // 형식 2: 기존 호환 imageBase64, imageBase64_2
     let images: { base64: string; mimeType: string }[] = []
 
     if (body.images && Array.isArray(body.images)) {
-      // 새 형식: 배열로 여러 장
       images = body.images
         .filter((img: any) => img.base64)
-        .slice(0, 4) // 최대 4장
+        .slice(0, 4)
         .map((img: any) => ({ base64: img.base64, mimeType: img.mimeType || 'image/jpeg' }))
     } else {
-      // 기존 형식 호환
       const { imageBase64, mimeType = 'image/jpeg', imageBase64_2, mimeType2 } = body
       if (!imageBase64) return c.json({ error: 'No image data provided' }, 400)
       images = [
@@ -218,9 +219,9 @@ app.post('/api/analyze', async (c) => {
 
     if (images.length === 0) return c.json({ error: 'No image data provided' }, 400)
 
-    console.log(`Step1: AI 자동 판단 OCR (Sonnet) ${images.length}장...`)
+    console.log(`Step1: AI OCR (Sonnet) ${images.length}장...`)
     const raw = await step1_extract(ANTHROPIC_API_KEY, images)
-    console.log(`  → 감지된 카드 유형: ${raw.detectedType}`)
+    console.log(`  → 감지: ${raw.detectedType}`)
 
     console.log('Step2: 타수 변환 (Haiku)...')
     const converted = await step2_convert(ANTHROPIC_API_KEY, raw)
