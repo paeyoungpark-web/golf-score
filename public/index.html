@@ -303,7 +303,6 @@
 
 <div class="app-body">
 
-  <!-- ① 업로드 -->
   <div class="sec-title">
     <div class="sec-title-num">1</div>
     <div class="sec-title-text">스코어카드 업로드</div>
@@ -311,7 +310,6 @@
   </div>
   <div class="card">
 
-    <!-- AI 자동 판단 안내 -->
     <div style="background:var(--primary-light);border:1px solid rgba(26,107,60,.2);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px">
       <div style="font-size:1.5rem;flex-shrink:0">🤖</div>
       <div>
@@ -323,26 +321,21 @@
       </div>
     </div>
 
-    <!-- 파일 선택 -->
     <input type="file" id="multiFileInput" accept="image/*" multiple style="display:none" />
     <label for="multiFileInput" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:18px;background:var(--primary-light);border:1.5px solid rgba(26,107,60,.3);border-radius:var(--radius-lg);cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:12px">
       📷 스코어카드 이미지 선택 <span style="font-size:.75rem;font-weight:400;color:var(--text-muted)">(최대 4장)</span>
     </label>
 
-    <!-- 파일 목록 -->
     <div id="fileList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
 
-    <!-- 미리보기 -->
     <div id="previewStrip" style="display:flex;gap:8px;overflow-x:auto;margin-bottom:16px;padding-bottom:4px"></div>
 
-    <!-- 타당금액 -->
     <div class="unit-row">
       <label>💰 타당 금액</label>
       <input type="number" id="unitAmount" value="1000" min="100" step="100" />
       <span class="unit-hint">원 / 1타 기준</span>
     </div>
 
-    <!-- 배판 조건 -->
     <div class="baepan-section">
       <div class="section-label">⚡ 배판 조건</div>
       <div class="baepan-grid">
@@ -371,7 +364,6 @@
       </div>
     </div>
 
-    <!-- 참가 플레이어 -->
     <div class="player-chips-wrap">
       <div class="section-label">👤 참가 플레이어 <span style="font-size:.7rem;color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(클릭으로 제외)</span></div>
       <div class="player-chips" id="playerChips">
@@ -382,7 +374,6 @@
       </div>
     </div>
 
-    <!-- 보유금액 -->
     <div style="margin-bottom:20px">
       <div class="section-label">💰 게임 시작 보유금액 <span style="font-size:.7rem;color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(핸디 지급 전 금액 — 홀별 잔액 추적)</span></div>
       <div class="wallet-grid" id="walletGrid"></div>
@@ -400,7 +391,6 @@
     </div>
   </div>
 
-  <!-- ② 인식결과 -->
   <div class="verify-section" id="verifySection">
     <div class="sec-title">
       <div class="sec-title-num">2</div>
@@ -445,7 +435,6 @@
     </div>
   </div>
 
-  <!-- ③ 결과 -->
   <div class="results-section" id="resultsSection">
     <div class="divider"></div>
     <div class="sec-title">
@@ -500,7 +489,6 @@
   </div>
 </div>
 
-<!-- 사용법 모달 -->
 <div class="modal-overlay" id="helpModal" onclick="if(event.target===this)this.classList.remove('visible')">
   <div class="modal">
     <div class="modal-hdr">
@@ -511,7 +499,7 @@
       <span style="font-size:1.3rem">©</span>
       <div>
         <div style="font-size:.82rem;font-weight:700;color:var(--primary)">저작권 및 문의</div>
-        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · paeyougpark@gmail.com</div>
+        <div style="font-size:.78rem;color:var(--text-sub);margin-top:2px">박배영 · pbyung [at] gmail.com</div>
       </div>
     </div>
     <div class="help-block"><div class="help-block-title">⛳ 이 프로그램은?</div><div class="help-block-body">골프 라운딩 후 정확한 정산을 위한 AI 자동 계산기입니다.</div></div>
@@ -553,8 +541,6 @@ const resultsSection=$('resultsSection'),holeResults=$('holeResults'),toast=$('t
 /* ━━━ TOAST ━━━ */
 let toastTimer
 function showToast(msg,type='success'){clearTimeout(toastTimer);toast.textContent=msg;toast.className=`toast ${type} show`;toastTimer=setTimeout(()=>toast.classList.remove('show'),4000)}
-
-/* ━━━ CARD MODE → 제거됨 (AI 자동 판단) ━━━ */
 
 /* ━━━ BAEPAN ━━━ */
 function toggleBaepan(el){
@@ -662,7 +648,6 @@ function updateRefImages(){
 
 function checkReady(){analyzeBtn.disabled=state.files.length===0||state.b64s.some(b=>!b)}
 
-/* ━━━ WALLET ━━━ */
 function buildWalletGrid(){
   const ap=state.activePlayers.length>0?state.activePlayers:state.players.map((_,i)=>i)
   const names=ap.map(i=>state.players[i]||`플레이어${i+1}`)
@@ -674,7 +659,6 @@ function buildWalletGrid(){
     </div>`).join('')
 }
 
-/* ━━━ AI ANALYSIS ━━━ */
 analyzeBtn.addEventListener('click',runAnalysis)
 reAnalyzeBtn.addEventListener('click',runAnalysis)
 $('resetVerifyBtn').addEventListener('click',()=>{verifySection.style.display='none';resultsSection.classList.remove('visible')})
@@ -687,10 +671,12 @@ async function runAnalysis(){
   try{
     loaderText.textContent=`${state.files.length}장 스코어카드 AI 분석 중...`
     loaderStep.textContent='카드 유형 자동 판단 중...'
-    // ✅ 새 형식: images 배열로 전송
+    
+    // ✅ Anthropic 400 에러 해결을 위해 mimeType을 'image/jpeg'로 고정
     const payload={
-      images: state.b64s.map((b64,i)=>({base64:b64, mimeType:state.mimes[i]||'image/jpeg'}))
+      images: state.b64s.map((b64,i)=>({base64:b64, mimeType:'image/jpeg'}))
     }
+    
     const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     const j=await r.json()
     if(!j.success)throw new Error(j.error||'분석 실패')
@@ -714,7 +700,6 @@ function showFallbackTable(){
   populateVerifyTable({players,holes,totals:{},cardTotals:null})
 }
 
-/* ━━━ POPULATE TABLE ━━━ */
 function populateVerifyTable(data){
   state.players=data.players||['P1','P2','P3','P4']
   state.holes=data.holes||[];state.nearests={}
@@ -782,7 +767,6 @@ function populateVerifyTable(data){
   verifySection.scrollIntoView({behavior:'smooth',block:'start'})
 }
 
-/* ━━━ NEAREST ━━━ */
 function setNearest(holeIdx,playerIdx){
   state.nearests[holeIdx]=state.nearests[holeIdx]===playerIdx?-1:playerIdx
   renderNearestSelects()
@@ -799,7 +783,6 @@ function renderNearestSelects(){
   })
 }
 
-/* ━━━ SUMMARY BAR ━━━ */
 function renderSummaryBar(){
   const ap=state.activePlayers.length>0?state.activePlayers:[...Array(state.players.length).keys()]
   const ct=state.cardTotals
@@ -823,7 +806,6 @@ function renderSummaryBar(){
   else alertEl.innerHTML=''
 }
 
-/* ━━━ TABLE UTILS ━━━ */
 function diffClass(d){if(d<=-2)return'score-eagle';if(d===-1)return'score-birdie';if(d===0)return'score-par';if(d===1)return'score-bogey';if(d===2)return'score-double';return'score-triple'}
 function refreshScoreColors(){
   tableBody.querySelectorAll('.score-input').forEach(inp=>{
@@ -845,7 +827,6 @@ function updateSubtotals(){
   })
 }
 
-/* ━━━ CALCULATE (따따블 로직 포함) ━━━ */
 calcBtn.addEventListener('click',calculate)
 function calculate(){
   state.unitAmount=parseInt($('unitAmount').value)||1000
@@ -903,7 +884,6 @@ function calculate(){
   renderResults(breakdowns,playerTotals,ap,outCount,assetHistory)
 }
 
-/* ━━━ RENDER RESULTS ━━━ */
 function renderResults(bds,playerTotals,ap,outCount,assetHistory=[]){
   const names=ap.map(pi=>state.players[pi])
   resultsSection.classList.add('visible')
@@ -940,7 +920,6 @@ function renderResults(bds,playerTotals,ap,outCount,assetHistory=[]){
   showToast('정산 완료! ⛳')
 }
 
-/* ━━━ ASSET TABLE ━━━ */
 function renderAssetTable(history,finalTotals,ap,outCount){
   const wrap=$('assetWrap'),table=$('assetTable');if(!wrap||!table)return
   const hasWallet=history.length>0&&history[0].assets!==null
@@ -980,7 +959,6 @@ function renderAssetTable(history,finalTotals,ap,outCount){
   table.innerHTML=html
 }
 
-/* ━━━ MONEY FLOW ━━━ */
 function renderMoneyFlow(finalTotals,names){
   const n=names.length,W=640,H=320,cx=W/2,cy=H/2,R=110,nodeR=34
   const angles=names.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2)
@@ -1012,11 +990,9 @@ function renderMoneyFlow(finalTotals,names){
   $('flowContainer').innerHTML=`<svg class="flow-svg" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg"><defs>${defs}</defs>${arrowPaths}${nodesSvg}</svg>`
 }
 
-/* ━━━ UTILS ━━━ */
 function diffLabel(d){if(d<=-3)return'알바트로스';if(d===-2)return'이글';if(d===-1)return'버디';if(d===0)return'Par';if(d===1)return'보기';if(d===2)return'더블';if(d===3)return'트리플';return`+${d}`}
 function fmtNum(n){return Math.round(n).toLocaleString('ko-KR')}
 
-/* ━━━ RESET ━━━ */
 resetBtn.addEventListener('click',()=>{
   state={files:[],b64s:[],mimes:[],
     aiData:null,players:[],activePlayers:[],holes:[],nearests:{},unitAmount:1000,
@@ -1032,4 +1008,15 @@ resetBtn.addEventListener('click',()=>{
   document.querySelectorAll('.pchip').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''})
   document.querySelectorAll('.baepan-item').forEach(el=>{
     const k=el.dataset.key,on=['birdie','triple','par3double','tripletie'].includes(k)
-    el.classList.toggle('checked',on);el.querySelector('.baepan-check').textContent=on?'✓':'';state.
+    el.classList.toggle('checked',on);el.querySelector('.baepan-check').textContent=on?'✓':''
+  })
+  showToast('데이터가 초기화되었습니다.')
+})
+
+// 초기 실행
+updateActivePlayers();
+checkReady();
+
+</script>
+</body>
+</html>
