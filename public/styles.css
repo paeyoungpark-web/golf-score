@@ -352,9 +352,11 @@ a { color: inherit; text-decoration: none; }
 .dock {
   position: sticky; bottom: calc(var(--dock-h) + var(--safe-b) + 8px);
   z-index: 40; margin: 22px calc(var(--gut) * -1) 0;
-  padding: 34px var(--gut) 10px;
-  background: linear-gradient(to top, rgba(11,20,16,.98) 44%, rgba(11,20,16,.88) 62%, rgba(11,20,16,0));
-  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+  padding: 14px var(--gut) 10px;
+  /* 밝은 원본 이미지 위에 페이드를 얹으면 회색 얼룩으로 번진다 — 불투명 툴바로 처리 */
+  background: var(--turf);
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -16px 24px -16px rgba(0,0,0,.85);
 }
 
 /* ── 분석 진행 ───────────────────────────────────────────────────────────── */
