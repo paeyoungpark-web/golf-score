@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 
 type Bindings = {
   ANTHROPIC_API_KEY: string
+  APP_API_KEY: string
   ASSETS: Fetcher
 }
 
@@ -193,7 +194,17 @@ function validate(parsed: any): string[] {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // API 라우트
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// API 키 검증 미들웨어 — 앱/웹에서 보내는 x-app-key 헤더 확인
+function verifyAppKey(c: any): boolean {
+  const appKey = c.env?.APP_API_KEY
+  if (!appKey) return true // 키 미설정 시 통과 (개발 환경)
+  const provided = c.req.header('x-app-key') || ''
+  return provided === appKey
+}
+
 app.post('/api/analyze', async (c) => {
+  if (!verifyAppKey(c)) return c.json({ error: 'Unauthorized' }, 401)
+
   const ANTHROPIC_API_KEY = c.env?.ANTHROPIC_API_KEY || ''
   if (!ANTHROPIC_API_KEY) return c.json({ error: 'ANTHROPIC_API_KEY is not configured' }, 500)
 

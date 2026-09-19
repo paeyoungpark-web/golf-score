@@ -2,3 +2,12 @@ node_modules/
 dist/
 .dev.vars
 .wrangler/
+.bkit/
+
+# iOS build artifacts
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/DerivedData/
+
+# Backup
+*.bak

@@ -13,6 +13,13 @@
     "test": "tsx --test tests/**/*.test.ts"
   },
   "dependencies": {
+    "@capacitor/camera": "^8.2.4",
+    "@capacitor/cli": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/haptics": "^8.0.2",
+    "@capacitor/ios": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "hono": "^4.6.14"
   },
   "devDependencies": {
