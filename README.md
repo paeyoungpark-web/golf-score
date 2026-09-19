@@ -1,6 +1,6 @@
 # ⛳ Golf Score AI 자동 정산 시스템
 
-GPT-4o Vision으로 골프 스코어카드를 인식하고, 타당 계산·배판·축하금·니어리스트를 자동 정산하는 웹앱.
+Claude Vision으로 골프 스코어카드를 인식하고, 타당 계산·배판·축하금·니어리스트를 자동 정산하는 웹앱.
 
 ## 기술 스택
 
@@ -12,13 +12,15 @@ GPT-4o Vision으로 골프 스코어카드를 인식하고, 타당 계산·배�
 
 ## 🚀 로컬 개발 시작
 
+업로드 시 카드 모드를 직접 선택할 필요가 없습니다. 이미지 한 장 또는 두 장을 올리면 AI가 플레이어 수, 18홀/전반·후반 분리 여부, 카드 묶음을 자동으로 판별합니다.
+
 ### 1. 의존성 설치
 
 ```bash
 npm install
 ```
 
-### 2. OpenAI API 키 설정
+### 2. Anthropic API 키 설정
 
 `.dev.vars.example`을 복사하여 `.dev.vars` 생성:
 
@@ -29,7 +31,7 @@ cp .dev.vars.example .dev.vars
 `.dev.vars` 파일에 실제 API 키 입력:
 
 ```
-OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
 ### 3. 빌드 후 로컬 서버 실행

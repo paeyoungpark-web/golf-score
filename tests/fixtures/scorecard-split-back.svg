@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560">
+  <rect width="1600" height="560" fill="#f6f8fa"/><text x="50" y="58" font-family="Arial" font-size="30" font-weight="700">SPLIT SCORECARD / BACK 9 / 4 PLAYERS</text>
+  <g font-family="Arial" font-size="20" fill="#17212b" stroke="#aab5bf" stroke-width="1"><rect x="50" y="110" width="1500" height="330" fill="white"/><path d="M50 190h1500M50 270h1500M50 350h1500M180 110v330"/><text x="75" y="160" stroke="none">PLAYER</text><text x="220" y="160" stroke="none">HOLES 10-18 / SCORE ROW</text><text x="75" y="230" stroke="none">ALPHA / BRAVO</text><text x="220" y="230" stroke="none">4 4 3 5 4 4 5 3 4</text><text x="75" y="310" stroke="none">CHARLIE / DELTA</text><text x="220" y="310" stroke="none">5 4 4 5 4 5 6 4 5</text><text x="75" y="390" stroke="none" font-weight="700">PAR</text><text x="220" y="390" stroke="none" font-weight="700">4 4 3 5 4 4 5 3 4</text></g>
+</svg>

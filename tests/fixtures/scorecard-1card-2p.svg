@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="560" viewBox="0 0 1600 560">
+  <rect width="1600" height="560" fill="#f6f8fa"/><text x="50" y="58" font-family="Arial" font-size="30" font-weight="700">GOLFZON SCORECARD / 18 HOLES / 2 PLAYERS</text>
+  <text x="50" y="105" font-family="Arial" font-size="22">Course: Future Hills   Par: 72   Date: 2026-09-20</text>
+  <g font-family="Arial" font-size="18" fill="#17212b" stroke="#aab5bf" stroke-width="1">
+    <rect x="50" y="140" width="1500" height="300" fill="white"/><path d="M50 200h1500M50 280h1500M50 360h1500M180 140v300"/>
+    <text x="75" y="178" stroke="none">PLAYER / SCORE</text><text x="220" y="178" stroke="none">1  2  3  4  5  6  7  8  9 | 10 11 12 13 14 15 16 17 18</text>
+    <text x="75" y="235" stroke="none">ALPHA</text><text x="220" y="235" stroke="none">4  4  3  5  4  4  5  3  4 | 4  4  3  5  4  4  5  3  4</text>
+    <text x="75" y="315" stroke="none">BRAVO</text><text x="220" y="315" stroke="none">5  4  3  5  4  5  5  4  4 | 4  5  3  6  4  4  5  4  5</text>
+    <text x="75" y="395" stroke="none" font-weight="700">PAR</text><text x="220" y="395" stroke="none" font-weight="700">4  4  3  5  4  4  5  3  4 | 4  4  3  5  4  4  5  3  4</text>
+  </g>
+</svg>

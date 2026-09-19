@@ -11,7 +11,7 @@
       --bg-base:#0a0f0d;--bg-surface:#111a15;--bg-card:rgba(20,35,25,0.85);
       --bg-glass:rgba(30,55,38,0.45);--green-700:#1a4a28;--green-500:#2d7a45;
       --green-400:#3d9e5c;--green-300:#5cc47a;--gold:#c9a227;--gold-light:#f0c940;
-      --red-acc:#e05555;--blue-acc:#4a90d9;--purple:#8b5cf6;--purple-light:rgba(139,92,246,.15);
+      --red-acc:#e05555;--blue-acc:#4a90d9;--cyan:#55e6d0;--purple:#8b5cf6;--purple-light:rgba(139,92,246,.15);
       --text-primary:#e8f5ec;--text-secondary:#7aab88;--text-muted:#3d6648;
       --border:rgba(45,122,69,0.3);--border-strong:rgba(45,122,69,0.6);
       --shadow-green:0 0 40px rgba(45,122,69,0.15);--shadow-gold:0 0 30px rgba(201,162,39,0.25);
@@ -20,28 +20,40 @@
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{font-family:'Noto Sans KR',sans-serif;background:var(--bg-base);color:var(--text-primary);min-height:100vh;overflow-x:hidden}
-    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(45,122,69,.12) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(201,162,39,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+    body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(85,230,208,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(85,230,208,.035) 1px,transparent 1px),linear-gradient(135deg,rgba(45,122,69,.12),transparent 45%,rgba(201,162,39,.05));background-size:48px 48px,48px 48px,100% 100%;pointer-events:none;z-index:0}
     .app{position:relative;z-index:1;max-width:1280px;margin:0 auto;padding:0 20px 80px}
     header{display:flex;align-items:center;gap:20px;padding:32px 0 28px;border-bottom:1px solid var(--border)}
     .logo{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,3.5rem);letter-spacing:.08em;background:linear-gradient(135deg,var(--green-300) 0%,var(--gold-light) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
     .logo-sub{font-size:.7em;opacity:.7;display:block;letter-spacing:.2em}
     .ver-badge{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
     .header-badge{background:var(--bg-glass);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:.75rem;color:var(--text-secondary);backdrop-filter:blur(8px)}
+    .system-status{display:inline-flex;align-items:center;gap:7px;color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.08em}
+    .system-status::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:pulse 2s ease-in-out infinite}
+    .ver-badge button{white-space:nowrap}
+    @keyframes pulse{50%{opacity:.35;transform:scale(.75)}}
     .ver-tag{font-family:'JetBrains Mono',monospace;font-size:.7rem;color:var(--text-muted);background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:3px 10px}
     .section-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.12em;color:var(--green-300);margin-bottom:16px;display:flex;align-items:center;gap:10px}
     .section-title::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--border-strong),transparent)}
     .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);backdrop-filter:blur(16px);box-shadow:var(--shadow-green),inset 0 1px 0 rgba(255,255,255,.04);padding:28px;margin-bottom:24px}
+    .hero-intro{display:flex;align-items:end;justify-content:space-between;gap:28px;padding:48px 0 30px}
+    .hero-kicker{color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:12px}
+    .hero-title{font-size:clamp(2rem,5vw,4.6rem);line-height:1.02;letter-spacing:-.02em;max-width:760px}
+    .hero-title strong{color:var(--cyan);font-weight:700}
+    .hero-copy{max-width:360px;color:var(--text-secondary);font-size:.9rem;line-height:1.8}
+    .scan-line{height:2px;background:linear-gradient(90deg,var(--cyan),var(--green-400),transparent);opacity:.7;animation:scan 3.6s ease-in-out infinite}
+    @keyframes scan{0%,100%{transform:scaleX(.35);transform-origin:left}50%{transform:scaleX(1);transform-origin:left}}
 
     /* Upload */
     .upload-multi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
     .upload-slot{border:2px dashed var(--border-strong);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .3s}
-    .upload-slot:hover,.upload-slot.dragover{border-color:var(--green-400);background:rgba(45,122,69,.08)}
+    .upload-slot:hover,.upload-slot.dragover{border-color:var(--cyan);background:rgba(85,230,208,.07);box-shadow:inset 0 0 30px rgba(85,230,208,.04)}
+    .single-upload-grid{grid-template-columns:minmax(0,1fr)}
     .upload-slot.has-file{border-color:var(--green-500);border-style:solid;background:rgba(45,122,69,.06)}
     .slot-icon{font-size:2.2rem;display:block;margin-bottom:10px}
     .slot-title{font-size:.85rem;color:var(--text-secondary);margin-bottom:4px}
     .slot-sub{font-size:.75rem;color:var(--text-muted);margin-bottom:6px}
     .slot-filename{font-size:.75rem;color:var(--green-300);font-family:'JetBrains Mono',monospace}
-    #fileInput,#fileInput2{display:none}
+    #fileInput{display:none}
     .preview-container{display:none;gap:12px;margin-bottom:20px}
     .preview-container.visible{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
     .preview-box{border-radius:var(--radius);overflow:hidden;border:1px solid var(--border);background:#000;position:relative}
@@ -100,7 +112,7 @@
 
     /* Buttons */
     .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;border:none;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:700;font-size:.95rem;transition:all .25s;letter-spacing:.03em}
-    .btn-primary{background:linear-gradient(135deg,var(--green-500),var(--green-700));color:var(--text-primary);box-shadow:0 4px 20px rgba(45,122,69,.4)}
+    .btn-primary{background:linear-gradient(135deg,var(--green-400),var(--green-700));color:var(--text-primary);box-shadow:0 4px 20px rgba(45,122,69,.4)}
     .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(45,122,69,.5)}
     .btn-secondary{background:var(--bg-glass);color:var(--text-secondary);border:1px solid var(--border)}
     .btn-secondary:hover{border-color:var(--green-400);color:var(--text-primary)}
@@ -228,7 +240,7 @@
     .card-mode-tab .tab-desc{font-size:.72rem;color:var(--text-muted);margin-top:3px;line-height:1.4}
     .card-mode-tab.active .tab-desc{color:rgba(74,144,217,.7)}
     @media(max-width:900px){.verify-layout{grid-template-columns:1fr}}
-    @media(max-width:640px){.upload-multi-grid{grid-template-columns:1fr};.rank-cards{grid-template-columns:1fr 1fr}}
+    @media(max-width:640px){header{align-items:flex-start}.ver-badge{max-width:58%;}.ver-badge>div:first-child{flex-wrap:wrap;justify-content:flex-end}.hero-intro{display:block;padding:32px 0 24px}.hero-copy{margin-top:16px}.upload-multi-grid{grid-template-columns:1fr};.rank-cards{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -239,59 +251,38 @@
     </div>
     <div class="ver-badge">
       <div style="display:flex;gap:8px;align-items:center">
+        <div class="system-status">VISION CORE ONLINE</div>
         <button onclick="$('helpModal').classList.add('visible')" style="background:rgba(201,162,39,.15);border:1px solid rgba(201,162,39,.4);border-radius:8px;padding:4px 14px;color:var(--gold-light);font-size:.78rem;cursor:pointer;font-family:'Noto Sans KR',sans-serif">📖 사용법</button>
-        <div class="header-badge">Claude Sonnet 4 · Cloudflare</div>
+        <div class="header-badge">Claude Sonnet 4.6 · Cloudflare</div>
       </div>
       <div class="ver-tag">v4.1.0 · <span style="color:var(--green-300)">2026-03-24</span></div>
     </div>
   </header>
 
+  <section class="hero-intro">
+    <div>
+      <div class="hero-kicker">Score intelligence / 01</div>
+      <h1 class="hero-title">스코어카드를<br><strong>정확한 정산 데이터</strong>로.</h1>
+    </div>
+    <p class="hero-copy">이미지를 읽고, 모든 홀의 타수와 금액 흐름을 검증 가능한 한 장의 리포트로 변환합니다.</p>
+  </section>
+  <div class="scan-line"></div>
+
   <div style="margin-top:36px">
     <div class="section-title">① 스코어카드 업로드</div>
     <div class="card">
 
-      <!-- 카드 모드 -->
-      <div class="card-mode-tabs" id="cardModeTabs">
-        <div class="card-mode-tab active" data-mode="1card-4p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏</span>
-          <div class="tab-title">1장 · 4명</div>
-          <div class="tab-desc">스마트스코어 등<br>1장에 4명 18홀</div>
-        </div>
-        <div class="card-mode-tab" data-mode="2card-4p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏🃏</span>
-          <div class="tab-title">2장 · 4명 (골프존)</div>
-          <div class="tab-desc">1장에 2명씩<br>카드1(P1·2) + 카드2(P3·4)</div>
-        </div>
-        <div class="card-mode-tab" data-mode="2card-split" onclick="setCardMode(this)">
-          <span class="tab-icon">✂️🃏</span>
-          <div class="tab-title">2장 · 전반/후반</div>
-          <div class="tab-desc">4명이 전반·후반<br>카드로 분리된 경우</div>
-        </div>
-        <div class="card-mode-tab" data-mode="1card-2p" onclick="setCardMode(this)">
-          <span class="tab-icon">🃏👤👤</span>
-          <div class="tab-title">1장 · 2명</div>
-          <div class="tab-desc">골프존 1장<br>2명 18홀</div>
-        </div>
-      </div>
-
       <div id="modeDesc" style="font-size:.8rem;color:var(--blue-acc);background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.2);border-radius:8px;padding:10px 14px;margin-bottom:16px">
-        📋 1장에 4명 전체 18홀이 포함된 스코어카드 (스마트스코어 등)
+        ✨ 자동 인식 모드 — 이미지 수, 플레이어 수, 전반/후반 구성을 AI가 판별합니다.
       </div>
 
-      <div class="upload-multi-grid">
+      <div class="upload-multi-grid single-upload-grid">
         <div class="upload-slot" id="slot1">
-          <input type="file" id="fileInput" accept="image/*" />
+          <input type="file" id="fileInput" accept="image/*" multiple />
           <span class="slot-icon">🃏</span>
-          <div class="slot-title" id="slot1Title">스코어카드</div>
-          <div class="slot-sub" id="slot1Sub" style="color:var(--blue-acc);font-size:.72rem">4명 18홀 포함</div>
+          <div class="slot-title" id="slot1Title">스코어카드 이미지</div>
+          <div class="slot-sub" id="slot1Sub" style="color:var(--blue-acc);font-size:.72rem">한 장 또는 두 장을 한 번에 선택하세요 · AI 자동 판별</div>
           <div class="slot-filename" id="slot1Name">클릭하거나 드래그</div>
-        </div>
-        <div class="upload-slot" id="slot2" style="opacity:.4;pointer-events:none">
-          <input type="file" id="fileInput2" accept="image/*" />
-          <span class="slot-icon">🃏</span>
-          <div class="slot-title" id="slot2Title">스코어카드 2장</div>
-          <div class="slot-sub" id="slot2Sub" style="color:var(--text-muted);font-size:.72rem">이 모드에서는 불필요</div>
-          <div class="slot-filename" id="slot2Name">클릭하거나 드래그</div>
         </div>
       </div>
 
@@ -484,8 +475,8 @@
 /* ━━━ STATE ━━━ */
 let state = {
   imageFile:null, imageFile2:null,
-  cardMode:'1card-4p',
-  processedBase64:null, processedBase64_2:null,
+  cardMode:'auto',
+  processedBase64:null, processedBase64_2:null, originalBase64:null, originalBase64_2:null,
   mimeType:'image/jpeg', mimeType2:'image/jpeg',
   aiData:null, players:[], activePlayers:[], holes:[], nearests:{},
   unitAmount:1000,
@@ -494,8 +485,8 @@ let state = {
 }
 
 const $=id=>document.getElementById(id)
-const fileInput=$('fileInput'),fileInput2=$('fileInput2')
-const slot1=$('slot1'),slot2=$('slot2')
+const fileInput=$('fileInput')
+const slot1=$('slot1')
 const previewCont=$('previewContainer'),loader=$('loader')
 const loaderText=$('loaderText'),loaderStep=$('loaderStep')
 const analyzeBtn=$('analyzeBtn'),resetBtn=$('resetBtn')
@@ -507,27 +498,6 @@ const resultsSection=$('resultsSection'),holeResults=$('holeResults'),toast=$('t
 /* ━━━ TOAST ━━━ */
 let toastTimer
 function showToast(msg,type='success'){clearTimeout(toastTimer);toast.textContent=msg;toast.className=`toast ${type} show`;toastTimer=setTimeout(()=>toast.classList.remove('show'),4000)}
-
-/* ━━━ CARD MODE ━━━ */
-const MODE_CONFIG = {
-  '1card-4p':{slots:1,desc:'📋 1장에 4명 전체 18홀 (스마트스코어 등)',s1title:'스코어카드',s1sub:'4명 18홀 포함',s2title:'불필요',s2sub:'이 모드에서는 불필요',pCount:4},
-  '2card-4p':{slots:2,desc:'🎮 골프존: 카드1=P1·P2 / 카드2=P3·P4',s1title:'카드 1 (P1·P2)',s1sub:'2명 18홀',s2title:'카드 2 (P3·P4)',s2sub:'2명 18홀',pCount:4},
-  '2card-split':{slots:2,desc:'✂️ 전반/후반 분리: 카드1=전반9홀 / 카드2=후반9홀',s1title:'카드 1 (전반 1–9홀)',s1sub:'4명 전반',s2title:'카드 2 (후반 10–18홀)',s2sub:'4명 후반',pCount:4},
-  '1card-2p':{slots:1,desc:'👤 골프존 1장: 2명 18홀',s1title:'스코어카드',s1sub:'2명 18홀',s2title:'불필요',s2sub:'이 모드에서는 불필요',pCount:2},
-}
-
-function setCardMode(el){
-  document.querySelectorAll('.card-mode-tab').forEach(t=>t.classList.remove('active'))
-  el.classList.add('active')
-  const mode=el.dataset.mode, cfg=MODE_CONFIG[mode]
-  state.cardMode=mode
-  $('modeDesc').textContent=cfg.desc
-  $('slot1Title').textContent=cfg.s1title;$('slot1Sub').textContent=cfg.s1sub
-  $('slot2Title').textContent=cfg.s2title;$('slot2Sub').textContent=cfg.s2sub
-  const s2=$('slot2')
-  if(cfg.slots>=2){s2.style.opacity='1';s2.style.pointerEvents='auto';s2.querySelector('.slot-sub').style.color='var(--blue-acc)'}
-  else{s2.style.opacity='.4';s2.style.pointerEvents='none';s2.querySelector('.slot-sub').style.color='var(--text-muted)'}
-}
 
 /* ━━━ BAEPAN ━━━ */
 function toggleBaepan(el){
@@ -558,15 +528,13 @@ function updateActivePlayers(){
 
 /* ━━━ FILE UPLOAD (원본 그대로) ━━━ */
 slot1.addEventListener('click',()=>fileInput.click())
-slot2.addEventListener('click',()=>fileInput2.click())
-function addDrag(slot,num){
+function addDrag(slot){
   slot.addEventListener('dragover',e=>{e.preventDefault();slot.classList.add('dragover')})
   slot.addEventListener('dragleave',()=>slot.classList.remove('dragover'))
-  slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0],num)})
+  slot.addEventListener('drop',e=>{e.preventDefault();slot.classList.remove('dragover');handleFiles(e.dataTransfer.files)})
 }
-addDrag(slot1,1);addDrag(slot2,2)
-fileInput.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],1)})
-fileInput2.addEventListener('change',e=>{if(e.target.files[0])handleFile(e.target.files[0],2)})
+addDrag(slot1)
+fileInput.addEventListener('change',e=>handleFiles(e.target.files))
 
 function preprocessImage(file,origId,canvasId,cb){
   const reader=new FileReader()
@@ -581,7 +549,7 @@ function preprocessImage(file,origId,canvasId,cb){
       const cf=1.5,ic=128*(1-cf)
       for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}
       ctx.putImageData(d,0,0)
-      cb(c.toDataURL('image/jpeg',.92).split(',')[1])
+      cb(c.toDataURL('image/jpeg',.92).split(',')[1],src.split(',')[1])
     }
     img.src=src
   }
@@ -595,14 +563,23 @@ function handleFile(file,slot){
     state.imageFile=file;state.mimeType=file.type||'image/jpeg'
     $('slot1Name').textContent=file.name;slot1.classList.add('has-file')
     $('refImg1').src=URL.createObjectURL(file);$('refSlot1').style.display='block'
-    preprocessImage(file,'previewOrig','previewCanvas',b64=>{state.processedBase64=b64;checkReady();showToast('카드 1 준비 완료.')})
+    preprocessImage(file,'previewOrig','previewCanvas',(processed,original)=>{state.processedBase64=processed;state.originalBase64=original;checkReady();showToast('카드 1 준비 완료.')})
   } else {
     state.imageFile2=file;state.mimeType2=file.type||'image/jpeg'
-    $('slot2Name').textContent=file.name;slot2.classList.add('has-file')
+    $('slot1Name').textContent=`${state.imageFile?.name||'카드 1'} + ${file.name}`
     $('preview2Box').style.display='block';$('preview2CanvasBox').style.display='block'
     $('refImg2').src=URL.createObjectURL(file);$('refSlot2').style.display='block'
-    preprocessImage(file,'previewOrig2','previewCanvas2',b64=>{state.processedBase64_2=b64;checkReady();showToast('카드 2 준비 완료.')})
+    preprocessImage(file,'previewOrig2','previewCanvas2',(processed,original)=>{state.processedBase64_2=processed;state.originalBase64_2=original;checkReady();showToast('카드 2 준비 완료.')})
   }
+}
+function handleFiles(fileList){
+  const files=Array.from(fileList).filter(file=>file.type.startsWith('image/')).slice(0,2)
+  if(!files.length){showToast('이미지 파일만 가능합니다.','error');return}
+  if(fileList.length>2)showToast('최대 2장까지 자동으로 분석합니다.','error')
+  state.imageFile2=null;state.processedBase64_2=null;state.originalBase64_2=null
+  $('preview2Box').style.display='none';$('preview2CanvasBox').style.display='none'
+  handleFile(files[0],1)
+  if(files[1])handleFile(files[1],2)
 }
 function checkReady(){analyzeBtn.disabled=!state.processedBase64}
 
@@ -613,7 +590,7 @@ function buildWalletGrid(){
   $('walletGrid').innerHTML=names.map((n,j)=>`
     <div class="wallet-item">
       <label>💰 ${n}</label>
-      <input type="number" placeholder="예: 89000" value="${state.wallets[ap[j]]||''}" min="0" step="1000"
+      <input type="number" value="${state.wallets[ap[j]]??0}" min="0" step="1000"
         onchange="state.wallets[${ap[j]}]=parseInt(this.value)||0" />
     </div>`).join('')
 }
@@ -630,16 +607,16 @@ async function runAnalysis(){
   verifySection.style.display='none';resultsSection.classList.remove('visible')
   try{
     const isMulti=!!state.processedBase64_2
-    const modeDesc2={'1card-4p':'1장 · 4명 18홀 분석 중...','2card-4p':'골프존 2장 · 4명 분석 중...','2card-split':'전반/후반 2장 분석 중...','1card-2p':'골프존 1장 · 2명 분석 중...'}
-    loaderText.textContent=modeDesc2[state.cardMode]||'AI 분석 중...'
+    loaderText.textContent='AI가 카드 구성과 스코어 행을 판별하는 중...'
     loaderStep.textContent=isMulti?'2장 동시 전송 (~36원)':'1장 분석 (~33원)'
-    const payload={imageBase64:state.processedBase64,mimeType:'image/jpeg',cardMode:state.cardMode,
-      ...(isMulti&&{imageBase64_2:state.processedBase64_2,mimeType2:'image/jpeg'})}
+    const payload={imageBase64:state.originalBase64||state.processedBase64,mimeType:state.mimeType,cardMode:state.cardMode,
+      ...(isMulti&&{imageBase64_2:state.originalBase64_2||state.processedBase64_2,mimeType2:state.mimeType2})}
     const r=await fetch('/api/analyze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
     const j=await r.json()
     if(!j.success)throw new Error(j.error||'분석 실패')
     loaderText.textContent='Step2: 타수 변환 완료'
     state.aiData=j.data;state.warnings=j.warnings||[]
+    $('modeDesc').textContent=`✅ AI 판별 완료 — ${j.debug?.detectedMode||j.data?.detectedMode||'구성 확인 필요'}`
     state.cardTotals=j.data.cardTotals||j.data.totals
     populateVerifyTable(j.data)
     showToast(`AI 분석 완료! ${j.debug?.estimatedCost||''}`)
@@ -980,15 +957,15 @@ function fmtNum(n){return Math.round(n).toLocaleString('ko-KR')}
 
 /* ━━━ RESET ━━━ */
 resetBtn.addEventListener('click',()=>{
-  state={imageFile:null,imageFile2:null,cardMode:'1card-4p',processedBase64:null,processedBase64_2:null,mimeType:'image/jpeg',mimeType2:'image/jpeg',
+  state={imageFile:null,imageFile2:null,cardMode:'auto',processedBase64:null,processedBase64_2:null,originalBase64:null,originalBase64_2:null,mimeType:'image/jpeg',mimeType2:'image/jpeg',
     aiData:null,players:[],activePlayers:[],holes:[],nearests:{},unitAmount:1000,
     baepan:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},
     warnings:[],cardTotals:null,wallets:[]}
-  fileInput.value='';fileInput2.value=''
+  fileInput.value=''
   previewCont.classList.remove('visible')
   $('preview2Box').style.display='none';$('preview2CanvasBox').style.display='none'
-  slot1.classList.remove('has-file');slot2.classList.remove('has-file')
-  $('slot1Name').textContent='클릭하거나 드래그';$('slot2Name').textContent='클릭하거나 드래그'
+  slot1.classList.remove('has-file')
+  $('slot1Name').textContent='클릭하거나 드래그'
   $('refSlot1').style.display='none';$('refSlot2').style.display='none'
   $('refImg1').src='';$('refImg2').src=''
   $('walletGrid').innerHTML=''

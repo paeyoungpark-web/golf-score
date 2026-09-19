@@ -25,8 +25,11 @@ async function callClaude(apiKey: string, body: object): Promise<any> {
 }
 
 function parseJSON(raw: string): any {
-  const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
-  return JSON.parse(cleaned)
+  const cleaned = raw.replace(/```(?:json)?/gi, '').trim()
+  const start = cleaned.indexOf('{')
+  const end = cleaned.lastIndexOf('}')
+  if (start < 0 || end <= start) throw new Error('AI response did not contain a JSON object')
+  return JSON.parse(cleaned.slice(start, end + 1))
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -36,9 +39,13 @@ function parseJSON(raw: string): any {
 async function step1_extract(
   apiKey: string,
   images: { base64: string; mimeType: string }[],
-  cardMode: string = '1card-4p'
+  cardMode: string = 'auto'
 ): Promise<any> {
+  if (!images.length || images.length > 2) throw new Error('One or two scorecard images are required')
   const isMulti = images.length > 1
+  const isAuto = cardMode === 'auto'
+  const playerCount = cardMode === '1card-2p' ? 2 : 4
+  const isSplit = cardMode === '2card-split'
 
   const systemPrompt = `You are a golf scorecard OCR machine for Korean screen golf (골프존/GolfZon) scorecards.
 
@@ -47,16 +54,24 @@ CRITICAL RULES:
 2. Read values EXACTLY as printed: numbers like -1, 0, 1, 2, 3
 3. Heart icon (❤️) or flower icon = BIRDIE = -1
 4. GolfZon sticker icon = BIRDIE = -1  
-5. Each image contains EXACTLY 2 players, each with 18 holes (9 front + 9 back)
+5. Determine whether each image contains 2 or 4 players, and whether it contains 18 holes or only front/back 9 holes
 6. Read player names from the top of each player section
 7. Read the total score shown next to the player name (e.g. "70 (-3)" → cardTotal=70)
 8. Par values: read from Par row
-9. Return ONLY valid JSON, no markdown
+9. Return ONLY valid JSON, no markdown. Never guess an unreadable value; use null and explain it in "uncertain".
 
-${isMulti ? `TWO IMAGES PROVIDED:
+${isAuto ? `AUTOMATIC LAYOUT DETECTION:
+- If one image contains 2 players with 18 holes, detectedMode="1card-2p".
+- If one image contains 4 players with 18 holes, detectedMode="1card-4p".
+- If two images contain 2 players each with 18 holes, detectedMode="2card-4p".
+- If two images contain the same players split into front/back 9 holes, detectedMode="2card-split".
+- Count the visible player sections and hole numbers before reading scores.` : isSplit ? `TWO IMAGES PROVIDED:
+- Image 1: holes 1-9 for all ${playerCount} players
+- Image 2: holes 10-18 for all ${playerCount} players
+- Combine both images by player and hole` : isMulti ? `TWO IMAGES PROVIDED:
 - Image 1: Players 1 and 2
 - Image 2: Players 3 and 4
-- Combine into single result with 4 players` : `ONE IMAGE: Contains 2 players`}
+- Combine into a single result with ${playerCount} players` : `ONE IMAGE: Contains ${playerCount} players`}
 
 JSON FORMAT:
 {
@@ -68,11 +83,15 @@ JSON FORMAT:
     [-1,1,0,0,2,2,-1,-1,-1,-1,0,0,-1,-1,-1,0,0,0],
     [0,0,0,-1,1,0,0,0,1,0,2,1,0,0,0,0,0,0]
   ],
-  "cardTotal": [70, 77, 80, 81]
+  "cardTotal": [70, 77, 80, 81],
+  "detectedMode": "1card-4p",
+  "uncertain": []
 }
 
 rawScores[playerIndex] = 18 values in order (holes 1-18).
-cardTotal = the total score shown next to each player name.`
+cardTotal = the total score shown next to each player name.
+Return exactly one detectedMode: "1card-2p", "1card-4p", "2card-4p", or "2card-split".
+The players and rawScores arrays must have the same length.`
 
   const imageBlocks = images.map(img => ({
     type: 'image' as const,
@@ -80,15 +99,16 @@ cardTotal = the total score shown next to each player name.`
   }))
 
   const userTextMap: Record<string,string> = {
+    auto: 'Inspect the image count, player sections, and hole ranges first. Automatically determine the layout, set detectedMode, then read all Score rows. Return JSON only.',
     '1card-4p':    'Read Score rows for ALL 4 players. 1 image, 4 players, 18 holes each. Return JSON only.',
     '2card-4p':    'Read Score rows for ALL 4 players. Image1=players1&2 (18 holes each), Image2=players3&4 (18 holes each). Return JSON only.',
     '2card-split': 'Read Score rows from BOTH images. Image1=holes1-9 for all players, Image2=holes10-18 for all players. Combine into 18 holes. Return JSON only.',
     '1card-2p':    'Read Score rows for both players. 1 image, 2 players, 18 holes each. Return JSON only.',
   }
-  const userText = userTextMap[cardMode] || userTextMap['1card-4p']
+  const userText = userTextMap[cardMode] || userTextMap.auto
 
   const content = await callClaude(apiKey, {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     max_tokens: 2048,
     system: systemPrompt,
     messages: [{
@@ -100,44 +120,44 @@ cardTotal = the total score shown next to each player name.`
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// STEP 2: 변환 — diff → 실제 타수 (Haiku, 텍스트만)
+// STEP 2: 변환 — diff → 실제 타수 (코드에서 결정적으로 계산)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-async function step2_convert(apiKey: string, raw: any): Promise<any> {
-  const systemPrompt = `You are a golf score calculator. Convert diff-format scores to actual strokes.
-
-CONVERSION TABLE (EXACT):
-PAR 3: diff -2→1, -1→2, 0→3, 1→4, 2→5, 3→6
-PAR 4: diff -3→1, -2→2, -1→3, 0→4, 1→5, 2→6, 3→7, 4→8
-PAR 5: diff -3→2, -2→3, -1→4, 0→5, 1→6, 2→7, 3→8, 4→9, 5→10
-PAR 6: diff -3→3, -2→4, -1→5, 0→6, 1→7, 2→8, 3→9, 4→10, 5→11, 6→12
-
-STEPS:
-1. For each player, convert rawScores[i] using par[i]: actual = par[i] + diff[i]
-2. Calculate OUT sum (holes 1-9) and IN sum (holes 10-18)
-3. OUT + IN = total. Compare with cardTotal to verify.
-4. Return JSON only, no markdown.
-
-OUTPUT:
-{
-  "scoreFormat": "diff",
-  "players": [...],
-  "holes": [
-    {"hole":1,"par":4,"scores":[3,4,4,4],"diffs":[-1,0,0,0]}
-  ],
-  "totals": {"out":[35,37,39,45],"in":[35,40,41,36],"total":[70,77,80,81]},
-  "cardTotals": {"total":[70,77,80,81]}
-}`
-
-  const content = await callClaude(apiKey, {
-    model: 'claude-haiku-4-5-20251001',
-    max_tokens: 4000,
-    system: systemPrompt,
-    messages: [{
-      role: 'user',
-      content: `Convert this GolfZon scorecard data:\n${JSON.stringify(raw, null, 2)}\n\nApply table exactly. Verify sums match cardTotal.`,
-    }],
+export function step2_convert(raw: any): any {
+  const players = Array.isArray(raw?.players)
+    ? raw.players.map((name: unknown) => String(name || '이름 미상'))
+    : []
+  const pars = Array.isArray(raw?.pars) ? raw.pars : []
+  const rawScores = Array.isArray(raw?.rawScores) ? raw.rawScores : []
+  if (!players.length || players.length > 4 || pars.length !== 18 || rawScores.length !== players.length) {
+    throw new Error('OCR 결과의 플레이어 수, Par 수 또는 스코어 행이 올바르지 않습니다')
+  }
+  if (rawScores.some((scores: unknown) => !Array.isArray(scores) || scores.length !== 18)) {
+    throw new Error('각 플레이어의 OCR 스코어는 18홀이어야 합니다')
+  }
+  if (pars.some((par: unknown) => !Number.isInteger(par) || Number(par) < 3 || Number(par) > 6)) {
+    throw new Error('OCR 결과에 유효하지 않은 Par 값이 있습니다')
+  }
+  const holes = pars.map((par: number, holeIndex: number) => {
+    const diffs = rawScores.map((scores: unknown[]) => {
+      const diff = scores?.[holeIndex]
+      if (!Number.isInteger(diff) || Number(diff) < -5 || Number(diff) > 10) {
+        throw new Error(`홀 ${holeIndex + 1}의 OCR 타수 차이가 유효하지 않습니다`)
+      }
+      return Number(diff)
+    })
+    return { hole: holeIndex + 1, par, scores: diffs.map((diff: number) => par + diff), diffs }
   })
-  return parseJSON(content)
+  const totals = {
+    out: players.map((_: string, pi: number) => holes.slice(0, 9).reduce((sum: number, hole: any) => sum + hole.scores[pi], 0)),
+    in: players.map((_: string, pi: number) => holes.slice(9).reduce((sum: number, hole: any) => sum + hole.scores[pi], 0)),
+    total: players.map((_: string, pi: number) => holes.reduce((sum: number, hole: any) => sum + hole.scores[pi], 0)),
+  }
+  return {
+    scoreFormat: 'diff', players, holes, totals,
+    cardTotals: { total: Array.isArray(raw.cardTotal) ? raw.cardTotal : [] },
+    detectedMode: raw.detectedMode || 'unknown',
+    uncertain: Array.isArray(raw.uncertain) ? raw.uncertain : [],
+  }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -149,11 +169,16 @@ function validate(parsed: any): string[] {
   const holes: any[] = parsed.holes || []
   const cardTotals = parsed.cardTotals || {}
   const outCount = 9
+  if (holes.length !== 18) warnings.push(`홀 데이터가 ${holes.length}개입니다. 18개인지 확인하세요.`)
+  if (parsed.uncertain?.length) warnings.push(`OCR 불확실 항목 ${parsed.uncertain.length}개를 확인하세요.`)
+  if (!['1card-2p', '1card-4p', '2card-4p', '2card-split'].includes(parsed.detectedMode)) {
+    warnings.push('AI가 카드 구성을 확정하지 못했습니다. 원본을 확인하세요.')
+  }
 
   players.forEach((player: string, pi: number) => {
-    const allSum = holes.reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
-    const outSum = holes.filter((h: any) => h.hole <= outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
-    const inSum  = holes.filter((h: any) => h.hole > outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] || 0), 0)
+    const allSum = holes.reduce((s: number, h: any) => s + (h.scores?.[pi] ?? 0), 0)
+    const outSum = holes.filter((h: any) => h.hole <= outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] ?? 0), 0)
+    const inSum  = holes.filter((h: any) => h.hole > outCount).reduce((s: number, h: any) => s + (h.scores?.[pi] ?? 0), 0)
     const cardTotal = cardTotals.total?.[pi]
     if (cardTotal !== undefined && allSum !== cardTotal)
       warnings.push(`${player}: 합산 ${allSum} ≠ 카드 합계 ${cardTotal}`)
@@ -174,8 +199,16 @@ app.post('/api/analyze', async (c) => {
 
   try {
     const body = await c.req.json()
-    const { imageBase64, mimeType = 'image/jpeg', imageBase64_2, mimeType2, cardMode = '1card-4p' } = body
+    const { imageBase64, mimeType = 'image/jpeg', imageBase64_2, mimeType2, cardMode = 'auto' } = body
     if (!imageBase64) return c.json({ error: 'No image data provided' }, 400)
+    const validModes = ['auto', '1card-4p', '2card-4p', '2card-split', '1card-2p']
+    if (!validModes.includes(cardMode)) return c.json({ error: 'Unsupported card mode' }, 400)
+    if (![mimeType, mimeType2].filter(Boolean).every((mime: string) => ['image/jpeg', 'image/png', 'image/webp'].includes(mime))) {
+      return c.json({ error: 'Only JPEG, PNG, and WebP images are supported' }, 400)
+    }
+    if (typeof imageBase64 !== 'string' || imageBase64.length > 12_000_000 || (imageBase64_2 && imageBase64_2.length > 12_000_000)) {
+      return c.json({ error: 'Image is too large. Please upload a smaller image.' }, 413)
+    }
 
     const images: { base64: string; mimeType: string }[] = [
       { base64: imageBase64, mimeType },
@@ -186,7 +219,7 @@ app.post('/api/analyze', async (c) => {
     const raw = await step1_extract(ANTHROPIC_API_KEY, images, cardMode)
 
     console.log('Step2: Convert (Haiku)...')
-    const converted = await step2_convert(ANTHROPIC_API_KEY, raw)
+    const converted = step2_convert(raw)
 
     const warnings = validate(converted)
 
@@ -196,6 +229,7 @@ app.post('/api/analyze', async (c) => {
       warnings,
       debug: {
         scoreFormat: converted.scoreFormat,
+        detectedMode: converted.detectedMode,
         cardCount: images.length,
         estimatedCost: images.length === 1 ? '~33원' : '~36원',
       }
