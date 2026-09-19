@@ -11,3 +11,5 @@ ios/App/DerivedData/
 
 # Backup
 *.bak
+.backup/
+

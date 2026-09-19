@@ -4,8 +4,8 @@
   "description": "스코어카드 사진을 AI로 인식하여 타당·배판·니어리스트 자동 정산",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0c1210",
-  "theme_color": "#0c1210",
+  "background_color": "#0B1410",
+  "theme_color": "#0B1410",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
