@@ -251,6 +251,40 @@ app.post('/api/analyze', async (c) => {
   }
 })
 
+app.post('/api/shot-analyze', async (c) => {
+  const ANTHROPIC_API_KEY = c.env?.ANTHROPIC_API_KEY || ''
+  if (!ANTHROPIC_API_KEY) return c.json({ error: 'ANTHROPIC_API_KEY is not configured' }, 500)
+
+  try {
+    const body = await c.req.json()
+    const { imageBase64, mimeType = 'image/jpeg' } = body
+    if (!imageBase64) return c.json({ error: 'imageBase64 is required' }, 400)
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(mimeType)) {
+      return c.json({ error: 'Only JPEG, PNG, and WebP are supported' }, 400)
+    }
+    if (typeof imageBase64 !== 'string' || imageBase64.length > 12_000_000) {
+      return c.json({ error: 'Image must be smaller than 12MB' }, 413)
+    }
+
+    const content = await callClaude(ANTHROPIC_API_KEY, {
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1200,
+      system: `You are a strict OCR reader for Korean GolfZon shot detail screens.
+Return only JSON. Never infer values that are not visibly printed. Use null for missing fields.
+Schema: { venue, hole, club, mode, clubDistanceM, headSpeedMs, ballSpeedMs, launchAngleDeg, backSpinRpm, sideSpinRpm, carryM, totalM, rawText, confidence, uncertain }.
+Keep m/s speeds in m/s. uncertain is an array of missing or unreadable field names.`,
+      messages: [{ role: 'user', content: [
+        { type: 'image' as const, source: { type: 'base64' as const, media_type: mimeType as any, data: imageBase64 } },
+        { type: 'text' as const, text: '화면에 보이는 값만 추출하세요. 화면에 없는 런치앵글과 스핀은 null로 반환하세요.' },
+      ] }],
+    })
+    return c.json({ success: true, data: parseJSON(content), source: 'golf-score-worker' })
+  } catch (err: any) {
+    console.error('Shot OCR error:', err)
+    return c.json({ error: err.message || 'Shot OCR failed' }, 500)
+  }
+})
+
 app.get('/api/health', (c) => c.json({ status: 'ok', timestamp: new Date().toISOString() }))
 app.get('*', async (c) => c.env.ASSETS.fetch(c.req.raw))
 
