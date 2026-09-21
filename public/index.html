@@ -5,921 +5,241 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="theme-color" content="#0B1410" />
-  <meta name="description" content="스코어카드를 찍으면 타당·배판·니어리스트까지 한 번에 정산합니다." />
-  <title>Golf Score</title>
+  <meta name="theme-color" content="#050506" />
+  <title>Golf Score AI</title>
   <link rel="apple-touch-icon" href="/icon-180.png" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+  <style>
+:root{--bg-deep:#050506;--bg-base:#0a0a0c;--bg-el:#111114;--bg-card:#151518;--sf:rgba(255,255,255,0.04);--sf-h:rgba(255,255,255,0.06);--ac:#34d399;--ac-g:rgba(52,211,153,0.15);--ac-d:rgba(52,211,153,0.08);--gd:#eab308;--gd-g:rgba(234,179,8,0.15);--gd-d:rgba(234,179,8,0.06);--rd:#ef4444;--rd-d:rgba(239,68,68,0.08);--bl:#3b82f6;--bl-d:rgba(59,130,246,0.08);--pp:#8b5cf6;--pp-d:rgba(139,92,246,0.08);--fg:#ededef;--fg-m:#8a8f98;--fg-d:#52565e;--bd:rgba(255,255,255,0.06);--bd-s:rgba(255,255,255,0.1);--r:16px;--rs:12px;--rx:8px;--ease:cubic-bezier(0.16,1,0.3,1);--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--th:56px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg-deep);color:var(--fg);min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;padding-top:var(--st);padding-bottom:calc(var(--th) + var(--sb) + 8px)}
+input,button,select{font-family:inherit}button{cursor:pointer;border:none;background:none;color:inherit}
+
+.app-bar{position:sticky;top:0;z-index:100;backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);background:rgba(5,5,6,0.82);border-bottom:1px solid var(--bd);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.app-logo{display:flex;align-items:center;gap:8px}.app-logo svg{color:var(--ac);width:22px;height:22px}
+.app-logo-t{font-weight:800;font-size:1rem;letter-spacing:-.02em}.app-logo-t span{color:var(--ac)}
+.app-bar-sp{flex:1}.app-bar-badge{font-size:.6rem;color:var(--fg-d);background:var(--sf);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;font-family:'JetBrains Mono',monospace}
+.ab-btn{width:32px;height:32px;border-radius:50%;background:var(--sf);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;transition:all .2s var(--ease)}.ab-btn:hover{background:var(--sf-h)}.ab-btn svg{width:16px;height:16px;color:var(--fg-m)}
+
+.tab-bar{position:fixed;bottom:0;left:0;right:0;z-index:100;backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);background:rgba(5,5,6,0.88);border-top:1px solid var(--bd);display:flex;height:var(--th);padding-bottom:var(--sb);align-items:stretch}
+.ti{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--fg-d);font-size:.58rem;font-weight:600;transition:color .25s var(--ease);-webkit-tap-highlight-color:transparent}.ti svg{width:20px;height:20px}.ti.active{color:var(--ac)}.ti:active{transform:scale(0.97)}
+
+.pg{display:none;padding:0 16px 24px;max-width:560px;margin:0 auto;animation:fu .4s var(--ease)}.pg.active{display:block}@keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.sec{margin-top:24px}.sec-l{font-size:.65rem;font-weight:700;color:var(--fg-d);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;padding-left:2px;display:flex;align-items:center;gap:6px}.sec-l svg{width:14px;height:14px;color:var(--fg-m)}
+.card{background:var(--bg-card);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px}
+
+.hero{text-align:center;padding:36px 0 16px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,var(--ac-g),transparent 70%);pointer-events:none;opacity:.5}
+.hero-ic{position:relative;width:72px;height:72px;margin:0 auto 16px;background:var(--ac-d);border:1px solid rgba(52,211,153,0.2);border-radius:20px;display:flex;align-items:center;justify-content:center}
+.hero-ic svg{width:36px;height:36px;color:var(--ac)}.hero-ic::after{content:'';position:absolute;inset:-4px;border-radius:24px;border:1px solid rgba(52,211,153,0.08);pointer-events:none}
+.hero-t{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1.25;margin-bottom:8px}.hero-t em{font-style:normal;color:var(--ac)}
+.hero-s{font-size:.78rem;color:var(--fg-m);line-height:1.65}
+
+.uz{border:1.5px dashed var(--bd-s);border-radius:var(--r);padding:28px 16px;text-align:center;cursor:pointer;transition:all .3s var(--ease)}
+.uz:hover,.uz.dragover{border-color:var(--ac);background:var(--ac-d)}.uz.has-file{border-style:solid;border-color:rgba(52,211,153,0.25);background:var(--ac-d)}
+.uz-ic{margin:0 auto 10px;width:44px;height:44px;border-radius:12px;background:var(--sf);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center}.uz-ic svg{width:22px;height:22px;color:var(--fg-m)}
+.uz-t{font-size:.85rem;font-weight:600;margin-bottom:3px}.uz-sub{font-size:.68rem;color:var(--fg-d)}.uz-fn{font-size:.68rem;color:var(--ac);font-family:'JetBrains Mono',monospace;margin-top:5px}
+#fileInput{display:none}
+.prev-r{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.prev-r.single{grid-template-columns:1fr}
+.prev-th{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bd);background:var(--bg-base);aspect-ratio:4/3;position:relative}.prev-th img{width:100%;height:100%;object-fit:contain}
+.prev-tag{position:absolute;top:5px;left:5px;background:rgba(0,0,0,.65);backdrop-filter:blur(8px);border-radius:4px;padding:2px 6px;font-size:.55rem;color:var(--fg-m);font-weight:600}
+
+.sr{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--bg-card);border:1px solid var(--bd);border-radius:var(--rs);margin-bottom:8px}
+.sr svg{width:18px;height:18px;color:var(--gd);flex-shrink:0}.sr label{font-size:.75rem;font-weight:600;color:var(--fg-m);white-space:nowrap}
+.sr input[type=number]{width:90px;background:var(--bg-base);border:1px solid var(--bd);border-radius:var(--rx);padding:8px 10px;color:var(--gd);font-family:'JetBrains Mono',monospace;font-size:.9rem;font-weight:700;outline:none;text-align:right;transition:border-color .2s var(--ease)}
+.sr input:focus{border-color:var(--ac)}.sr .sh{font-size:.62rem;color:var(--fg-d);margin-left:auto}
+
+.cg{display:flex;flex-wrap:wrap;gap:6px}
+.ch{display:inline-flex;align-items:center;gap:5px;padding:7px 12px;border-radius:var(--rx);border:1px solid var(--bd);background:var(--bg-el);font-size:.72rem;font-weight:600;color:var(--fg-m);cursor:pointer;transition:all .2s var(--ease);user-select:none;-webkit-tap-highlight-color:transparent}
+.ch:active{transform:scale(0.97)}.ch.on{border-color:rgba(52,211,153,0.3);background:var(--ac-d);color:var(--ac)}.ch.off{opacity:.35;text-decoration:line-through}
+.ch-d{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0}
+.ck{width:14px;height:14px;border:1.5px solid var(--bd-s);border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0}.ch.on .ck{background:var(--ac);border-color:var(--ac);color:var(--bg-deep)}
+.ch.pp.on{border-color:rgba(139,92,246,0.3);background:var(--pp-d);color:var(--pp)}.ch.pp.on .ck{background:var(--pp);border-color:var(--pp)}
+.ch.disabled{opacity:.25;pointer-events:none}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:var(--rs);font-weight:700;font-size:.85rem;transition:all .25s var(--ease);width:100%;position:relative;overflow:hidden}
+.btn:active{transform:scale(0.98)}.btn svg{width:18px;height:18px}
+.btn-ac{background:linear-gradient(135deg,#34d399,#059669);color:#021a10;box-shadow:0 0 24px var(--ac-g)}
+.btn-ac:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+.btn-gd{background:linear-gradient(135deg,#eab308,#a16207);color:#1a1200;box-shadow:0 0 20px var(--gd-g)}
+.btn-ol{background:var(--bg-el);color:var(--fg-m);border:1px solid var(--bd)}.btn-ol:hover{border-color:var(--bd-s);color:var(--fg)}
+.btn-dn{background:var(--rd-d);color:var(--rd);border:1px solid rgba(239,68,68,0.15)}
+.btn-sm{padding:9px 16px;font-size:.75rem;width:auto;border-radius:var(--rx)}.btn-sm svg{width:14px;height:14px}
+.br{display:flex;gap:8px;margin-top:12px}.br .btn{flex:1}
+
+.loader{display:none;flex-direction:column;align-items:center;gap:14px;padding:40px 0}.loader.visible{display:flex}
+.spinner{width:40px;height:40px;border:2.5px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{color:var(--fg-m);font-size:.82rem;font-weight:500;text-align:center}.loader-step{font-size:.68rem;color:var(--fg-d)}
+
+.tw{overflow-x:auto;margin:0 -12px;padding:0 12px}
+.stbl{width:100%;border-collapse:collapse;font-size:.72rem;white-space:nowrap}
+.stbl th{background:var(--bg-el);color:var(--ac);font-family:'JetBrains Mono',monospace;font-size:.6rem;font-weight:700;letter-spacing:.06em;padding:7px 5px;text-align:center;border-bottom:1px solid var(--bd-s);position:sticky;top:0;z-index:1}
+.stbl td{padding:4px 4px;text-align:center;border-bottom:1px solid var(--bd)}
+.stbl input[type=number]{width:40px;background:var(--bg-base);border:1px solid var(--bd);border-radius:6px;color:var(--fg);font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:700;text-align:center;padding:4px 2px;outline:none;-moz-appearance:textfield}
+.stbl input[type=number]::-webkit-inner-spin-button{display:none}.stbl input:focus{border-color:var(--ac)}
+.stbl .pc{color:var(--fg-d);font-family:'JetBrains Mono',monospace;font-size:.65rem}
+.stbl .hc{color:var(--fg-d);font-family:'JetBrains Mono',monospace;font-size:.62rem}
+.stbl .sr2 td{background:var(--bg-el);font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--fg-m)}
+.stbl .tr2 td{background:var(--gd-d);color:var(--gd);font-weight:700;font-family:'JetBrains Mono',monospace}
+.ni{background:transparent!important;border:none!important;border-bottom:1px solid var(--bd)!important;color:var(--ac)!important;font-family:'Inter',sans-serif!important;font-weight:700!important;font-size:.68rem!important;text-align:center!important;outline:none!important;width:58px!important;padding:2px 3px!important}.ni:focus{border-bottom-color:var(--gd)!important}
+.sc-e{color:#4ade80!important;text-shadow:0 0 6px rgba(74,222,128,.3)}.sc-b{color:var(--ac)!important}.sc-p{color:var(--fg)!important}.sc-bo{color:#f59e0b!important}.sc-d{color:var(--rd)!important}.sc-t{color:#dc2626!important;text-shadow:0 0 6px rgba(220,38,38,.3)}
+.p3r{background:var(--bl-d)!important}
+.nb{width:20px;height:20px;border:1.5px solid rgba(59,130,246,.3);border-radius:50%;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:.55rem;transition:all .2s var(--ease);color:transparent}.nb.sel{background:var(--bl);border-color:var(--bl);color:#fff}
+
+.sb{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:6px;margin-bottom:10px}
+.sp{text-align:center;padding:10px 4px;background:var(--bg-el);border-radius:var(--rs);border:1px solid var(--bd)}
+.sn{font-size:.62rem;color:var(--fg-m);font-weight:600;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.st{font-family:'JetBrains Mono',monospace;font-size:1.2rem;font-weight:800;color:var(--gd)}
+.sd{font-size:.55rem;color:var(--fg-d);font-family:'JetBrains Mono',monospace}.sw{color:var(--rd)!important}
+
+.al{border-radius:var(--rs);padding:10px 12px;margin-bottom:10px;font-size:.72rem;line-height:1.6;display:flex;align-items:flex-start;gap:8px}.al svg{width:16px;height:16px;flex-shrink:0;margin-top:1px}
+.al-ok{background:var(--ac-d);border:1px solid rgba(52,211,153,0.15);color:var(--ac)}.al-w{background:var(--rd-d);border:1px solid rgba(239,68,68,0.15);color:var(--rd)}
+
+.hcd{background:var(--bg-card);border:1px solid var(--bd);border-radius:var(--rs);padding:12px;margin-bottom:6px}
+.hhd{display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+.hb{font-family:'JetBrains Mono',monospace;font-size:.65rem;font-weight:800;letter-spacing:.04em;background:var(--bg-el);border:1px solid var(--bd);border-radius:6px;padding:3px 8px;color:var(--ac)}
+.pb2{font-family:'JetBrains Mono',monospace;font-size:.58rem;color:var(--fg-d);background:var(--sf);border-radius:4px;padding:2px 6px}
+.db{background:var(--gd-d);border:1px solid rgba(234,179,8,0.2);border-radius:4px;padding:2px 7px;font-size:.58rem;color:var(--gd);font-weight:700}
+.tb{background:var(--pp-d);border:1px solid rgba(139,92,246,0.2);border-radius:4px;padding:2px 7px;font-size:.58rem;color:var(--pp);font-weight:700}
+.nrb{background:var(--bl-d);border:1px solid rgba(59,130,246,0.2);border-radius:4px;padding:2px 7px;font-size:.58rem;color:var(--bl);font-weight:700}
+.hsc{display:flex;gap:5px;margin-bottom:6px;flex-wrap:wrap}
+.pcc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rx);padding:4px 8px;font-family:'JetBrains Mono',monospace;font-size:.72rem}.pcc .cn{color:var(--fg-d);font-size:.55rem;display:block;margin-bottom:1px}
+.htx{display:flex;flex-wrap:wrap;gap:5px}.txn{display:flex;align-items:center;gap:4px;background:var(--sf);border-radius:5px;padding:3px 7px;font-size:.65rem}.txn .from{color:var(--rd);font-weight:700}.txn .to{color:var(--ac);font-weight:700}.txn .amt{color:var(--gd);font-family:'JetBrains Mono',monospace;font-weight:700}
+
+.stl{width:100%;border-collapse:collapse;font-family:'JetBrains Mono',monospace;font-size:.78rem}
+.stl th{background:var(--bg-el);color:var(--ac);padding:7px 10px;text-align:left;font-size:.62rem;border-bottom:1px solid var(--bd-s)}.stl td{padding:7px 10px;border-bottom:1px solid var(--bd)}
+.stl .pos{color:var(--ac);font-weight:700}.stl .neg{color:var(--rd);font-weight:700}.stl .zero{color:var(--fg-d)}
+
+.rg{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}
+.rk{background:var(--bg-card);border:1px solid var(--bd);border-radius:var(--r);padding:16px;text-align:center;position:relative;overflow:hidden}
+.rk.r1{border-color:rgba(234,179,8,0.3);box-shadow:0 0 30px var(--gd-g);background:var(--gd-d)}
+.rkn{font-family:'JetBrains Mono',monospace;font-size:1.8rem;font-weight:800;color:var(--fg-d);line-height:1}.rk.r1 .rkn{color:var(--gd)}
+.rkm{font-weight:700;font-size:.82rem;margin:4px 0 2px}.rka{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:700}.rka.pos{color:var(--ac)}.rka.neg{color:var(--rd)}
+.rku{font-size:.58rem;color:var(--fg-d);margin-top:1px}
+
+.atbl{width:100%;border-collapse:collapse;font-size:.65rem;white-space:nowrap}
+.atbl th{background:var(--bg-el);color:var(--ac);font-family:'JetBrains Mono',monospace;font-size:.55rem;padding:5px 6px;text-align:center;border-bottom:1px solid var(--bd-s)}
+.atbl td{padding:3px 6px;text-align:center;border-bottom:1px solid var(--bd);font-family:'JetBrains Mono',monospace;font-size:.62rem}
+.atbl .sr2 td{background:var(--bg-el);font-weight:700}.atbl .tr2 td{background:var(--gd-d);color:var(--gd);font-weight:700}
+.au{color:var(--ac)!important;font-weight:700}.ad{color:var(--rd)!important;font-weight:700}.ae{color:var(--fg-d)}
+
+.fw{display:flex;justify-content:center;padding:4px 0}.fw svg{width:100%;max-width:440px}
+.fl{display:flex;gap:14px;justify-content:center;margin-top:8px;flex-wrap:wrap}.fli{display:flex;align-items:center;gap:4px;font-size:.62rem;color:var(--fg-m)}.fld{width:7px;height:7px;border-radius:50%}
+
+.wg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px}
+.wi{background:var(--bg-el);border:1px solid var(--bd);border-radius:var(--rs);padding:9px 10px}
+.wi label{display:flex;align-items:center;gap:4px;font-size:.6rem;color:var(--fg-m);margin-bottom:4px;font-weight:600}.wi label svg{width:12px;height:12px}
+.wi input{width:100%;background:var(--bg-base);border:1px solid var(--bd);border-radius:6px;padding:6px 8px;color:var(--gd);font-family:'JetBrains Mono',monospace;font-size:.82rem;font-weight:700;outline:none;-moz-appearance:textfield}.wi input::-webkit-inner-spin-button{display:none}.wi input:focus{border-color:var(--gd)}
+
+.rw{border-radius:var(--rs);overflow:hidden;border:1px solid var(--bd);background:var(--bg-base);cursor:zoom-in;margin-bottom:5px}.rw img{width:100%;display:block;object-fit:contain;max-height:260px}.rw.zoom{cursor:zoom-out}.rw.zoom img{max-height:none}
+
+.pl{display:flex;align-items:center;gap:12px;padding:13px 14px;background:var(--bg-card);border:1px solid var(--bd);border-radius:var(--rs);text-decoration:none;color:inherit;margin-bottom:8px;transition:border-color .2s var(--ease)}.pl:hover{border-color:var(--bd-s)}
+.pav{width:36px;height:36px;border-radius:10px;background:var(--ac-d);display:flex;align-items:center;justify-content:center}.pav svg{width:18px;height:18px;color:var(--ac)}
+.pi{flex:1}.pnm{font-size:.78rem;font-weight:700}.pds{font-size:.62rem;color:var(--fg-d)}.par svg{width:16px;height:16px;color:var(--fg-d)}
+
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:1000;align-items:flex-end;justify-content:center}.mbg.vis{display:flex}
+.msh{background:var(--bg-card);border:1px solid var(--bd-s);border-radius:var(--r) var(--r) 0 0;padding:20px 16px calc(20px + var(--sb));max-width:560px;width:100%;max-height:80vh;overflow-y:auto;animation:su .35s var(--ease)}@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.mhd{width:32px;height:3px;background:var(--fg-d);border-radius:2px;margin:0 auto 14px;opacity:.4}.mt{font-size:.95rem;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}.mt svg{width:18px;height:18px;color:var(--ac)}
+
+.toast{position:fixed;top:calc(var(--st) + 54px);left:50%;transform:translateX(-50%) translateY(-60px);background:var(--bg-card);border:1px solid var(--bd-s);border-radius:var(--rs);padding:10px 16px;backdrop-filter:blur(16px);font-size:.78rem;z-index:9999;opacity:0;transition:all .35s var(--ease);max-width:300px;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.4)}.toast.show{transform:translateX(-50%) translateY(0);opacity:1}.toast.error{border-color:rgba(239,68,68,0.3)}
+.dv{height:1px;background:linear-gradient(to right,transparent,var(--bd-s),transparent);margin:20px 0}
+.tatd{display:none;background:var(--pp-d);border:1px solid rgba(139,92,246,0.15);border-radius:var(--rx);padding:9px 12px;font-size:.68rem;color:var(--pp);line-height:1.7;margin-top:6px}
+  </style>
 </head>
 <body>
+<div class="app-bar"><div class="app-logo"><i data-lucide="flag" style="stroke-width:2.5"></i><span class="app-logo-t">Golf <span>Score</span></span></div><div class="app-bar-sp"></div><div class="app-bar-badge">AI v5.0</div><button class="ab-btn" onclick="showHelp()"><i data-lucide="help-circle"></i></button></div>
 
-<!-- 아이콘 스프라이트 -->
-<svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-camera" viewBox="0 0 24 24">
-    <path d="M3 8.5A2.5 2.5 0 0 1 5.5 6h1.7a1.5 1.5 0 0 0 1.3-.75l.7-1.2A1.5 1.5 0 0 1 10.5 3h3a1.5 1.5 0 0 1 1.3.75l.7 1.2A1.5 1.5 0 0 0 16.8 6h1.7A2.5 2.5 0 0 1 21 8.5v9A2.5 2.5 0 0 1 18.5 20h-13A2.5 2.5 0 0 1 3 17.5z"/>
-    <circle cx="12" cy="12.5" r="3.6"/>
-  </symbol>
-  <symbol id="i-pencil" viewBox="0 0 24 24">
-    <path d="M4 20h4l10.5-10.5a2.83 2.83 0 1 0-4-4L4 16z"/><path d="M14.5 5.5l4 4"/>
-  </symbol>
-  <symbol id="i-trophy" viewBox="0 0 24 24">
-    <path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 5.5H4.5v1A3.5 3.5 0 0 0 8 10"/>
-    <path d="M17 5.5h2.5v1A3.5 3.5 0 0 1 16 10"/><path d="M12 14v3"/><path d="M8.5 20h7"/><path d="M10 20l.5-3h3l.5 3"/>
-  </symbol>
-  <symbol id="i-more" viewBox="0 0 24 24">
-    <path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h10"/>
-  </symbol>
-  <symbol id="i-sliders" viewBox="0 0 24 24">
-    <path d="M4 7h9"/><path d="M17 7h3"/><circle cx="15" cy="7" r="2"/>
-    <path d="M4 17h3"/><path d="M11 17h9"/><circle cx="9" cy="17" r="2"/>
-  </symbol>
-  <symbol id="i-flag" viewBox="0 0 24 24">
-    <path d="M6 21V3"/><path d="M6 4h11l-2.2 3.5L17 11H6"/>
-  </symbol>
-  <symbol id="i-apps" viewBox="0 0 24 24">
-    <rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/>
-    <rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>
-  </symbol>
-  <symbol id="i-redo" viewBox="0 0 24 24">
-    <path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/>
-  </symbol>
-</svg>
-
-<!-- 앱 바 -->
-<header class="appbar">
-  <div class="brand">
-    <span class="brand-mark">Golf <b>Score</b></span>
-    <span class="brand-ver num">v5.1</span>
-  </div>
-  <button class="appbar-action" onclick="openHelp()" aria-label="사용법 보기">?</button>
-</header>
-
-<!-- ══ 분석 ══════════════════════════════════════════════════════════════ -->
-<main class="page active" id="pageHome">
-
-  <div class="block">
-    <input type="file" id="fileInput" accept="image/*" multiple />
-    <button class="capture" id="uploadZone" type="button">
-      <span class="capture-inner">
-        <span class="capture-lens"><svg class="icon"><use href="#i-camera"/></svg></span>
-        <span class="capture-title" id="uploadTitle">스코어카드를 찍으세요</span>
-        <span class="capture-sub" id="uploadSub">스마트스코어는 1장, 골프존은 2장. 어느 쪽인지는 알아서 판별합니다.</span>
-        <span class="capture-file num" id="uploadName"></span>
-      </span>
-    </button>
-    <div class="thumbs" id="previewRow" style="display:none">
-      <div class="thumb"><span class="thumb-tag">카드 1</span><img id="prev1" alt="첫 번째 스코어카드" /></div>
-      <div class="thumb" id="prev2Box" style="display:none"><span class="thumb-tag">카드 2</span><img id="prev2" alt="두 번째 스코어카드" /></div>
-    </div>
-  </div>
-
-  <div class="block">
-    <button class="setup" onclick="openSetup()" type="button">
-      <span class="list-icon"><svg class="icon"><use href="#i-sliders"/></svg></span>
-      <span class="setup-body">
-        <span class="setup-label">게임 설정</span>
-        <span class="setup-value" id="setupSummary">타당 <em>1,000원</em> · 배판 4개 · 4명</span>
-      </span>
-      <span class="setup-go">›</span>
-    </button>
-  </div>
-
-  <div class="working" id="loader">
-    <div class="ball"></div>
-    <div class="working-title" id="loaderText">스코어를 읽고 있습니다</div>
-    <div class="working-note" id="loaderStep"></div>
-  </div>
-
-  <div class="dock">
-    <button class="btn btn-gold" id="analyzeBtn" disabled onclick="runAnalysis()">스코어 읽기</button>
-    <div class="btn-pair">
-      <button class="btn btn-quiet btn-sm" onclick="resetAll()">처음부터</button>
-    </div>
-  </div>
-</main>
-
-<!-- ══ 확인 ══════════════════════════════════════════════════════════════ -->
-<main class="page" id="pageVerify">
-
-  <div class="block">
-    <div class="block-head">
-      <h2 class="block-title">읽은 결과</h2>
-      <span class="block-note">카드 합계와 대조합니다</span>
-    </div>
-    <div class="tally" id="sumBar"></div>
-    <div id="mismatchAlert"></div>
-  </div>
-
-  <div class="block" id="refSection" style="display:none">
-    <div class="block-head">
-      <h2 class="block-title">원본</h2>
-      <span class="block-note">탭하면 크게 봅니다</span>
-    </div>
-    <div id="refSlot1" style="display:none">
-      <div class="proof" onclick="this.classList.toggle('big')"><img id="refImg1" alt="첫 번째 스코어카드 원본" /></div>
-    </div>
-    <div id="refSlot2" style="display:none">
-      <div class="proof" onclick="this.classList.toggle('big')"><img id="refImg2" alt="두 번째 스코어카드 원본" /></div>
-    </div>
-  </div>
-
-  <div class="block">
-    <div class="block-head">
-      <h2 class="block-title">점수 고치기</h2>
-      <span class="block-note">Par 3에서는 니어리스트를 지정하세요</span>
-    </div>
-    <div class="sheetwrap">
-      <table class="card-tbl" id="scoreTable"><thead id="tHead"></thead><tbody id="tBody"></tbody></table>
-    </div>
-  </div>
-
-  <div class="dock">
-    <button class="btn btn-gold" onclick="calculate()">정산하기</button>
-    <div class="btn-pair">
-      <button class="btn btn-quiet btn-sm" onclick="runAnalysis()">다시 읽기</button>
-      <button class="btn btn-warn btn-sm" onclick="goHome()">처음부터</button>
-    </div>
-  </div>
-</main>
-
-<!-- ══ 정산 ══════════════════════════════════════════════════════════════ -->
-<main class="page" id="pageResults">
-
-  <div class="block">
-    <div id="champion"></div>
-    <div class="standings" id="standings"></div>
-  </div>
-
-  <hr class="rule" />
-
-  <div class="block">
-    <div class="block-head"><h2 class="block-title">홀별 내역</h2></div>
-    <div id="holeResults"></div>
-  </div>
-
-  <hr class="rule" />
-
-  <div class="block" id="gameSection" style="display:none">
-    <div class="block-head"><h2 class="block-title">게임별 손익</h2></div>
-    <div class="panel"><div class="sheetwrap"><table class="ledger" id="gameTable"></table></div></div>
-  </div>
-
-  <div class="block">
-    <div class="block-head"><h2 class="block-title">구간 결산</h2></div>
-    <div class="panel"><div class="panel-cap">전반 OUT</div><table class="ledger" id="outTable"></table></div>
-    <div class="panel"><div class="panel-cap">후반 IN</div><table class="ledger" id="inTable"></table></div>
-    <div class="panel"><div class="panel-cap">최종</div><table class="ledger" id="totalTable"></table></div>
-  </div>
-
-  <div class="block" id="assetSection" style="display:none">
-    <div class="block-head"><h2 class="block-title">홀별 보유금액</h2></div>
-    <div class="panel"><div class="sheetwrap"><table class="grid-tbl" id="assetTable"></table></div></div>
-  </div>
-
-  <div class="block">
-    <div class="block-head"><h2 class="block-title">돈의 흐름</h2></div>
-    <div class="panel">
-      <div class="flow" id="flowContainer"></div>
-      <div class="flow-key">
-        <span><i style="background:var(--turf-green)"></i>받는 사람</span>
-        <span><i style="background:var(--loss)"></i>주는 사람</span>
-        <span><i style="background:var(--gold)"></i>최다 수령</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="dock dock-end">
-    <button class="btn btn-quiet" onclick="goVerify()">점수 고치기</button>
-    <div class="btn-pair">
-      <button class="btn btn-warn btn-sm" onclick="goHome()">처음부터</button>
-    </div>
-  </div>
-</main>
-
-<!-- ══ 더보기 ════════════════════════════════════════════════════════════ -->
-<main class="page" id="pageProfile">
-
-  <div class="block">
-    <div class="block-head"><h2 class="block-title">만든 사람</h2></div>
-    <div class="list">
-      <a class="list-row" href="https://apps.lupa.kr/golf/" target="_blank" rel="noopener">
-        <span class="list-icon"><svg class="icon"><use href="#i-flag"/></svg></span>
-        <span class="list-body">
-          <span class="list-title">박배영 · 골프지도자(세미)</span>
-          <span class="list-desc">KPGMA · 로뎀시스템 · AI 골프 도구 4종</span>
-        </span>
-        <span class="list-go">›</span>
-      </a>
-      <a class="list-row" href="https://apps.lupa.kr/" target="_blank" rel="noopener">
-        <span class="list-icon"><svg class="icon"><use href="#i-apps"/></svg></span>
-        <span class="list-body">
-          <span class="list-title">전체 포트폴리오</span>
-          <span class="list-desc">apps.lupa.kr</span>
-        </span>
-        <span class="list-go">›</span>
-      </a>
-    </div>
-  </div>
-
-  <div class="block">
-    <div class="block-head"><h2 class="block-title">앱 정보</h2></div>
-    <div class="panel">
-      <dl class="prose">
-        <dt>읽을 수 있는 스코어카드</dt>
-        <dd>스마트스코어 1장(4명 전체), 골프존 2장(1·2번 / 3·4번)</dd>
-        <dt>인식 엔진</dt>
-        <dd>Claude Sonnet 4.6 · 1장 약 33원, 2장 약 36원</dd>
-        <dt>정산 규칙</dt>
-        <dd>타당금액 기준 · 배판(버디·이글·트리플·Par3 더블·동타) · 따따블 · 니어리스트</dd>
-        <dt>추가 내기</dt>
-        <dd>스킨스 · 라스베가스 · 후세인</dd>
-        <dt class="caution">인식은 틀릴 수 있습니다</dt>
-        <dd class="caution">정산 전에 원본과 점수를 한 번 대조하세요.</dd>
-      </dl>
-    </div>
-    <div class="colophon">
-      <div class="colophon-name">Golf Score v5.1 · © 박배영 · 로뎀시스템</div>
-      <div class="colophon-mail">paeyoungpark@gmail.com</div>
-    </div>
-  </div>
-</main>
-
-<!-- 탭 바 -->
-<nav class="tabbar">
-  <button class="tab active" data-page="pageHome" onclick="switchTab(this)">
-    <svg class="icon"><use href="#i-camera"/></svg>분석
-  </button>
-  <button class="tab" data-page="pageVerify" onclick="switchTab(this)">
-    <svg class="icon"><use href="#i-pencil"/></svg>확인
-  </button>
-  <button class="tab" data-page="pageResults" onclick="switchTab(this)">
-    <svg class="icon"><use href="#i-trophy"/></svg>정산
-  </button>
-  <button class="tab" data-page="pageProfile" onclick="switchTab(this)">
-    <svg class="icon"><use href="#i-more"/></svg>더보기
-  </button>
-</nav>
-
-<!-- ══ 게임 설정 시트 ════════════════════════════════════════════════════ -->
-<div class="sheet" id="setupSheet" onclick="if(event.target===this)closeSetup()">
-  <div class="sheet-panel">
-    <div class="sheet-grip"></div>
-    <h2 class="sheet-title">게임 설정</h2>
-    <p class="sheet-sub">정산 전에 언제든 다시 바꿀 수 있습니다.</p>
-
-    <div class="block-head"><h3 class="block-title">타당 금액</h3></div>
-    <div class="field">
-      <label for="unitAmount">1타 기준</label>
-      <input class="amount num" type="number" id="unitAmount" value="1000" min="100" step="100" onchange="renderSetupSummary()" />
-      <span class="field-hint">원</span>
-    </div>
-
-    <div class="block">
-      <div class="block-head">
-        <h3 class="block-title">내기 방식</h3>
-        <span class="block-note">여러 개를 켜면 합산합니다</span>
-      </div>
-      <div class="chips" id="gameGroup">
-        <div class="chip on" data-game="stroke" onclick="toggleGame(this)"><span class="chip-box">✓</span><span class="chip-name">타당</span></div>
-        <div class="chip" data-game="skins" onclick="toggleGame(this)"><span class="chip-box"></span><span class="chip-name">스킨스</span></div>
-        <div class="chip" data-game="vegas" id="g-vegas" onclick="toggleGame(this)"><span class="chip-box"></span><span class="chip-name">라스베가스</span><span class="chip-qty">4인</span></div>
-        <div class="chip" data-game="hussein" id="g-hussein" onclick="toggleGame(this)"><span class="chip-box"></span><span class="chip-name">후세인</span><span class="chip-qty">3~4인</span></div>
-      </div>
-
-      <div id="gcfg-skins" class="subform" style="display:none">
-        <div class="field">
-          <label for="gu-skins">스킨 1개</label>
-          <input class="amount num" type="number" id="gu-skins" value="1000" min="100" step="100" />
-          <span class="field-hint">원</span>
-        </div>
-        <p class="rule-note">단독 최저타가 스킨을 가져갑니다. 동타면 다음 홀로 이월되고, 마지막 홀까지 동타면 이월분은 사라집니다.</p>
-      </div>
-
-      <div id="gcfg-vegas" class="subform" style="display:none">
-        <div class="field">
-          <label for="gu-vegas">라스베가스</label>
-          <input class="amount num" type="number" id="gu-vegas" value="1000" min="100" step="100" />
-          <select id="go-vegas-mode" class="picker"><option value="stroke">타수차 × 금액</option><option value="fixed">홀당 고정</option></select>
-        </div>
-        <p class="rule-note">직전 홀 순위로 1·4등과 2·3등이 팀이 됩니다(1번 홀은 카드 순서). 팀 합산 타수를 비교해 진 팀 두 명이 이긴 팀 두 명에게 각각 지급합니다.</p>
-      </div>
-
-      <div id="gcfg-hussein" class="subform" style="display:none">
-        <div class="field">
-          <label for="gu-hussein">후세인 1인당</label>
-          <input class="amount num" type="number" id="gu-hussein" value="1000" min="100" step="100" />
-          <select id="go-hussein-rot" class="picker"><option value="order">순번 교대</option><option value="winner">직전홀 1등</option><option value="loser">직전홀 꼴찌</option></select>
-        </div>
-        <p class="rule-note">후세인 타수 × 3(3인은 × 2)과 나머지 합계를 겨룹니다. 이기면 나머지 각자에게 받고, 지면 각자에게 냅니다. 직전 홀이 동타면 후세인은 그대로입니다.</p>
-      </div>
-    </div>
-
-    <div class="block">
-      <div class="block-head">
-        <h3 class="block-title">배판 조건</h3>
-        <span class="block-note">해당 홀의 타당금액이 2배가 됩니다</span>
-      </div>
-      <div class="chips" id="baepanGroup">
-        <div class="chip on" data-key="birdie" onclick="toggleBaepan(this)"><span class="chip-box">✓</span><span class="chip-name">버디·이글</span></div>
-        <div class="chip on" data-key="triple" onclick="toggleBaepan(this)"><span class="chip-box">✓</span><span class="chip-name">트리플보기</span></div>
-        <div class="chip on" data-key="par3double" onclick="toggleBaepan(this)"><span class="chip-box">✓</span><span class="chip-name">Par 3 더블</span></div>
-        <div class="chip on" data-key="tripletie" onclick="toggleBaepan(this)"><span class="chip-box">✓</span><span class="chip-name">3인 동타</span></div>
-        <div class="chip disabled" id="bp-twotie" data-key="twotie" onclick="toggleBaepan(this)"><span class="chip-box"></span><span class="chip-name">2인 동타</span><span class="chip-qty">3명일 때</span></div>
-        <div class="chip streak" id="bp-tatadble" data-key="tatadble" onclick="toggleBaepan(this)"><span class="chip-box"></span><span class="chip-name">따따블</span><span class="chip-qty">×2 누적</span></div>
-      </div>
-      <p class="rule-note streak" id="tatDesc" style="display:none">
-        <b>따따블</b> — 전원 동타가 나오면 다음 홀 타당금액이 2배씩 붙습니다. 1,000 → 2,000 → 4,000 → 8,000원까지.
-      </p>
-    </div>
-
-    <div class="block">
-      <div class="block-head">
-        <h3 class="block-title">참가자</h3>
-        <span class="block-note">탭하면 정산에서 뺍니다</span>
-      </div>
-      <div class="chips" id="playerChips">
-        <div class="chip on" data-pi="0" onclick="togglePlayerChip(this)"><span class="chip-dot"></span><span class="chip-name" id="cn0">플레이어1</span></div>
-        <div class="chip on" data-pi="1" onclick="togglePlayerChip(this)"><span class="chip-dot"></span><span class="chip-name" id="cn1">플레이어2</span></div>
-        <div class="chip on" data-pi="2" onclick="togglePlayerChip(this)"><span class="chip-dot"></span><span class="chip-name" id="cn2">플레이어3</span></div>
-        <div class="chip on" data-pi="3" onclick="togglePlayerChip(this)"><span class="chip-dot"></span><span class="chip-name" id="cn3">플레이어4</span></div>
-      </div>
-    </div>
-
-    <div class="block">
-      <div class="block-head">
-        <h3 class="block-title">시작 보유금액</h3>
-        <span class="block-note">넣으면 홀마다 잔액을 따라갑니다</span>
-      </div>
-      <div class="purse" id="walletGrid"></div>
-    </div>
-
-    <div class="block">
-      <button class="btn btn-gold" onclick="closeSetup()">설정 마치기</button>
-    </div>
-  </div>
+<div class="pg active" id="pgH">
+  <div class="hero"><div class="hero-ic"><i data-lucide="flag"></i></div><h1 class="hero-t">스코어카드 찍으면<br><em>자동 정산</em> 끝.</h1><p class="hero-s">AI가 스코어를 읽고, 타당/배판/니어리스트까지 한 번에 계산합니다.</p></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="camera"></i> 스코어카드</div><div class="uz" id="uz"><input type="file" id="fileInput" accept="image/*" multiple /><div class="uz-ic"><i data-lucide="image-plus"></i></div><div class="uz-t" id="uzt">스코어카드 사진 업로드</div><div class="uz-sub" id="uzs">한 장 또는 두 장 · AI 자동 판별</div><div class="uz-fn" id="uzn"></div></div><div class="prev-r" id="pvr" style="display:none"><div class="prev-th"><span class="prev-tag">카드 1</span><img id="pv1" alt="" /></div><div class="prev-th" id="pv2b" style="display:none"><span class="prev-tag">카드 2</span><img id="pv2" alt="" /></div></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="coins"></i> 타당 금액</div><div class="sr"><i data-lucide="banknote"></i><label>1타 기준</label><input type="number" id="unitAmt" value="1000" min="100" step="100" /><span class="sh">원</span></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="zap"></i> 배판 조건</div><div class="cg" id="bpG"><div class="ch on" data-key="birdie" onclick="tBp(this)"><span class="ck">✓</span>버디/이글</div><div class="ch on" data-key="triple" onclick="tBp(this)"><span class="ck">✓</span>트리플보기</div><div class="ch on" data-key="par3double" onclick="tBp(this)"><span class="ck">✓</span>더블(Par3)</div><div class="ch on" data-key="tripletie" onclick="tBp(this)"><span class="ck">✓</span>3인동타</div><div class="ch disabled" id="bp-2t" data-key="twotie" onclick="tBp(this)"><span class="ck"></span>2인동타 <span style="font-size:.55rem;color:var(--bl)">(3명시)</span></div><div class="ch pp" id="bp-tt" data-key="tatadble" onclick="tBp(this)"><span class="ck"></span>따따블 <span style="font-size:.55rem;color:var(--pp)">x2</span></div></div><div class="tatd" id="tatD"><b>따따블</b>: 전 홀에서 전원 동타 시 다음 홀 타당금액 2배 누적 (최대 8배)</div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="users"></i> 참가 플레이어 <span style="font-size:.55rem;color:var(--fg-d);text-transform:none;letter-spacing:0">(탭하여 제외)</span></div><div class="cg" id="pChips"><div class="ch on" data-pi="0" onclick="tPc(this)"><span class="ch-d"></span><span id="cn0">플레이어1</span></div><div class="ch on" data-pi="1" onclick="tPc(this)"><span class="ch-d"></span><span id="cn1">플레이어2</span></div><div class="ch on" data-pi="2" onclick="tPc(this)"><span class="ch-d"></span><span id="cn2">플레이어3</span></div><div class="ch on" data-pi="3" onclick="tPc(this)"><span class="ch-d"></span><span id="cn3">플레이어4</span></div></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="wallet"></i> 시작 보유금액 <span style="font-size:.55rem;color:var(--fg-d);text-transform:none;letter-spacing:0">(선택)</span></div><div class="wg" id="wG"></div></div>
+  <div class="loader" id="ld"><div class="spinner"></div><div class="loader-text" id="ldT">AI 분석 중...</div><div class="loader-step" id="ldS"></div></div>
+  <div class="sec"><button class="btn btn-ac" id="aBtn" disabled onclick="runA()"><i data-lucide="scan-eye"></i> AI 분석 시작</button><div class="br"><button class="btn btn-ol btn-sm" onclick="resetAll()"><i data-lucide="rotate-ccw"></i> 초기화</button></div></div>
 </div>
 
-<!-- ══ 사용법 시트 ═══════════════════════════════════════════════════════ -->
-<div class="sheet" id="helpModal" onclick="if(event.target===this)closeHelp()">
-  <div class="sheet-panel">
-    <div class="sheet-grip"></div>
-    <h2 class="sheet-title">쓰는 법</h2>
-    <p class="sheet-sub">라운드가 끝나고 카드 한 장이면 됩니다.</p>
-
-    <div class="list">
-      <div class="list-row">
-        <span class="list-icon num">1</span>
-        <span class="list-body"><span class="list-title">스코어카드를 찍습니다</span>
-        <span class="list-desc">스마트스코어 1장, 골프존 2장</span></span>
-      </div>
-      <div class="list-row">
-        <span class="list-icon num">2</span>
-        <span class="list-body"><span class="list-title">읽은 점수를 확인합니다</span>
-        <span class="list-desc">원본과 대조하고 틀린 칸은 직접 고칩니다</span></span>
-      </div>
-      <div class="list-row">
-        <span class="list-icon num">3</span>
-        <span class="list-body"><span class="list-title">정산 결과를 봅니다</span>
-        <span class="list-desc">누가 누구에게 얼마를 주는지 홀별로 나옵니다</span></span>
-      </div>
-    </div>
-
-    <div class="block">
-      <div class="block-head"><h3 class="block-title">따따블</h3></div>
-      <p class="rule-note streak">전 홀에서 전원이 같은 타수면 다음 홀 타당금액이 2배가 되고, 계속 이어지면 최대 8배까지 붙습니다. 배판 조건까지 겹치면 누적 금액에서 한 번 더 2배입니다.</p>
-    </div>
-
-    <div class="block">
-      <button class="btn btn-gold" onclick="closeHelp()">알겠습니다</button>
-    </div>
-  </div>
+<div class="pg" id="pgV">
+  <div class="sec" style="margin-top:12px"><div class="sec-l"><i data-lucide="bar-chart-3"></i> 인식 결과</div><div class="sb" id="smB"></div><div id="mmA"></div></div>
+  <div class="sec" id="rfS" style="display:none"><div class="sec-l"><i data-lucide="image"></i> 원본 대조</div><div id="rs1" style="display:none"><div class="rw" onclick="this.classList.toggle('zoom')"><img id="ri1" alt="" /></div></div><div id="rs2" style="display:none;margin-top:6px"><div class="rw" onclick="this.classList.toggle('zoom')"><img id="ri2" alt="" /></div></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="pencil"></i> 점수 수정 <span style="font-size:.55rem;color:var(--bl);text-transform:none;letter-spacing:0">Par3에서 니어리스트 지정</span></div><div class="tw"><table class="stbl" id="sTbl"><thead id="tH"></thead><tbody id="tB"></tbody></table></div></div>
+  <div class="sec"><button class="btn btn-gd" onclick="calc()"><i data-lucide="calculator"></i> 정산 계산하기</button><div class="br"><button class="btn btn-ol btn-sm" onclick="runA()"><i data-lucide="refresh-cw"></i> 다시 인식</button><button class="btn btn-dn btn-sm" onclick="goH()"><i data-lucide="x"></i> 처음부터</button></div></div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="pg" id="pgR">
+  <div class="sec" style="margin-top:12px"><div class="sec-l"><i data-lucide="trophy"></i> 최종 순위</div><div class="rg" id="rkC"></div></div>
+  <div class="dv"></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="list-ordered"></i> 홀별 내역</div><div id="hR"></div></div>
+  <div class="dv"></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="trending-up"></i> 구간 결산</div>
+    <div class="card" style="padding:12px"><div style="font-size:.68rem;color:var(--fg-m);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i data-lucide="sunrise" style="width:13px;height:13px"></i> 전반 OUT</div><table class="stl" id="oT"></table></div>
+    <div class="card" style="padding:12px"><div style="font-size:.68rem;color:var(--fg-m);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i data-lucide="sunset" style="width:13px;height:13px"></i> 후반 IN</div><table class="stl" id="iT"></table></div>
+    <div class="card" style="padding:12px"><div style="font-size:.68rem;color:var(--fg-m);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:5px"><i data-lucide="flag" style="width:13px;height:13px"></i> 최종</div><table class="stl" id="fT"></table></div>
+  </div>
+  <div class="dv"></div>
+  <div class="sec" id="aS" style="display:none"><div class="sec-l"><i data-lucide="wallet"></i> 홀별 보유금액</div><div class="card" style="padding:10px"><div class="tw"><table class="atbl" id="aTbl"></table></div></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="arrow-right-left"></i> 돈의 흐름</div><div class="card" style="padding:10px"><div class="fw" id="fC"></div><div class="fl"><div class="fli"><div class="fld" style="background:var(--ac)"></div>수령</div><div class="fli"><div class="fld" style="background:var(--rd)"></div>지급</div><div class="fli"><div class="fld" style="background:var(--gd)"></div>1위</div></div></div></div>
+  <div class="sec"><button class="btn btn-ol" onclick="goV()"><i data-lucide="arrow-left" style="width:16px;height:16px"></i> 점수 수정</button><div class="br"><button class="btn btn-dn btn-sm" onclick="goH()"><i data-lucide="x"></i> 처음부터</button></div></div>
+</div>
 
-<script src="games.js"></script>
+<div class="pg" id="pgP">
+  <div class="sec" style="margin-top:12px"><div class="sec-l"><i data-lucide="user"></i> 개발자</div>
+    <a class="pl" href="https://apps.lupa.kr/golf/" target="_blank"><div class="pav"><i data-lucide="flag"></i></div><div class="pi"><div class="pnm">박배영 · 골프지도자(세미)</div><div class="pds">KPGMA · 로뎀시스템 · AI 골프 도구 4종</div></div><span class="par"><i data-lucide="chevron-right"></i></span></a>
+    <a class="pl" href="https://apps.lupa.kr/" target="_blank"><div class="pav"><i data-lucide="search"></i></div><div class="pi"><div class="pnm">전체 포트폴리오</div><div class="pds">apps.lupa.kr · 앱과 도구 모음</div></div><span class="par"><i data-lucide="chevron-right"></i></span></a>
+  </div>
+  <div class="sec"><div class="sec-l"><i data-lucide="info"></i> 앱 정보</div><div class="card" style="padding:14px"><div style="font-size:.78rem;line-height:1.85;color:var(--fg-m)"><b style="color:var(--fg)">Golf Score AI</b> v5.0<br>스코어카드 사진 → AI 인식 → 자동 정산<br><br><b style="color:var(--fg)">지원 스코어카드</b><br>스마트스코어 — 1장 (4명 전체)<br>골프존 — 2장 (P1·P2 + P3·P4)<br><br><b style="color:var(--fg)">AI 엔진</b><br>Claude Sonnet 4.6 (Anthropic)<br>분석 비용: 1장 ~33원 / 2장 ~36원<br><br><span style="color:var(--rd)">AI 인식 오류 가능 — 원본과 반드시 대조</span></div></div></div>
+  <div class="sec"><div class="sec-l"><i data-lucide="copyright"></i> 저작권</div><div class="card" style="text-align:center;padding:14px"><div style="font-size:.72rem;color:var(--fg-m)">© 박배영 · 로뎀시스템</div><div style="font-size:.62rem;color:var(--fg-d);margin-top:3px">paeyoungpark@gmail.com</div></div></div>
+</div>
+
+<div class="tab-bar">
+  <button class="ti active" data-page="pgH" onclick="sT(this)"><i data-lucide="scan"></i><span>분석</span></button>
+  <button class="ti" data-page="pgV" onclick="sT(this)"><i data-lucide="file-check"></i><span>확인</span></button>
+  <button class="ti" data-page="pgR" onclick="sT(this)"><i data-lucide="trophy"></i><span>정산</span></button>
+  <button class="ti" data-page="pgP" onclick="sT(this)"><i data-lucide="ellipsis"></i><span>더보기</span></button>
+</div>
+
+<div class="mbg" id="hM" onclick="if(event.target===this)this.classList.remove('vis')"><div class="msh"><div class="mhd"></div><div class="mt"><i data-lucide="book-open"></i> 사용법</div><div class="card" style="padding:12px;margin-bottom:8px"><div style="font-size:.78rem;color:var(--fg-m);line-height:1.8"><b style="color:var(--bl)">1</b> 스코어카드 사진 업로드 (1~2장)<br><b style="color:var(--bl)">2</b> AI 인식 결과 확인 및 수정<br><b style="color:var(--bl)">3</b> 정산 결과 확인</div></div><div class="card" style="padding:12px;border-color:rgba(139,92,246,0.15)"><div style="font-size:.72rem;color:var(--pp);font-weight:700;margin-bottom:3px">따따블 규칙</div><div style="font-size:.68rem;color:var(--fg-m);line-height:1.7">전원 동타 시 다음 홀 타당 x2 누적 (최대 8배)</div></div><button class="btn btn-ac" onclick="$('hM').classList.remove('vis')" style="margin-top:6px">확인</button></div></div>
+<div class="toast" id="toast"></div>
+
 <script>
-/* ━━━ CONFIG ━━━ */
-const API_BASE = location.hostname === 'localhost' || location.hostname === '127.0.0.1'
-  ? '' : 'https://golf-score-7xp.pages.dev';
-const APP_KEY = 'gs-app-2026';
-
-/* ━━━ STATE ━━━ */
-let S = {
-  img1:null, img2:null, b64_1:null, b64_2:null, orig1:null, orig2:null,
-  mime1:'image/jpeg', mime2:'image/jpeg',
-  data:null, players:[], active:[], holes:[], nearests:{},
-  unit:1000,
-  bp:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},
-  warns:[], cardTotals:null, wallets:[],
-  games:{stroke:true,skins:false,vegas:false,hussein:false}
-};
-
+const API_BASE=location.hostname==='localhost'||location.hostname==='127.0.0.1'?'':'https://golf-score-7xp.pages.dev';const APP_KEY='gs-app-2026';
+let S={img1:null,img2:null,b64_1:null,b64_2:null,orig1:null,orig2:null,mime1:'image/jpeg',mime2:'image/jpeg',data:null,players:[],active:[],holes:[],nearests:{},unit:1000,bp:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},warns:[],cardTotals:null,wallets:[]};
 const $=id=>document.getElementById(id);
-
-/* ━━━ NAVIGATION ━━━ */
-function switchTab(el){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active');$(el.dataset.page).classList.add('active');
-}
-function goPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(t=>{t.classList.toggle('active',t.dataset.page===id)});
-  $(id).classList.add('active');
-  window.scrollTo({top:0,behavior:'smooth'});
-}
-function goHome(){goPage('pageHome')}
-function goVerify(){goPage('pageVerify')}
-
-/* ━━━ SHEETS ━━━ */
-function openSetup(){$('setupSheet').classList.add('open')}
-function closeSetup(){$('setupSheet').classList.remove('open');renderSetupSummary()}
-function openHelp(){$('helpModal').classList.add('open')}
-function closeHelp(){$('helpModal').classList.remove('open')}
-
-/* ━━━ TOAST ━━━ */
-let toastT;
-function toast(msg,type=''){clearTimeout(toastT);const t=$('toast');t.textContent=msg;t.className=`toast ${type} show`;toastT=setTimeout(()=>t.classList.remove('show'),3500)}
-
-/* ━━━ SETUP SUMMARY ━━━ */
-const GAME_LABEL={stroke:'타당',skins:'스킨스',vegas:'라스베가스',hussein:'후세인'};
-function renderSetupSummary(){
-  const el=$('setupSummary');if(!el)return;
-  const unit=parseInt($('unitAmount').value)||1000;
-  const games=Object.keys(GAME_LABEL).filter(k=>S.games[k]).map(k=>GAME_LABEL[k]);
-  const bpN=Object.values(S.bp).filter(Boolean).length;
-  const nP=S.active.length||4;
-  el.innerHTML=`<em>${fmt(unit)}원</em> · ${games.length?games.join('·'):'내기 없음'} · 배판 ${bpN}개 · ${nP}명`;
-}
-
-/* ━━━ BAEPAN ━━━ */
-function toggleBaepan(el){
-  if(el.classList.contains('disabled'))return;
-  const k=el.dataset.key;
-  el.classList.toggle('on');S.bp[k]=el.classList.contains('on');
-  el.querySelector('.chip-box').textContent=S.bp[k]?'✓':'';
-  if(k==='tatadble')$('tatDesc').style.display=S.bp.tatadble?'block':'none';
-  renderSetupSummary();
-}
-
-/* ━━━ GAMES ━━━ */
-function toggleGame(el){
-  if(el.classList.contains('disabled'))return;
-  const k=el.dataset.game;S.games[k]=!S.games[k];renderGameChips();renderSetupSummary();
-}
-function renderGameChips(){
-  document.querySelectorAll('#gameGroup .chip').forEach(el=>{const k=el.dataset.game;
-    el.classList.toggle('on',!!S.games[k]);el.querySelector('.chip-box').textContent=S.games[k]?'✓':'';
-    const cf=$(`gcfg-${k}`);if(cf)cf.style.display=S.games[k]?'block':'none'});
-}
-function setGameAvail(k,ok){
-  const el=$(`g-${k}`);if(!el)return;
-  el.classList.toggle('disabled',!ok);if(!ok&&S.games[k]){S.games[k]=false}
-}
-
-/* ━━━ PLAYER CHIPS ━━━ */
-function togglePlayerChip(el){
-  const onC=document.querySelectorAll('#playerChips .chip.on').length;
-  if(el.classList.contains('on')&&onC<=2){toast('최소 2명은 있어야 정산됩니다.','error');return}
-  el.classList.toggle('on');el.classList.toggle('off');
-  updateActive();
-}
-function updateActive(){
-  S.active=[];
-  document.querySelectorAll('#playerChips .chip').forEach(c=>{if(c.classList.contains('on'))S.active.push(parseInt(c.dataset.pi))});
-  const is3=S.active.length===3;const tw=$('bp-twotie');
-  if(is3)tw.classList.remove('disabled');
-  else{tw.classList.add('disabled');tw.classList.remove('on');S.bp.twotie=false;tw.querySelector('.chip-box').textContent=''}
-  const nAct=S.active.length;
-  setGameAvail('vegas',nAct===4);setGameAvail('hussein',nAct>=3);renderGameChips();
-  buildWallet();renderSetupSummary();
-}
-
-/* ━━━ FILE UPLOAD ━━━ */
-const zone=$('uploadZone'),fi=$('fileInput');
-zone.addEventListener('click',()=>fi.click());
-zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover')});
-zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
-zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');handleFiles(e.dataTransfer.files)});
-fi.addEventListener('change',e=>handleFiles(e.target.files));
-
-function processImg(file,cb){
-  const r=new FileReader();
-  r.onload=e=>{
-    const src=e.target.result;
-    const img=new Image();
-    img.onload=()=>{
-      const c=document.createElement('canvas'),ctx=c.getContext('2d');
-      c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0);
-      const d=ctx.getImageData(0,0,img.width,img.height),px=d.data;
-      const cf=1.5,ic=128*(1-cf);
-      for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}
-      ctx.putImageData(d,0,0);
-      cb(c.toDataURL('image/jpeg',.92).split(',')[1],src.split(',')[1]);
-    };
-    img.src=src;
-  };
-  r.readAsDataURL(file);
-}
-
-function handleFiles(fileList){
-  const files=Array.from(fileList).filter(f=>f.type.startsWith('image/')).slice(0,2);
-  if(!files.length){toast('이미지 파일만 읽을 수 있습니다.','error');return}
-  S.img2=null;S.b64_2=null;S.orig2=null;
-  $('prev2Box').style.display='none';
-  const row=$('previewRow');
-  // File 1
-  S.img1=files[0];S.mime1=files[0].type||'image/jpeg';
-  $('prev1').src=URL.createObjectURL(files[0]);
-  $('refImg1').src=URL.createObjectURL(files[0]);$('refSlot1').style.display='block';
-  row.style.display='grid';row.classList.toggle('solo',files.length===1);
-  processImg(files[0],(p,o)=>{S.b64_1=p;S.orig1=o;checkReady();toast('카드 1 준비됐습니다.')});
-  zone.classList.add('loaded');
-  $('uploadTitle').textContent=files.length>1?'카드 2장 준비됨':'카드 1장 준비됨';
-  $('uploadSub').textContent='다른 사진으로 바꾸려면 다시 탭하세요.';
-  $('uploadName').textContent=files.map(f=>f.name).join('  ·  ');
-  // File 2
-  if(files[1]){
-    S.img2=files[1];S.mime2=files[1].type||'image/jpeg';
-    $('prev2').src=URL.createObjectURL(files[1]);
-    $('prev2Box').style.display='block';row.classList.remove('solo');
-    $('refImg2').src=URL.createObjectURL(files[1]);$('refSlot2').style.display='block';
-    processImg(files[1],(p,o)=>{S.b64_2=p;S.orig2=o;checkReady();toast('카드 2 준비됐습니다.')});
-  }
-}
-function checkReady(){$('analyzeBtn').disabled=!S.b64_1}
-
-/* ━━━ WALLET ━━━ */
-function buildWallet(){
-  const ap=S.active.length>0?S.active:S.players.map((_,i)=>i);
-  const names=ap.map(i=>S.players[i]||`플레이어${i+1}`);
-  $('walletGrid').innerHTML=names.map((n,j)=>`
-    <div class="purse-item"><label>${n}</label>
-    <input class="num" type="number" value="${S.wallets[ap[j]]??0}" min="0" step="1000"
-      onchange="S.wallets[${ap[j]}]=parseInt(this.value)||0" /></div>`).join('');
-}
-
-/* ━━━ AI ANALYSIS ━━━ */
-async function runAnalysis(){
-  if(!S.b64_1){toast('스코어카드 사진을 먼저 올려주세요.','error');return}
-  S.unit=parseInt($('unitAmount').value)||1000;
-  const loader=$('loader');loader.classList.add('on');$('analyzeBtn').disabled=true;
-  const lt=$('loaderText'),ls=$('loaderStep');
-  try{
-    const multi=!!S.b64_2;
-    lt.textContent='스코어를 읽고 있습니다';
-    ls.textContent=multi?'카드 2장 · 약 36원':'카드 1장 · 약 33원';
-    const payload={imageBase64:S.orig1||S.b64_1,mimeType:S.mime1,cardMode:'auto',
-      ...(multi&&{imageBase64_2:S.orig2||S.b64_2,mimeType2:S.mime2})};
-    const r=await fetch(`${API_BASE}/api/analyze`,{method:'POST',
-      headers:{'Content-Type':'application/json','x-app-key':APP_KEY},body:JSON.stringify(payload)});
-    const j=await r.json();
-    if(!j.success)throw new Error(j.error||'스코어를 읽지 못했습니다');
-    S.data=j.data;S.warns=j.warnings||[];S.cardTotals=j.data.cardTotals||j.data.totals;
-    populateVerify(j.data);
-    toast(`다 읽었습니다. ${j.debug?.estimatedCost||''}`);
-    goPage('pageVerify');
-  }catch(err){
-    toast(`${err.message}. 점수를 직접 입력하세요.`,'error');showFallback();goPage('pageVerify');
-  }finally{loader.classList.remove('on');$('analyzeBtn').disabled=false;$('loaderStep').textContent=''}
-}
-
-function showFallback(){
-  const players=Array.from({length:4},(_,i)=>`플레이어${i+1}`);
-  const holes=Array.from({length:18},(_,i)=>({hole:i+1,par:4,scores:[4,4,4,4],diffs:[0,0,0,0]}));
-  S.warns=['읽지 못했습니다 — 점수를 직접 입력하세요'];
-  populateVerify({players,holes,totals:{},cardTotals:null});
-}
-
-/* ━━━ VERIFY TABLE ━━━ */
-function populateVerify(data){
-  S.players=data.players||['P1','P2','P3','P4'];
-  S.holes=data.holes||[];S.nearests={};
-  $('refSection').style.display=S.img1?'block':'none';
-  // chips
-  S.players.forEach((n,i)=>{const cn=$(`cn${i}`);if(cn)cn.textContent=n;
-    const c=document.querySelector(`#playerChips .chip[data-pi="${i}"]`);if(c)c.style.display=''});
-  for(let i=S.players.length;i<4;i++){const c=document.querySelector(`#playerChips .chip[data-pi="${i}"]`);if(c)c.style.display='none'}
-  updateActive();
-  const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];
-  const tHead=$('tHead'),tBody=$('tBody');
-  tHead.innerHTML=`<tr><th>홀</th><th>Par</th>${ap.map(pi=>`<th><input class="who" data-pi="${pi}" value="${S.players[pi]}" aria-label="플레이어 이름" /></th>`).join('')}</tr>`;
-  tHead.querySelectorAll('.who').forEach(inp=>{
-    inp.addEventListener('change',()=>{const pi=parseInt(inp.dataset.pi);S.players[pi]=inp.value.trim()||S.players[pi];
-      const cn=$(`cn${pi}`);if(cn)cn.textContent=S.players[pi];renderSumBar();buildWallet()})});
-  tBody.innerHTML='';
-  S.holes.forEach((h,idx)=>{
-    if(h.hole===10){
-      const sums=ap.map(pi=>S.holes.slice(0,9).reduce((a,hh)=>a+(hh.scores[pi]||0),0));
-      const tr=document.createElement('tr');tr.className='r-split';
-      tr.innerHTML=`<td>OUT</td><td>·</td>${sums.map(s=>`<td class="num">${s}</td>`).join('')}`;tBody.appendChild(tr)}
-    const is3=h.par===3,tr=document.createElement('tr');
-    if(is3)tr.classList.add('r-par3');
-    tr.innerHTML=`<td class="c-hole num">${h.hole}</td><td class="c-par num">${h.par}</td>
-      ${ap.map(pi=>{const s=h.scores[pi]||h.par,d=s-h.par,cls=dCls(d),ds=d>0?`+${d}`:String(d);
-        return`<td><div class="score-cell">
-          <input type="number" class="score-in num ${cls}" data-h="${idx}" data-p="${pi}" value="${s}" min="1" max="15" aria-label="${S.players[pi]} ${h.hole}번 홀 타수" />
-          <span class="score-diff num ${cls}">${ds}</span>
-        </div></td>`}).join('')}`;
-    tBody.appendChild(tr);
-    if(is3){const ntr=document.createElement('tr');ntr.className='r-flag';
-      ntr.innerHTML=`<td colspan="2" class="flag-cue">니어리스트</td>
-        ${ap.map(pi=>`<td><button type="button" class="nearest-pick" id="nc_${idx}_${pi}" onclick="setNr(${idx},${pi})" aria-label="${S.players[pi]} 니어리스트 지정"></button></td>`).join('')}`;
-      tBody.appendChild(ntr)}
-  });
-  if(S.holes.length>9){
-    const sums=ap.map(pi=>S.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0));
-    const tr=document.createElement('tr');tr.className='r-split';
-    tr.innerHTML=`<td>IN</td><td>·</td>${sums.map(s=>`<td class="num">${s}</td>`).join('')}`;tBody.appendChild(tr)}
-  const tots=ap.map(pi=>S.holes.reduce((a,h)=>a+(h.scores[pi]||0),0));
-  const trT=document.createElement('tr');trT.className='r-total';
-  trT.innerHTML=`<td>합계</td><td>·</td>${tots.map(s=>`<td class="num">${s}</td>`).join('')}`;tBody.appendChild(trT);
-  tBody.querySelectorAll('.score-in').forEach(inp=>{
-    inp.addEventListener('change',()=>{const hi=parseInt(inp.dataset.h),pi=parseInt(inp.dataset.p),v=parseInt(inp.value)||0;
-      S.holes[hi].scores[pi]=v;S.holes[hi].diffs[pi]=v-S.holes[hi].par;refreshColors();updateSubs();renderSumBar()})});
-  refreshColors();renderSumBar();renderNr();buildWallet();
-}
-
-/* ━━━ NEAREST ━━━ */
-function setNr(hi,pi){S.nearests[hi]=S.nearests[hi]===pi?-1:pi;renderNr()}
-function renderNr(){
-  const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];
-  S.holes.forEach((h,idx)=>{if(h.par!==3)return;
-    ap.forEach(pi=>{const el=$(`nc_${idx}_${pi}`);if(!el)return;
-      const sel=(S.nearests[idx]??-1)===pi;el.classList.toggle('picked',sel);el.textContent=sel?'✓':''})})
-}
-
-/* ━━━ SUMMARY BAR ━━━ */
-function renderSumBar(){
-  const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];
-  const ct=S.cardTotals;const bar=$('sumBar'),al=$('mismatchAlert');
-  const pd=ap.map(pi=>{
-    const out=S.holes.filter(h=>h.hole<=9).reduce((a,h)=>a+(h.scores[pi]||0),0);
-    const inn=S.holes.filter(h=>h.hole>9).reduce((a,h)=>a+(h.scores[pi]||0),0);
-    const tot=out+inn,cv=ct?.total?.[pi],ok=cv===undefined||tot===cv;
-    return{name:S.players[pi],out,inn,tot,cv,ok}});
-  bar.innerHTML=pd.map(p=>`<div class="tally-item"><div class="tally-name">${p.name}</div>
-    <div class="tally-total num ${!p.ok?'mismatch':''}">${p.tot}</div>
-    <div class="tally-split num">${p.out} / ${p.inn}</div>
-    ${p.cv!==undefined?`<div class="tally-split num" style="color:${p.ok?'var(--ink-4)':'var(--loss)'}">카드 ${p.cv}</div>`:''}</div>`).join('');
-  const mm=pd.filter(p=>!p.ok).map(p=>`${p.name} — 읽은 값 ${p.tot}, 카드 ${p.cv}`);
-  if(mm.length)al.innerHTML=`<div class="notice notice-bad">합계가 카드와 다릅니다. 아래 표에서 고치세요.<br>${mm.join('<br>')}</div>`;
-  else if(ct?.total)al.innerHTML=`<div class="notice notice-ok">카드 합계와 일치합니다.</div>`;
-  else al.innerHTML='';
-}
-
-/* ━━━ TABLE UTILS ━━━ */
-function dCls(d){if(d<=-2)return'g-eagle';if(d===-1)return'g-birdie';if(d===0)return'g-par';if(d===1)return'g-bogey';if(d===2)return'g-double';return'g-triple'}
-function refreshColors(){
-  $('tBody').querySelectorAll('.score-in').forEach(inp=>{const h=S.holes[parseInt(inp.dataset.h)];if(!h)return;
-    const d=(parseInt(inp.value)||0)-h.par,c=dCls(d);inp.className=`score-in num ${c}`;
-    const sp=inp.parentElement?.querySelector('.score-diff');if(sp){sp.textContent=`${d>0?`+${d}`:d}`;sp.className=`score-diff num ${c}`}})
-}
-function updateSubs(){
-  const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];
-  $('tBody').querySelectorAll('.r-split,.r-total').forEach(row=>{
-    const l=row.cells[0].textContent;let sums;
-    if(l==='OUT')sums=ap.map(pi=>S.holes.slice(0,9).reduce((a,h)=>a+(h.scores[pi]||0),0));
-    else if(l==='IN')sums=ap.map(pi=>S.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0));
-    else sums=ap.map(pi=>S.holes.reduce((a,h)=>a+(h.scores[pi]||0),0));
-    sums.forEach((v,i)=>{row.cells[i+2].textContent=v})})
-}
-
-/* ━━━ CALCULATE ━━━ */
-function calculate(){
-  S.unit=parseInt($('unitAmount').value)||1000;
-  const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];
-  const n=ap.length,base=S.unit;
-  const G=S.games;
-  if(!G.stroke&&!G.skins&&!G.vegas&&!G.hussein){toast('내기 방식을 하나 이상 켜세요.','error');goHome();openSetup();return}
-  const mkM=()=>Array.from({length:n},()=>new Array(n).fill(0));
-  const bds=[],pTots=new Array(n).fill(0);
-  let curUnit=base,prevTie=false;
-  S.holes.forEach((h,idx)=>{
-    const sc=ap.map(pi=>h.scores[pi]||h.par),df=sc.map(s=>s-h.par);
-    const nrR=S.nearests[idx]??-1,nr=ap.indexOf(nrR);
-    if(S.bp.tatadble&&prevTie)curUnit=Math.min(curUnit*2,base*8);else if(!prevTie)curUnit=base;
-    const allTie=S.bp.tatadble&&sc.every(s=>s===sc[0]);prevTie=allTie;
-    const unit=curUnit;
-    const hasBir=S.bp.birdie&&df.some(d=>d===-1),hasEag=S.bp.birdie&&df.some(d=>d<=-2);
-    const hasTri=S.bp.triple&&h.par>=4&&df.some(d=>d>=3);
-    const hasP3D=S.bp.par3double&&h.par===3&&df.some(d=>d>=2);
-    const scc={};sc.forEach(s=>{scc[s]=(scc[s]||0)+1});
-    const has3T=S.bp.tripletie&&n>=3&&Object.values(scc).some(c=>c>=3);
-    const has2T=S.bp.twotie&&n===3&&Object.values(scc).some(c=>c>=2);
-    const isDbl=G.stroke&&(hasBir||hasEag||hasTri||hasP3D||has3T||has2T);
-    const mx=mkM(),txns=[];
-    if(G.stroke)for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){
-      let gap=df[a]-df[b];if(gap===0)continue;
-      if(df[a]<=-2&&df[b]>-2)gap-=2;if(df[b]<=-2&&df[a]>-2)gap+=2;
-      if(df[a]===-1&&df[b]>=0)gap-=1;if(df[b]===-1&&df[a]>=0)gap+=1;
-      const mult=isDbl?2:1,amt=gap*mult*unit;
-      if(amt>0){mx[a][b]+=amt;txns.push({from:a,to:b,amount:amt})}
-      else if(amt<0){mx[b][a]-=amt;txns.push({from:b,to:a,amount:-amt})}}
-    const nrTx=[];
-    if(G.stroke&&h.par===3&&nr>=0&&nr<n){const na=unit*(isDbl?2:1);
-      for(let p=0;p<n;p++){if(p===nr)continue;mx[p][nr]+=na;nrTx.push({from:p,to:nr,amount:na})}}
-    for(let a=0;a<n;a++)for(let b=0;b<n;b++){if(a===b)continue;pTots[a]-=mx[a][b];pTots[a]+=mx[b][a]}
-    const reasons=!G.stroke?'':[hasBir?'버디':'',hasEag?'이글':'',hasTri?'트리플보기':'',hasP3D?'Par3 더블':'',has3T?'3인 동타':'',has2T?'2인 동타':''].filter(Boolean).join(', ');
-    txns.forEach(t=>{t.tag='타당'});nrTx.forEach(t=>{t.tag='니어'});
-    bds.push({hole:h.hole,par:h.par,scores:sc,diffs:df,isDbl,nearest:nr>=0?ap[nr]:-1,txns,nrTx,reasons,curUnit:unit,allTie,gi:{}})
-  });
-  // 추가 내기 (스킨스 · 라스베가스 · 후세인) — 카드 타수만으로 계산
-  const gh=S.holes.map(h=>({hole:h.hole,par:h.par,scores:ap.map(pi=>h.scores[pi]||h.par)}));
-  const gv=id=>parseInt($(id).value)||1000;
-  const extra={};
-  if(G.skins)extra.skins=GolfGames.skins(gh,gv('gu-skins'));
-  if(G.vegas&&n===4)extra.vegas=GolfGames.vegas(gh,gv('gu-vegas'),{mode:$('go-vegas-mode').value});
-  if(G.hussein&&n>=3)extra.hussein=GolfGames.hussein(gh,gv('gu-hussein'),{rotation:$('go-hussein-rot').value});
-  Object.entries(extra).forEach(([k,rows])=>rows.forEach((r,idx)=>{
-    bds[idx].gi[k]=r;
-    r.txns.forEach(t=>{bds[idx].txns.push(t);pTots[t.from]-=t.amount;pTots[t.to]+=t.amount})}));
-  const hasW=ap.some(pi=>(S.wallets[pi]||0)>0);
-  let cum=new Array(n).fill(0);
-  const assetH=bds.map(bd=>{const d=new Array(n).fill(0);
-    [...bd.txns,...bd.nrTx].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});
-    cum=cum.map((v,i)=>v+d[i]);
-    return{hole:bd.hole,par:bd.par,delta:[...d],cum:[...cum],
-      assets:hasW?ap.map((pi,j)=>(S.wallets[pi]||0)+cum[j]):null,curUnit:bd.curUnit}});
-  renderResults(bds,pTots,ap,assetH);
-  goPage('pageResults');
-}
-
-/* ━━━ RENDER RESULTS ━━━ */
-function renderResults(bds,pTots,ap,assetH){
-  const names=ap.map(pi=>S.players[pi]);
-  // 챔피언 + 순위
-  const ranked=names.map((p,i)=>({name:p,total:pTots[i]})).sort((a,b)=>b.total-a.total);
-  const top=ranked[0];
-  const gameNames=Object.keys(GAME_LABEL).filter(k=>S.games[k]).map(k=>GAME_LABEL[k]).join(' · ');
-  $('champion').innerHTML=`<div class="champion">
-    <div class="champion-crown"><svg class="icon"><use href="#i-trophy"/></svg></div>
-    <div class="champion-label">오늘의 승자</div>
-    <div class="champion-name">${top.name}</div>
-    <div class="champion-amt">${top.total>0?'+':''}${fmt(top.total)}<small>원</small></div>
-    <div class="champion-meta">${names.length}명 · ${bds.length}홀 · 타당 ${fmt(S.unit)}원${gameNames?` · ${gameNames}`:''}</div>
-  </div>`;
-  $('standings').innerHTML=ranked.slice(1).map((r,ri)=>`<div class="standing">
-    <span class="standing-rank num">${ri+2}</span>
-    <span class="standing-name">${r.name}</span>
-    <span class="standing-amt ${r.total>0?'up':r.total<0?'down':'flat'}">${r.total>0?'+':''}${fmt(r.total)}원</span>
-  </div>`).join('');
-  // 홀별
-  const hr=$('holeResults');hr.innerHTML='';
-  bds.forEach(bd=>{
-    const tatTag=S.bp.tatadble&&bd.curUnit>S.unit?`<span class="tag tag-streak">따따블 ${fmt(bd.curUnit)}원/타</span>`:'';
-    const tieTag=bd.allTie&&S.bp.tatadble?`<span class="tag tag-green">전원 동타 → 다음 홀 2배</span>`:'';
-    hr.innerHTML+=`<div class="hole">
-      <div class="hole-top"><span class="hole-no num">${bd.hole}번</span><span class="hole-par num">Par ${bd.par}</span>
-        ${tatTag}${bd.isDbl?`<span class="tag tag-double">배판 ×2 · ${bd.reasons}</span>`:''}${tieTag}
-        ${bd.nearest>=0?`<span class="tag tag-flag">니어 ${S.players[bd.nearest]}</span>`:''}${gameBadges(bd,names)}</div>
-      <div class="hole-scores">${names.map((p,i)=>`<div class="hole-score"><span class="hole-score-who">${p}</span>
-        <span class="hole-score-val num ${dCls(bd.diffs[i])}">${bd.scores[i]}</span>
-        <span class="hole-score-lbl">${dLbl(bd.diffs[i])}</span></div>`).join('')}</div>
-      <div class="moves">${[...bd.txns,...bd.nrTx.map(t=>({...t,isNr:true}))].map(t=>
-        `<div class="move"><span class="move-from">${names[t.from]}</span><span class="move-arrow">→</span>
-        <span class="move-to">${names[t.to]}</span><span class="move-amt num">${fmt(t.amount)}</span>
-        ${t.isNr?'<span class="move-tag">니어</span>':t.tag&&t.tag!=='타당'?`<span class="move-tag">${t.tag}</span>`:''}</div>`).join('')
-        ||'<span class="moves-none">오간 돈 없음</span>'}</div></div>`});
-  // 구간 결산
-  const deltas=bds.map(bd=>{const d=new Array(ap.length).fill(0);[...bd.txns,...bd.nrTx].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});return d});
-  const sumD=(arr,n)=>{const r=new Array(n).fill(0);arr.forEach(d=>d.forEach((v,i)=>{r[i]+=v}));return r};
-  const outT=sumD(deltas.slice(0,9),ap.length),inT=sumD(deltas.slice(9),ap.length);
-  const mkSum=(el,tots)=>{el.innerHTML=`<tbody>
-    ${names.map((p,i)=>`<tr><td>${p}</td><td class="num ${tots[i]>0?'up':tots[i]<0?'down':'flat'}" style="text-align:right">${tots[i]>0?'+':''}${fmt(tots[i])}원</td></tr>`).join('')}</tbody>`};
-  mkSum($('outTable'),outT);mkSum($('inTable'),inT);mkSum($('totalTable'),pTots);
-  renderGameTable(bds,names);
-  renderAsset(assetH,pTots,ap);
-  renderFlow(pTots,names);
-}
-
-/* ━━━ GAME BADGES / TABLE ━━━ */
-function gameBadges(bd,names){
-  const g=bd.gi||{};let h='';
-  if(g.skins)h+=`<span class="tag tag-green">스킨스 ${g.skins.winner>=0?`${names[g.skins.winner]} ${g.skins.info}`:g.skins.info}</span>`;
-  if(g.vegas){const[A,B]=g.vegas.teams,[a,b]=g.vegas.teamScores;
-    h+=`<span class="tag tag-green">라스베가스 ${names[A[0]]}·${names[A[1]]} ${a} vs ${names[B[0]]}·${names[B[1]]} ${b}</span>`}
-  if(g.hussein)h+=`<span class="tag tag-green">후세인 ${names[g.hussein.hussein]} ${g.hussein.husScore}:${g.hussein.othersScore}</span>`;
-  return h;
-}
-function renderGameTable(bds,names){
-  const sec=$('gameSection');if(!sec)return;
-  const labels={'타당':'타당','니어':'니어리스트','스킨':'스킨스','라스':'라스베가스','후세인':'후세인'};
-  const by={};
-  bds.forEach(bd=>[...bd.txns,...bd.nrTx].forEach(t=>{const k=t.tag||'타당';
-    if(!by[k])by[k]=new Array(names.length).fill(0);by[k][t.from]-=t.amount;by[k][t.to]+=t.amount}));
-  const keys=Object.keys(labels).filter(k=>by[k]);
-  if(keys.length<2){sec.style.display='none';return}
-  sec.style.display='block';
-  const cell=v=>`<td class="num ${v>0?'up':v<0?'down':'flat'}" style="text-align:right">${v>0?'+':''}${fmt(v)}</td>`;
-  $('gameTable').innerHTML=`<thead><tr><th>게임</th>${names.map(n=>`<th style="text-align:right">${n}</th>`).join('')}</tr></thead><tbody>
-    ${keys.map(k=>`<tr><td>${labels[k]}</td>${by[k].map(cell).join('')}</tr>`).join('')}</tbody>`;
-}
-
-/* ━━━ ASSET TABLE ━━━ */
-function renderAsset(hist,fTots,ap){
-  const sec=$('assetSection'),tbl=$('assetTable');
-  if(!tbl)return;
-  const hasW=hist.length>0&&hist[0].assets!==null;
-  const names=ap.map(pi=>S.players[pi]);
-  sec.style.display='block';
-  const showT=S.bp.tatadble;
-  const pc=names.map(n=>`<th>${n}</th>`).join('');
-  const wc=hasW?names.map(n=>`<th style="color:var(--gold)">${n} 잔액</th>`).join(''):'';
-  const tc=showT?'<th>타당</th>':'';
-  let html=`<thead><tr><th>홀</th>${tc}${pc}${wc}</tr></thead><tbody>`;
-  let outDone=false;
-  hist.forEach(h=>{
-    if(!outDone&&h.hole>9){outDone=true;
-      const oc=hist[8]?.cum||[];const t=showT?'<td>·</td>':'';
-      const dc=names.map((_,i)=>{const v=oc[i]||0;return`<td class="num ${v>0?'up':v<0?'down':'flat'}">${v>0?'+':''}${fmt(v)}</td>`}).join('');
-      const ac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+(oc[i]||0);return`<td class="num ${v>=wv?'up':'down'}">${fmt(v)}</td>`}).join(''):'';
-      html+=`<tr class="r-split"><td>OUT</td>${t}${dc}${ac}</tr>`}
-    const t=showT?`<td class="num" style="color:var(--streak);font-weight:700">${fmt(h.curUnit)}</td>`:'';
-    const dc=names.map((_,i)=>{const v=h.delta[i]||0;return`<td class="num ${v>0?'up':v<0?'down':'flat'}">${v!==0?`${v>0?'+':''}${fmt(v)}`:'·'}</td>`}).join('');
-    const ac=hasW?names.map((_,i)=>{const v=h.assets[i],wv=S.wallets[ap[i]]||0;return`<td class="num ${v>=wv?'up':'down'}">${fmt(v)}</td>`}).join(''):'';
-    html+=`<tr><td class="num">${h.hole}</td>${t}${dc}${ac}</tr>`});
-  if(hist.length>9){
-    const ic=hist[hist.length-1]?.cum||[],oc=hist[8]?.cum||[];const t=showT?'<td>·</td>':'';
-    const dc=names.map((_,i)=>{const v=(ic[i]||0)-(oc[i]||0);return`<td class="num ${v>0?'up':v<0?'down':'flat'}">${v>0?'+':''}${fmt(v)}</td>`}).join('');
-    const ac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+(ic[i]||0);return`<td class="num ${v>=wv?'up':'down'}">${fmt(v)}</td>`}).join(''):'';
-    html+=`<tr class="r-split"><td>IN</td>${t}${dc}${ac}</tr>`}
-  const t=showT?'<td>·</td>':'';
-  const fc=names.map((_,i)=>{const v=fTots[i];return`<td class="num ${v>0?'up':v<0?'down':'flat'}">${v>0?'+':''}${fmt(v)}</td>`}).join('');
-  const fac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+fTots[i];return`<td class="num ${v>=wv?'up':'down'}" style="font-weight:700">${fmt(v)}</td>`}).join(''):'';
-  html+=`<tr class="r-total"><td>합계</td>${t}${fc}${fac}</tr></tbody>`;
-  tbl.innerHTML=html;
-}
-
-/* ━━━ MONEY FLOW ━━━ */
-function renderFlow(fTots,names){
-  const n=names.length,W=460,H=300,cx=W/2,cy=H/2,R=95,nR=32;
-  const ang=names.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2);
-  const nodes=names.map((p,i)=>({x:cx+R*Math.cos(ang[i]),y:cy+R*Math.sin(ang[i]),name:p,total:fTots[i]}));
-  const maxT=Math.max(...fTots.map(Math.abs),1);
-  const losers=[...nodes].filter(nd=>nd.total<0).sort((a,b)=>a.total-b.total);
-  const winners=[...nodes].filter(nd=>nd.total>0).sort((a,b)=>b.total-a.total);
-  const lA=losers.map(l=>-l.total),wA=winners.map(w=>w.total),arrows=[];
-  let li=0,wi=0;
-  while(li<losers.length&&wi<winners.length){const amt=Math.min(lA[li],wA[wi]);if(amt>1)arrows.push({from:losers[li],to:winners[wi],amount:amt});lA[li]-=amt;wA[wi]-=amt;if(lA[li]<1)li++;if(wA[wi]<1)wi++}
-  const topT=Math.max(...fTots);
-  const MONO='JetBrains Mono, ui-monospace, monospace';
-  let defs='',paths='',nSvg='';
-  arrows.forEach((a,ai)=>{
-    const dx=a.to.x-a.from.x,dy=a.to.y-a.from.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist;
-    const x1=a.from.x+ux*nR,y1=a.from.y+uy*nR,x2=a.to.x-ux*(nR+6),y2=a.to.y-uy*(nR+6);
-    const mx=(x1+x2)/2-uy*30,my=(y1+y2)/2+ux*30;
-    const th=Math.max(1.5,Math.min(4.5,(a.amount/maxT)*4.5+1)),op=Math.max(.35,Math.min(.85,a.amount/maxT+.2));
-    defs+=`<marker id="ar${ai}" markerWidth="6" markerHeight="6" refX="4" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="rgba(229,87,75,${op})" /></marker>`;
-    paths+=`<path d="M${x1},${y1} Q${mx},${my} ${x2},${y2}" stroke="rgba(229,87,75,${op})" stroke-width="${th}" fill="none" marker-end="url(#ar${ai})" stroke-dasharray="4,3" />`;
-    paths+=`<text x="${mx}" y="${my-8}" text-anchor="middle" fill="#E8C05A" font-size="9.5" font-family="${MONO}" font-weight="700">${fmt(a.amount)}</text>`});
-  nodes.forEach(nd=>{
-    const isW=nd.total>0,isTop=nd.total===topT&&nd.total>0;
-    const fill=isTop?'rgba(232,192,90,.16)':isW?'rgba(74,222,128,.14)':'rgba(229,87,75,.12)';
-    const stroke=isTop?'#E8C05A':isW?'#4ADE80':'#E5574B';
-    const ac=isW?'#4ADE80':nd.total<0?'#E5574B':'#9EB2A4',sign=nd.total>0?'+':'';
-    nSvg+=`<circle cx="${nd.x}" cy="${nd.y}" r="${nR}" fill="${fill}" stroke="${stroke}" stroke-width="1.6" />
-      ${isTop?`<circle cx="${nd.x}" cy="${nd.y}" r="${nR+5}" fill="none" stroke="${stroke}" stroke-width="1" stroke-dasharray="3,3" opacity=".45" />`:''}
-      <text x="${nd.x}" y="${nd.y-5}" text-anchor="middle" fill="#F1F6F2" font-size="11" font-weight="700">${nd.name}</text>
-      <text x="${nd.x}" y="${nd.y+10}" text-anchor="middle" fill="${ac}" font-size="10" font-family="${MONO}" font-weight="700">${sign}${fmt(nd.total)}</text>`});
-  $('flowContainer').innerHTML=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="플레이어 간 정산 흐름"><defs>${defs}</defs>${paths}${nSvg}</svg>`;
-}
-
-/* ━━━ UTILS ━━━ */
-function dLbl(d){if(d<=-3)return'알바';if(d===-2)return'이글';if(d===-1)return'버디';if(d===0)return'파';if(d===1)return'보기';if(d===2)return'더블';if(d===3)return'트리플';return`+${d}`}
+function sT(el){document.querySelectorAll('.ti').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));el.classList.add('active');$(el.dataset.page).classList.add('active')}
+function gP(id){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ti').forEach(t=>{t.classList.toggle('active',t.dataset.page===id)});$(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'})}
+function goH(){gP('pgH')}function goV(){gP('pgV')}function showHelp(){$('hM').classList.add('vis')}
+let toastT;function toast(msg,type=''){clearTimeout(toastT);const t=$('toast');t.textContent=msg;t.className='toast '+type+' show';toastT=setTimeout(()=>t.classList.remove('show'),3500)}
+function tBp(el){if(el.classList.contains('disabled'))return;const k=el.dataset.key;el.classList.toggle('on');S.bp[k]=el.classList.contains('on');el.querySelector('.ck').textContent=S.bp[k]?'✓':'';if(k==='tatadble')$('tatD').style.display=S.bp.tatadble?'block':'none'}
+function tPc(el){const onC=document.querySelectorAll('#pChips .ch.on').length;if(el.classList.contains('on')&&onC<=2){toast('최소 2명은 선택해야 합니다.','error');return}el.classList.toggle('on');el.classList.toggle('off');uA()}
+function uA(){S.active=[];document.querySelectorAll('#pChips .ch').forEach(c=>{if(c.classList.contains('on'))S.active.push(parseInt(c.dataset.pi))});const is3=S.active.length===3;const tw=$('bp-2t');if(is3)tw.classList.remove('disabled');else{tw.classList.add('disabled');tw.classList.remove('on');S.bp.twotie=false;tw.querySelector('.ck').textContent=''}bW()}
+const zone=$('uz'),fi=$('fileInput');zone.addEventListener('click',()=>fi.click());zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover')});zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));zone.addEventListener('drop',e=>{e.preventDefault();zone.classList.remove('dragover');hF(e.dataTransfer.files)});fi.addEventListener('change',e=>hF(e.target.files));
+function pI(file,cb){const r=new FileReader();r.onload=e=>{const src=e.target.result;const img=new Image();img.onload=()=>{const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=img.width;c.height=img.height;ctx.drawImage(img,0,0);const d=ctx.getImageData(0,0,img.width,img.height),px=d.data;const cf=1.5,ic=128*(1-cf);for(let i=0;i<px.length;i+=4){const g=.299*px[i]+.587*px[i+1]+.114*px[i+2];const a=Math.min(255,Math.max(0,g*cf+ic));px[i]=px[i+1]=px[i+2]=a}ctx.putImageData(d,0,0);cb(c.toDataURL('image/jpeg',.92).split(',')[1],src.split(',')[1])};img.src=src};r.readAsDataURL(file)}
+function hF(fl){const files=Array.from(fl).filter(f=>f.type.startsWith('image/')).slice(0,2);if(!files.length){toast('이미지 파일만 가능합니다.','error');return}S.img2=null;S.b64_2=null;S.orig2=null;$('pv2b').style.display='none';const row=$('pvr');S.img1=files[0];S.mime1=files[0].type||'image/jpeg';$('pv1').src=URL.createObjectURL(files[0]);$('ri1').src=URL.createObjectURL(files[0]);$('rs1').style.display='block';row.style.display='grid';row.classList.toggle('single',files.length===1);pI(files[0],(p,o)=>{S.b64_1=p;S.orig1=o;cR();toast('카드 1 준비 완료')});zone.classList.add('has-file');$('uzt').textContent=files[0].name;$('uzs').textContent='';if(files[1]){S.img2=files[1];S.mime2=files[1].type||'image/jpeg';$('pv2').src=URL.createObjectURL(files[1]);$('pv2b').style.display='block';row.classList.remove('single');$('ri2').src=URL.createObjectURL(files[1]);$('rs2').style.display='block';pI(files[1],(p,o)=>{S.b64_2=p;S.orig2=o;cR();toast('카드 2 준비 완료')});$('uzt').textContent=files[0].name+' + '+files[1].name}}
+function cR(){$('aBtn').disabled=!S.b64_1;lucide.createIcons()}
+function bW(){const ap=S.active.length>0?S.active:S.players.map((_,i)=>i);const names=ap.map(i=>S.players[i]||'플레이어'+(i+1));$('wG').innerHTML=names.map((n,j)=>'<div class="wi"><label><i data-lucide="coins" style="width:11px;height:11px"></i> '+n+'</label><input type="number" value="'+(S.wallets[ap[j]]??0)+'" min="0" step="1000" onchange="S.wallets['+ap[j]+']=parseInt(this.value)||0" /></div>').join('');lucide.createIcons()}
+async function runA(){if(!S.b64_1){toast('이미지를 먼저 업로드하세요.','error');return}S.unit=parseInt($('unitAmt').value)||1000;$('ld').classList.add('visible');$('aBtn').disabled=true;try{const multi=!!S.b64_2;$('ldT').textContent='AI가 스코어를 읽고 있습니다...';$('ldS').textContent=multi?'2장 동시 전송 (~36원)':'1장 분석 (~33원)';const payload={imageBase64:S.orig1||S.b64_1,mimeType:S.mime1,cardMode:'auto',...(multi&&{imageBase64_2:S.orig2||S.b64_2,mimeType2:S.mime2})};const r=await fetch(API_BASE+'/api/analyze',{method:'POST',headers:{'Content-Type':'application/json','x-app-key':APP_KEY},body:JSON.stringify(payload)});const j=await r.json();if(!j.success)throw new Error(j.error||'분석 실패');S.data=j.data;S.warns=j.warnings||[];S.cardTotals=j.data.cardTotals||j.data.totals;popV(j.data);toast('분석 완료! '+(j.debug?.estimatedCost||''));gP('pgV')}catch(err){toast('오류: '+err.message,'error');sFB();gP('pgV')}finally{$('ld').classList.remove('visible');$('aBtn').disabled=false;$('ldS').textContent='';lucide.createIcons()}}
+function sFB(){const players=Array.from({length:4},(_,i)=>'플레이어'+(i+1));const holes=Array.from({length:18},(_,i)=>({hole:i+1,par:4,scores:[4,4,4,4],diffs:[0,0,0,0]}));S.warns=['AI 인식 실패 — 수동 입력'];popV({players,holes,totals:{},cardTotals:null})}
+function popV(data){S.players=data.players||['P1','P2','P3','P4'];S.holes=data.holes||[];S.nearests={};$('rfS').style.display='block';S.players.forEach((n,i)=>{const cn=$('cn'+i);if(cn)cn.textContent=n;const c=document.querySelector('#pChips .ch[data-pi="'+i+'"]');if(c)c.style.display=''});for(let i=S.players.length;i<4;i++){const c=document.querySelector('#pChips .ch[data-pi="'+i+'"]');if(c)c.style.display='none'}uA();const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];const tH=$('tH'),tB=$('tB');tH.innerHTML='<tr><th>H</th><th>P</th>'+ap.map(pi=>'<th><input class="ni" data-pi="'+pi+'" value="'+S.players[pi]+'" /></th>').join('')+'</tr>';tH.querySelectorAll('.ni').forEach(inp=>{inp.addEventListener('change',()=>{const pi=parseInt(inp.dataset.pi);S.players[pi]=inp.value.trim()||S.players[pi];const cn=$('cn'+pi);if(cn)cn.textContent=S.players[pi];rSB();bW()})});tB.innerHTML='';S.holes.forEach((h,idx)=>{if(h.hole===10){const sums=ap.map(pi=>S.holes.slice(0,9).reduce((a,hh)=>a+(hh.scores[pi]||0),0));const tr=document.createElement('tr');tr.className='sr2';tr.innerHTML='<td>OUT</td><td>-</td>'+sums.map(s=>'<td>'+s+'</td>').join('');tB.appendChild(tr)}const is3=h.par===3,tr=document.createElement('tr');if(is3)tr.classList.add('p3r');tr.innerHTML='<td class="hc">'+h.hole+'</td><td class="pc">'+h.par+'</td>'+ap.map(pi=>{const s=h.scores[pi]||h.par,d=s-h.par,cls=dC(d),ds=d>0?'+'+d:String(d);return'<td><div style="display:flex;flex-direction:column;align-items:center;gap:1px"><input type="number" class="si '+cls+'" data-h="'+idx+'" data-p="'+pi+'" value="'+s+'" min="1" max="15" /><span class="'+cls+'" style="font-size:.52rem;font-family:JetBrains Mono,monospace;opacity:.75">('+ds+')</span></div></td>'}).join('');tB.appendChild(tr);if(is3){const ntr=document.createElement('tr');ntr.style.background='var(--bl-d)';ntr.innerHTML='<td colspan="2" style="font-size:.55rem;color:var(--bl);text-align:right;padding:2px 4px">NR</td>'+ap.map(pi=>'<td style="padding:2px;text-align:center"><span class="nb" id="nc_'+idx+'_'+pi+'" onclick="sNr('+idx+','+pi+')"></span></td>').join('');tB.appendChild(ntr)}});if(S.holes.length>9){const sums=ap.map(pi=>S.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0));const tr=document.createElement('tr');tr.className='sr2';tr.innerHTML='<td>IN</td><td>-</td>'+sums.map(s=>'<td>'+s+'</td>').join('');tB.appendChild(tr)}const tots=ap.map(pi=>S.holes.reduce((a,h)=>a+(h.scores[pi]||0),0));const trT=document.createElement('tr');trT.className='tr2';trT.innerHTML='<td>TOT</td><td>-</td>'+tots.map(s=>'<td>'+s+'</td>').join('');tB.appendChild(trT);tB.querySelectorAll('.si').forEach(inp=>{inp.addEventListener('change',()=>{const hi=parseInt(inp.dataset.h),pi=parseInt(inp.dataset.p),v=parseInt(inp.value)||0;S.holes[hi].scores[pi]=v;S.holes[hi].diffs[pi]=v-S.holes[hi].par;rC();uS();rSB()})});rC();rSB();rNr();bW();lucide.createIcons()}
+function sNr(hi,pi){S.nearests[hi]=S.nearests[hi]===pi?-1:pi;rNr()}
+function rNr(){const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];S.holes.forEach((h,idx)=>{if(h.par!==3)return;ap.forEach(pi=>{const el=$('nc_'+idx+'_'+pi);if(!el)return;const sel=(S.nearests[idx]??-1)===pi;el.classList.toggle('sel',sel);el.textContent=sel?'✓':''})})}
+function rSB(){const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];const ct=S.cardTotals;const bar=$('smB'),al=$('mmA');const pd=ap.map(pi=>{const out=S.holes.filter(h=>h.hole<=9).reduce((a,h)=>a+(h.scores[pi]||0),0);const inn=S.holes.filter(h=>h.hole>9).reduce((a,h)=>a+(h.scores[pi]||0),0);const tot=out+inn,cv=ct?.total?.[pi],ok=cv===undefined||tot===cv;return{name:S.players[pi],out,inn,tot,cv,ok}});bar.innerHTML=pd.map(p=>'<div class="sp"><div class="sn">'+p.name+'</div><div class="st'+(p.ok?'':' sw')+'">'+p.tot+'</div><div class="sd">'+p.out+'/'+p.inn+'</div>'+(p.cv!==undefined?'<div class="sd" style="color:'+(p.ok?'var(--fg-d)':'var(--rd)')+'">카드:'+p.cv+'</div>':'')+'</div>').join('');const mm=pd.filter(p=>!p.ok).map(p=>p.name+': '+p.tot+' ≠ '+p.cv);if(mm.length)al.innerHTML='<div class="al al-w"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><div>합계 불일치<br>'+mm.join('<br>')+'</div></div>';else if(ct?.total)al.innerHTML='<div class="al al-ok"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><div>카드 합계 일치</div></div>';else al.innerHTML=''}
+function dC(d){if(d<=-2)return'sc-e';if(d===-1)return'sc-b';if(d===0)return'sc-p';if(d===1)return'sc-bo';if(d===2)return'sc-d';return'sc-t'}
+function rC(){$('tB').querySelectorAll('.si').forEach(inp=>{const h=S.holes[parseInt(inp.dataset.h)];if(!h)return;const d=(parseInt(inp.value)||0)-h.par,c=dC(d);inp.className='si '+c;const sp=inp.parentElement?.querySelector('span');if(sp){sp.textContent='('+(d>0?'+'+d:d)+')';sp.className=c}})}
+function uS(){const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];$('tB').querySelectorAll('.sr2,.tr2').forEach(row=>{const l=row.cells[0].textContent;let sums;if(l==='OUT')sums=ap.map(pi=>S.holes.slice(0,9).reduce((a,h)=>a+(h.scores[pi]||0),0));else if(l==='IN')sums=ap.map(pi=>S.holes.slice(9).reduce((a,h)=>a+(h.scores[pi]||0),0));else sums=ap.map(pi=>S.holes.reduce((a,h)=>a+(h.scores[pi]||0),0));sums.forEach((v,i)=>{row.cells[i+2].textContent=v})})}
+function calc(){S.unit=parseInt($('unitAmt').value)||1000;const ap=S.active.length>0?S.active:[...Array(S.players.length).keys()];const n=ap.length,base=S.unit;const mkM=()=>Array.from({length:n},()=>new Array(n).fill(0));const bds=[],pT=new Array(n).fill(0);let cU=base,pTie=false;S.holes.forEach((h,idx)=>{const sc=ap.map(pi=>h.scores[pi]||h.par),df=sc.map(s=>s-h.par);const nrR=S.nearests[idx]??-1,nr=ap.indexOf(nrR);if(S.bp.tatadble&&pTie)cU=Math.min(cU*2,base*8);else if(!pTie)cU=base;const allTie=S.bp.tatadble&&sc.every(s=>s===sc[0]);pTie=allTie;const unit=cU;const hasBir=S.bp.birdie&&df.some(d=>d===-1),hasEag=S.bp.birdie&&df.some(d=>d<=-2);const hasTri=S.bp.triple&&h.par>=4&&df.some(d=>d>=3);const hasP3D=S.bp.par3double&&h.par===3&&df.some(d=>d>=2);const scc={};sc.forEach(s=>{scc[s]=(scc[s]||0)+1});const has3T=S.bp.tripletie&&n>=3&&Object.values(scc).some(c=>c>=3);const has2T=S.bp.twotie&&n===3&&Object.values(scc).some(c=>c>=2);const isDbl=hasBir||hasEag||hasTri||hasP3D||has3T||has2T;const mx=mkM(),txns=[];for(let a=0;a<n;a++)for(let b=a+1;b<n;b++){let gap=df[a]-df[b];if(gap===0)continue;if(df[a]<=-2&&df[b]>-2)gap-=2;if(df[b]<=-2&&df[a]>-2)gap+=2;if(df[a]===-1&&df[b]>=0)gap-=1;if(df[b]===-1&&df[a]>=0)gap+=1;const mult=isDbl?2:1,amt=gap*mult*unit;if(amt>0){mx[a][b]+=amt;txns.push({from:a,to:b,amount:amt})}else if(amt<0){mx[b][a]-=amt;txns.push({from:b,to:a,amount:-amt})}}const nrTx=[];if(h.par===3&&nr>=0&&nr<n){const na=unit*(isDbl?2:1);for(let p=0;p<n;p++){if(p===nr)continue;mx[p][nr]+=na;nrTx.push({from:p,to:nr,amount:na})}}for(let a=0;a<n;a++)for(let b=0;b<n;b++){if(a===b)continue;pT[a]-=mx[a][b];pT[a]+=mx[b][a]}const reasons=[hasBir?'버디':'',hasEag?'이글':'',hasTri?'트리플보기':'',hasP3D?'더블(Par3)':'',has3T?'3인동타':'',has2T?'2인동타':''].filter(Boolean).join(', ');bds.push({hole:h.hole,par:h.par,scores:sc,diffs:df,isDbl,nearest:nr>=0?ap[nr]:-1,txns,nrTx,reasons,curUnit:unit,allTie})});const hasW=ap.some(pi=>(S.wallets[pi]||0)>0);let cum=new Array(n).fill(0);const aH=bds.map(bd=>{const d=new Array(n).fill(0);[...bd.txns,...bd.nrTx].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});cum=cum.map((v,i)=>v+d[i]);return{hole:bd.hole,par:bd.par,delta:[...d],cum:[...cum],assets:hasW?ap.map((pi,j)=>(S.wallets[pi]||0)+cum[j]):null,curUnit:bd.curUnit}});rR(bds,pT,ap,aH);gP('pgR')}
+function rR(bds,pT,ap,aH){const names=ap.map(pi=>S.players[pi]);const ranked=names.map((p,i)=>({name:p,total:pT[i]})).sort((a,b)=>b.total-a.total);$('rkC').innerHTML=ranked.map((r,ri)=>'<div class="rk'+(ri===0?' r1':'')+'"><div class="rkn">'+(ri+1)+'</div><div class="rkm">'+r.name+'</div><div class="rka'+(r.total>0?' pos':r.total<0?' neg':'')+'">'+(r.total>0?'+':'')+fmt(r.total)+'</div><div class="rku">원</div></div>').join('');const hr=$('hR');hr.innerHTML='';bds.forEach(bd=>{const tatTag=S.bp.tatadble&&bd.curUnit>S.unit?'<span class="tb">'+fmt(bd.curUnit)+'원/타</span>':'';const tieTag=bd.allTie&&S.bp.tatadble?'<span style="background:var(--ac-d);border:1px solid rgba(52,211,153,0.15);border-radius:4px;padding:2px 5px;font-size:.55rem;color:var(--ac);font-weight:700">전원동타</span>':'';hr.innerHTML+='<div class="hcd"><div class="hhd"><span class="hb">H'+bd.hole+'</span><span class="pb2">P'+bd.par+'</span>'+tatTag+(bd.isDbl?'<span class="db">x2 '+bd.reasons+'</span>':'')+tieTag+(bd.nearest>=0?'<span class="nrb">NR '+S.players[bd.nearest]+'</span>':'')+'</div><div class="hsc">'+names.map((p,i)=>'<div class="pcc"><span class="cn">'+p+'</span><span class="'+dC(bd.diffs[i])+'">'+bd.scores[i]+'</span><span style="font-size:.55rem;color:var(--fg-d);margin-left:2px">('+dL(bd.diffs[i])+')</span></div>').join('')+'</div><div class="htx">'+[...bd.txns,...bd.nrTx.map(t=>({...t,isNr:true}))].map(t=>'<div class="txn"><span class="from">'+names[t.from]+'</span><span style="color:var(--fg-d)">→</span><span class="to">'+names[t.to]+'</span><span class="amt">'+fmt(t.amount)+'</span>'+(t.isNr?'<span style="font-size:.55rem;color:var(--bl)">(NR)</span>':'')+'</div>').join('')||'<span style="color:var(--fg-d);font-size:.65rem">동타 — 정산 없음</span>'+'</div></div>'});const deltas=bds.map(bd=>{const d=new Array(ap.length).fill(0);[...bd.txns,...bd.nrTx].forEach(t=>{d[t.from]-=t.amount;d[t.to]+=t.amount});return d});const sumD=(arr,n)=>{const r=new Array(n).fill(0);arr.forEach(d=>d.forEach((v,i)=>{r[i]+=v}));return r};const outT=sumD(deltas.slice(0,9),ap.length),inT=sumD(deltas.slice(9),ap.length);const mkS=(el,tots)=>{el.innerHTML='<thead><tr><th>플레이어</th><th>손익</th></tr></thead><tbody>'+names.map((p,i)=>'<tr><td>'+p+'</td><td class="'+(tots[i]>0?'pos':tots[i]<0?'neg':'zero')+'">'+(tots[i]>0?'+':'')+fmt(tots[i])+'원</td></tr>').join('')+'</tbody>'};mkS($('oT'),outT);mkS($('iT'),inT);mkS($('fT'),pT);rAs(aH,pT,ap);rFl(pT,names);lucide.createIcons()}
+function rAs(hist,fT,ap){const sec=$('aS'),tbl=$('aTbl');if(!tbl)return;const hasW=hist.length>0&&hist[0].assets!==null;const names=ap.map(pi=>S.players[pi]);sec.style.display='block';const showT=S.bp.tatadble;const pc=names.map(n=>'<th>'+n+'</th>').join('');const wc=hasW?names.map(n=>'<th style="color:var(--gd)">'+n+'</th>').join(''):'';const tc=showT?'<th style="color:var(--pp);font-size:.5rem">타당</th>':'';let html='<thead><tr><th>H</th>'+tc+pc+wc+'</tr></thead><tbody>';let outDone=false;hist.forEach(h=>{if(!outDone&&h.hole>9){outDone=true;const oc=hist[8]?.cum||[];const t=showT?'<td>-</td>':'';const dc=names.map((_,i)=>{const v=oc[i]||0;return'<td class="'+(v>0?'au':v<0?'ad':'ae')+'">'+(v>0?'+':'')+fmt(v)+'</td>'}).join('');const ac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+(oc[i]||0);return'<td class="'+(v>=wv?'au':'ad')+'">'+fmt(v)+'</td>'}).join(''):'';html+='<tr class="sr2"><td>OUT</td>'+t+dc+ac+'</tr>'}const t=showT?'<td style="color:var(--pp);font-weight:700">'+fmt(h.curUnit)+'</td>':'';const dc=names.map((_,i)=>{const v=h.delta[i]||0;return'<td class="'+(v>0?'au':v<0?'ad':'ae')+'">'+(v!==0?(v>0?'+':'')+fmt(v):'-')+'</td>'}).join('');const ac=hasW?names.map((_,i)=>{const v=h.assets[i],wv=S.wallets[ap[i]]||0;return'<td class="'+(v>=wv?'au':'ad')+'">'+fmt(v)+'</td>'}).join(''):'';html+='<tr><td class="hc">'+h.hole+'</td>'+t+dc+ac+'</tr>'});if(hist.length>9){const ic=hist[hist.length-1]?.cum||[],oc=hist[8]?.cum||[];const t=showT?'<td>-</td>':'';const dc=names.map((_,i)=>{const v=(ic[i]||0)-(oc[i]||0);return'<td class="'+(v>0?'au':v<0?'ad':'ae')+'">'+(v>0?'+':'')+fmt(v)+'</td>'}).join('');const ac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+(ic[i]||0);return'<td class="'+(v>=wv?'au':'ad')+'">'+fmt(v)+'</td>'}).join(''):'';html+='<tr class="sr2"><td>IN</td>'+t+dc+ac+'</tr>'}const t=showT?'<td>-</td>':'';const fc=names.map((_,i)=>{const v=fT[i];return'<td class="'+(v>0?'au':v<0?'ad':'ae')+'">'+(v>0?'+':'')+fmt(v)+'</td>'}).join('');const fac=hasW?names.map((_,i)=>{const wv=S.wallets[ap[i]]||0,v=wv+fT[i];return'<td class="'+(v>=wv?'au':'ad')+'" style="font-weight:700">'+fmt(v)+'</td>'}).join(''):'';html+='<tr class="tr2"><td>합</td>'+t+fc+fac+'</tr></tbody>';tbl.innerHTML=html}
+function rFl(fT,names){const n=names.length,W=420,H=280,cx=W/2,cy=H/2,R=85,nR=30;const ang=names.map((_,i)=>(2*Math.PI*i/n)-Math.PI/2);const nodes=names.map((p,i)=>({x:cx+R*Math.cos(ang[i]),y:cy+R*Math.sin(ang[i]),name:p,total:fT[i]}));const maxT=Math.max(...fT.map(Math.abs),1);const losers=[...nodes].filter(nd=>nd.total<0).sort((a,b)=>a.total-b.total);const winners=[...nodes].filter(nd=>nd.total>0).sort((a,b)=>b.total-a.total);const lA=losers.map(l=>-l.total),wA=winners.map(w=>w.total),arrows=[];let li=0,wi=0;while(li<losers.length&&wi<winners.length){const amt=Math.min(lA[li],wA[wi]);if(amt>1)arrows.push({from:losers[li],to:winners[wi],amount:amt});lA[li]-=amt;wA[wi]-=amt;if(lA[li]<1)li++;if(wA[wi]<1)wi++}const topT=Math.max(...fT);let defs='',paths='',nSvg='';arrows.forEach((a,ai)=>{const dx=a.to.x-a.from.x,dy=a.to.y-a.from.y,dist=Math.sqrt(dx*dx+dy*dy),ux=dx/dist,uy=dy/dist;const x1=a.from.x+ux*nR,y1=a.from.y+uy*nR,x2=a.to.x-ux*(nR+5),y2=a.to.y-uy*(nR+5);const mx=(x1+x2)/2-uy*28,my=(y1+y2)/2+ux*28;const th=Math.max(1.5,Math.min(4,(a.amount/maxT)*4+1)),op=Math.max(.3,Math.min(.8,a.amount/maxT+.2));defs+='<marker id="ar'+ai+'" markerWidth="5" markerHeight="5" refX="4" refY="2.5" orient="auto"><path d="M0,0 L0,5 L5,2.5 z" fill="rgba(239,68,68,'+op+')" /></marker>';paths+='<path d="M'+x1+','+y1+' Q'+mx+','+my+' '+x2+','+y2+'" stroke="rgba(239,68,68,'+op+')" stroke-width="'+th+'" fill="none" marker-end="url(#ar'+ai+')" stroke-dasharray="4,3" />';paths+='<text x="'+mx+'" y="'+(my-7)+'" text-anchor="middle" fill="var(--gd)" font-size="8.5" font-family="JetBrains Mono,monospace" font-weight="700">'+fmt(a.amount)+'</text>'});nodes.forEach(nd=>{const isW=nd.total>0,isTop=nd.total===topT&&nd.total>0;const fill=isTop?'rgba(234,179,8,.15)':isW?'rgba(52,211,153,.15)':'rgba(239,68,68,.1)';const stroke=isTop?'#eab308':isW?'#34d399':'#ef4444';const ac=isW?'#34d399':nd.total<0?'#ef4444':'var(--fg-m)',sign=nd.total>0?'+':'';nSvg+='<circle cx="'+nd.x+'" cy="'+nd.y+'" r="'+nR+'" fill="'+fill+'" stroke="'+stroke+'" stroke-width="1.5" />'+(isTop?'<circle cx="'+nd.x+'" cy="'+nd.y+'" r="'+(nR+3)+'" fill="none" stroke="'+stroke+'" stroke-width="1" stroke-dasharray="3,3" opacity=".35" />':'')+'<text x="'+nd.x+'" y="'+(nd.y-5)+'" text-anchor="middle" fill="#ededef" font-size="10" font-weight="700" font-family="Inter,sans-serif">'+nd.name+'</text><text x="'+nd.x+'" y="'+(nd.y+7)+'" text-anchor="middle" fill="'+ac+'" font-size="8.5" font-family="JetBrains Mono,monospace" font-weight="700">'+sign+fmt(nd.total)+'</text><text x="'+nd.x+'" y="'+(nd.y+17)+'" text-anchor="middle" fill="var(--fg-d)" font-size="7" font-family="JetBrains Mono,monospace">원</text>'});$('fC').innerHTML='<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg"><defs>'+defs+'</defs>'+paths+nSvg+'</svg>'}
+function dL(d){if(d<=-3)return'알바';if(d===-2)return'이글';if(d===-1)return'버디';if(d===0)return'Par';if(d===1)return'보기';if(d===2)return'더블';if(d===3)return'트리플';return'+'+d}
 function fmt(n){return Math.round(n).toLocaleString('ko-KR')}
-
-/* ━━━ RESET ━━━ */
-function resetAll(){
-  S={img1:null,img2:null,b64_1:null,b64_2:null,orig1:null,orig2:null,
-    mime1:'image/jpeg',mime2:'image/jpeg',data:null,players:[],active:[],holes:[],nearests:{},
-    unit:1000,bp:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},
-    warns:[],cardTotals:null,wallets:[],
-    games:{stroke:true,skins:false,vegas:false,hussein:false}};
-  fi.value='';$('previewRow').style.display='none';$('prev2Box').style.display='none';
-  zone.classList.remove('loaded');$('uploadTitle').textContent='스코어카드를 찍으세요';
-  $('uploadSub').textContent='스마트스코어는 1장, 골프존은 2장. 어느 쪽인지는 알아서 판별합니다.';
-  $('uploadName').textContent='';
-  $('refSlot1').style.display='none';$('refSlot2').style.display='none';
-  $('walletGrid').innerHTML='';$('assetSection').style.display='none';
-  document.querySelectorAll('#playerChips .chip').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''});
-  document.querySelectorAll('#baepanGroup .chip').forEach(el=>{
-    const k=el.dataset.key,on=['birdie','triple','par3double','tripletie'].includes(k);
-    el.classList.toggle('on',on);el.querySelector('.chip-box').textContent=on?'✓':'';S.bp[k]=on});
-  $('bp-twotie').classList.add('disabled');$('tatDesc').style.display='none';
-  $('analyzeBtn').disabled=true;
-  goPage('pageHome');updateActive();renderGameChips();toast('처음 상태로 돌렸습니다.');
-}
-
-/* INIT */
-updateActive();
+function resetAll(){S={img1:null,img2:null,b64_1:null,b64_2:null,orig1:null,orig2:null,mime1:'image/jpeg',mime2:'image/jpeg',data:null,players:[],active:[],holes:[],nearests:{},unit:1000,bp:{birdie:true,triple:true,par3double:true,tripletie:true,twotie:false,tatadble:false},warns:[],cardTotals:null,wallets:[]};fi.value='';$('pvr').style.display='none';$('pv2b').style.display='none';zone.classList.remove('has-file');$('uzt').textContent='스코어카드 사진 업로드';$('uzs').textContent='한 장 또는 두 장 · AI 자동 판별';$('uzn').textContent='';$('rs1').style.display='none';$('rs2').style.display='none';$('wG').innerHTML='';$('aS').style.display='none';document.querySelectorAll('#pChips .ch').forEach(c=>{c.classList.add('on');c.classList.remove('off');c.style.display=''});document.querySelectorAll('#bpG .ch').forEach(el=>{const k=el.dataset.key,on=['birdie','triple','par3double','tripletie'].includes(k);el.classList.toggle('on',on);el.querySelector('.ck').textContent=on?'✓':'';S.bp[k]=on});$('bp-2t').classList.add('disabled');$('tatD').style.display='none';$('aBtn').disabled=true;goH();uA();toast('초기화 완료');lucide.createIcons()}
+uA();document.addEventListener('DOMContentLoaded',()=>lucide.createIcons());lucide.createIcons();
 </script>
 </body>
 </html>
