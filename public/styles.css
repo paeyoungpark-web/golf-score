@@ -666,3 +666,137 @@ a { color: inherit; text-decoration: none; }
     transition-duration: .001ms !important;
   }
 }
+
+/* ==========================================================================
+   정산 화면 v5.2 — 송금 · 요약표 · 홀별 한 줄 보기
+   ========================================================================== */
+
+/* 송금 */
+.payouts { display: flex; flex-direction: column; gap: 7px; }
+.payout {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-radius: var(--r-sm);
+  background: var(--turf-card); border: 1px solid var(--line);
+}
+.payout-from { color: var(--loss); font-weight: 700; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.payout-to   { color: var(--turf-green); font-weight: 700; font-size: .92rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.payout-arrow { color: var(--ink-3); }
+.payout-amt { margin-left: auto; }
+.payout-amt { color: var(--gold); font-weight: 800; font-size: 1.05rem; letter-spacing: -.02em; }
+.payout-amt small { font-size: .72rem; font-weight: 600; color: var(--gold-deep); margin-left: 2px; }
+.copy-btn { width: 100%; margin-top: 10px; }
+
+/* 요약표 (게임별 · 구간) */
+.panel-tight { padding: 4px 6px; }
+.xtab { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: .8rem; }
+.xtab th, .xtab td { padding: 10px 6px; text-align: right; border-bottom: 1px solid var(--line);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.xtab thead th { font-size: .68rem; font-weight: 700; color: var(--ink-3); padding-top: 8px; padding-bottom: 8px; }
+.xtab tbody th { text-align: left; font-weight: 650; color: var(--ink-2); font-size: .78rem; }
+.xtab tr:last-child th, .xtab tr:last-child td { border-bottom: 0; }
+.xtab td { font-variant-numeric: tabular-nums; font-weight: 700; }
+.xtab th:first-child { width: 20%; text-align: left; }
+.xtab-mini { font-size: .72rem; margin-top: 2px; }
+.xtab-mini th, .xtab-mini td { padding: 6px 4px; }
+.xtab-mini em { font-style: normal; }
+
+/* 홀별 한 줄 보기 */
+.hl { border-radius: var(--r); overflow: hidden; border: 1px solid var(--line); background: var(--turf-card); }
+.hl-head, .hl-row > summary, .hl-sub { display: grid; align-items: center; gap: 4px; padding: 0 10px; }
+.hl-head { padding-top: 9px; padding-bottom: 9px; background: var(--turf-lift);
+  font-size: .66rem; font-weight: 700; color: var(--ink-3); position: sticky; top: 0; z-index: 2; }
+.hl-head span { text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hl-head span:first-child { text-align: left; }
+.hl-row { border-top: 1px solid var(--line); }
+.hl-row > summary { list-style: none; cursor: pointer; min-height: 52px; padding-top: 6px; padding-bottom: 6px;
+  -webkit-tap-highlight-color: transparent; }
+.hl-row > summary::-webkit-details-marker { display: none; }
+.hl-row[open] > summary { background: var(--turf-lift); }
+.hl-row.is-dbl > summary { box-shadow: inset 3px 0 0 var(--gold); }
+.hl-no { display: flex; flex-direction: column; align-items: flex-start; line-height: 1.1; }
+.hl-no b { font-size: .9rem; font-weight: 800; color: var(--ink); }
+.hl-no small { font-size: .58rem; color: var(--ink-3); }
+.mk { font-style: normal; font-size: .54rem; font-weight: 800; border-radius: 4px; padding: 0 3px; margin-top: 2px; }
+.mk-dbl { color: var(--gold); background: var(--gold-wash); }
+.mk-streak { color: var(--streak); background: var(--streak-wash); }
+.hl-cell { display: flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; }
+.hl-cell b { font-size: .95rem; font-weight: 800; }
+.hl-cell em, .hl-sub em { font-style: normal; font-size: .66rem; font-weight: 700;
+  font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hl-cell em.flat, .hl-sub em.flat { color: var(--ink-4); }
+.hl-more { padding: 10px 12px 14px; background: var(--turf-lift); border-top: 1px dashed var(--line); }
+.hl-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.hl-sub { border-top: 1px solid var(--line-firm); background: var(--gold-wash); padding-top: 10px; padding-bottom: 10px;
+  font-size: .72rem; font-weight: 800; color: var(--gold); }
+.hl-sub span { text-align: center; }
+.hl-sub span:first-child { text-align: left; }
+.hl-sub em { font-size: .72rem; }
+
+/* 점수 고치기 표 — 4명도 한 화면에 */
+.card-tbl { table-layout: fixed; min-width: 330px; }
+.card-tbl th:nth-child(1), .card-tbl td:nth-child(1) { width: 34px; }
+.card-tbl th:nth-child(2), .card-tbl td:nth-child(2) { width: 30px; }
+.card-tbl td { padding: 4px 2px; }
+.score-in { width: 100%; max-width: 50px; }
+.who { width: 100%; max-width: 70px; }
+
+/* ── 첫 실행 온보딩 ──────────────────────────────────────────────────────── */
+/* UX 규칙: 건너뛰기와 이전을 항상 제공한다. 강제 선형 투어를 만들지 않는다.
+   모든 조작 요소는 44px 이상. */
+.onboard{
+  display:none; position:fixed; inset:0; z-index:400;
+  background:var(--turf);
+  background-image:
+    radial-gradient(120% 56% at 50% 0%, rgba(232,192,90,.08), transparent 62%),
+    repeating-linear-gradient(94deg, rgba(255,255,255,.012) 0 2px, transparent 2px 7px);
+}
+.onboard.open{display:flex}
+.onboard-inner{
+  flex:1; display:flex; flex-direction:column;
+  max-width:520px; width:100%; margin:0 auto;
+  padding:calc(var(--safe-t) + 10px) var(--gut) calc(var(--safe-b) + 20px);
+}
+
+.onboard-skip{
+  align-self:flex-end; min-height:44px; padding:0 14px;
+  display:inline-flex; align-items:center;
+  font-size:.84rem; font-weight:600; color:var(--ink-3);
+  border-radius:10px; transition:color .18s;
+  -webkit-tap-highlight-color:transparent;
+}
+.onboard-skip:hover{color:var(--ink)}
+
+.onboard-stage{flex:1; display:grid; place-items:center; position:relative; min-height:0}
+.onboard-step{
+  display:none; flex-direction:column; align-items:center; text-align:center;
+  gap:20px; padding:12px 4px;
+}
+.onboard-step.on{display:flex; animation:obIn .24s var(--ease)}
+@keyframes obIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.onboard-mark{
+  width:104px; height:104px; border-radius:50%;
+  display:grid; place-items:center; flex-shrink:0;
+  color:var(--gold); background:var(--gold-wash);
+  border:1px solid var(--gold-edge);
+}
+.onboard-mark .icon{width:44px;height:44px;stroke-width:1.5}
+
+.onboard-order{
+  font-family:"JetBrains Mono",ui-monospace,monospace;
+  font-size:.72rem; font-weight:700; color:var(--gold-deep);
+}
+.onboard-step h2{font-size:1.5rem; font-weight:780; letter-spacing:-.04em; line-height:1.25}
+.onboard-step p{font-size:.92rem; color:var(--ink-2); line-height:1.7; max-width:30ch}
+.onboard-step .caution{color:var(--loss)}
+
+.onboard-foot{display:flex; flex-direction:column; gap:16px}
+.onboard-dots{display:flex; justify-content:center; gap:8px}
+.onboard-dot{
+  width:7px; height:7px; border-radius:50%; background:var(--ink-4);
+  transition:background .2s, width .2s;
+}
+.onboard-dot.on{background:var(--gold); width:22px; border-radius:4px}
+.onboard-nav{display:flex; gap:10px}
+.onboard-nav .btn{flex:1; min-height:52px}
+.onboard-nav .btn[disabled]{opacity:.32; cursor:not-allowed}
